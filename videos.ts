@@ -129,15 +129,16 @@ export async function addVideos(urls: string[]) {
 
     try {
       insertVideo(video);
-    } catch (error: Record<string, unknown>) {
+    } catch (error: unknown) {
+        const e = error as Record<string, string | undefined | null>;
       if (
-        error?.name == "SqliteError" &&
-        error?.message.includes("UNIQUE constraint failed")
+        e?.name == "SqliteError" &&
+        e?.message?.includes("UNIQUE constraint failed")
       ) {
         console.log(`${video.title || video.url} already present`);
       } else {
         console.error(`error inserting ${video.title || video.url}`);
-        console.error(error);
+        console.error(e);
       }
     }
 

@@ -24,6 +24,14 @@ function runCLI() {
       downloadVideos();
       break;
     }
+    case "ls": {
+      listVideos();
+      break;
+    }
+    case "del": {
+      deleteVideo();
+      break;
+    }
     case "count": {
       countVideos();
       break;
@@ -91,18 +99,23 @@ async function myFetch(
     body: body,
   })).json();
 }
-async function get(path: string) {
+async function httpGet(path: string) {
   const url = await apiURL();
   return myFetch(url + path, HTTPMethod.GET);
 }
 
-async function post(path: string, body: Record<string, unknown>) {
+async function httpPost(path: string, body: Record<string, unknown>) {
   const url = await apiURL();
   return myFetch(url + path, HTTPMethod.POST, JSON.stringify(body));
 }
 
+async function httpDelete(path: string) {
+  const url = await apiURL();
+  return myFetch(url + path, HTTPMethod.DELETE);
+}
+
 async function countVideos() {
-  const res = await get("/api/count");
+  const res = await httpGet("/api/count");
   console.log(`${res["count"]} videos`);
 }
 
@@ -112,7 +125,7 @@ async function downloadVideos() {
   if (limitArg) {
     limit = Number.parseInt(limitArg);
   }
-  const res = await post("/api/download", { limit: limit });
+  const res = await httpPost("/api/download", { limit: limit });
   console.log(res["message"]);
 }
 
@@ -138,8 +151,20 @@ async function addURLs() {
   }
 
   urls = urls.map((u) => u.trim()).filter((u) => u !== "");
-  const res = await post("/api/add-urls", { urls });
+  const res = await httpPost("/api/add-urls", { urls });
   console.log(res);
+}
+
+async function deleteVideo() {
+  const id = Deno.args[1];
+  const res = await httpDelete(`/api/video/${id}`);
+  console.log(res['message']);
+}
+
+async function listVideos() {
+  const res = await httpGet(`/api/videos`);
+  // TODO: render this as a nice table
+  console.log(res['videos']);
 }
 
 if (import.meta.main) {
