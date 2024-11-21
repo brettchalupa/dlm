@@ -30,20 +30,20 @@ export function countVideos(): number {
 export async function downloadVideos(limit: number = 0): Promise<Video[]> {
   const videos = selectVideos(limit);
 
-    for await (const video of videos) {
-        console.log("downloading", video.title || video.url);
+  for (const video of videos) {
+    console.log("downloading", video.title || video.url);
 
-        const command = new Deno.Command("yt-dlp", {
-            args: [video.url],
-            stdout: "inherit",
-            stderr: "inherit",
-        });
-        const output = await command.output();
-        if (output.success) {
-            deleteVideo(video);
-        } else {
-            console.error(`error downloading video: ${video.title || video.url}`);
-        }
+    const command = new Deno.Command("yt-dlp", {
+      args: [video.url],
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+    const output = await command.output();
+    if (output.success) {
+      deleteVideo(video);
+    } else {
+      console.error(`error downloading video: ${video.title || video.url}`);
+    }
   }
 
   console.log("Finished downloading videos.");
@@ -120,7 +120,7 @@ export function selectVideos(limit: number): Video[] {
  */
 export async function addVideos(urls: string[]) {
   urls = urls.filter((u) => u.trim() !== "");
-  for await (const url of urls) {
+  for (const url of urls) {
     const video: Video = {
       url: url,
       createdAt: new Date(),
@@ -130,7 +130,7 @@ export async function addVideos(urls: string[]) {
     try {
       insertVideo(video);
     } catch (error: unknown) {
-        const e = error as Record<string, string | undefined | null>;
+      const e = error as Record<string, string | undefined | null>;
       if (
         e?.name == "SqliteError" &&
         e?.message?.includes("UNIQUE constraint failed")

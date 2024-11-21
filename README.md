@@ -1,6 +1,7 @@
 # dlm - Download Manager
 
-Server and CLI client written in Deno to facilitate downloading videos files in a queue.
+Server and CLI client written in Deno to facilitate downloading videos files in
+a queue.
 
 Run the server:
 

@@ -78,7 +78,7 @@ export function runWebServer() {
 
   app.post("/api/add-urls", async (c) => {
     const urls = (await c.req.json())["urls"].toString().split("\n").flatMap(
-      (u:string) => u.split("\r"),
+      (u: string) => u.split("\r"),
     );
     addVideos(urls);
     console.log("added URL", urls);

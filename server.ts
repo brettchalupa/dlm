@@ -1,3 +1,4 @@
+import { startDaemon } from "./daemon.ts";
 import { addVideos, countVideos, downloadVideos } from "./videos.ts";
 import { runWebServer } from "./web.ts";
 
@@ -13,6 +14,7 @@ export async function runServerCLI() {
       console.log("add");
       console.log("dl");
       console.log("dl LIMIT");
+      console.log("dd DELAY - daemon download every N minutes");
       break;
     case "add": {
       let urls: string[] = Deno.args.slice(1);
@@ -54,6 +56,10 @@ export async function runServerCLI() {
     }
     case "serve": {
       runWebServer();
+      break;
+    }
+    case "dd": {
+      startDaemon();
       break;
     }
     default:

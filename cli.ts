@@ -7,9 +7,9 @@ function runCLI() {
       console.log("Commands:");
       console.log("count");
       console.log("add");
-      console.log("list");
+      console.log("ls");
       console.log("dl LIMIT");
-      console.log("delete ID");
+      console.log("del ID");
       console.log("init");
       break;
     case "add": {
@@ -158,13 +158,12 @@ async function addURLs() {
 async function deleteVideo() {
   const id = Deno.args[1];
   const res = await httpDelete(`/api/video/${id}`);
-  console.log(res['message']);
+  console.log(res["message"]);
 }
 
 async function listVideos() {
   const res = await httpGet(`/api/videos`);
-  // TODO: render this as a nice table
-  console.log(res['videos']);
+  console.table(res["videos"]);
 }
 
 if (import.meta.main) {
