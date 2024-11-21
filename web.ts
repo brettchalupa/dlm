@@ -1,6 +1,7 @@
 import * as hono from "jsr:@hono/hono";
+import { Logger } from "./logger.ts";
 import { html, raw } from "jsr:@hono/hono/html";
-import { logger } from "jsr:@hono/hono/logger";
+import { logger as honoLogger } from "jsr:@hono/hono/logger";
 import {
   addVideos,
   countVideos,
@@ -10,14 +11,16 @@ import {
   selectVideos,
 } from "./videos.ts";
 
+const logger = new Logger();
+
 export function runWebServer() {
   const app = new hono.Hono();
 
-  app.use(logger());
+  app.use(honoLogger());
   app.use(async (c, next) => {
     const userAgent = c.req.header("User-Agent");
     const host = c.req.header("host");
-    console.log(`[${c.req.method}] ${c.req.url} ${userAgent} ${host}`);
+    logger.log(`[${c.req.method}] ${c.req.url} ${userAgent} ${host}`);
     await next();
   });
 
@@ -72,7 +75,7 @@ export function runWebServer() {
   app.post("/add-urls", async (c) => {
     const urls = (await c.req.parseBody())["urls"].toString().split("\n");
     addVideos(urls);
-    console.log("urls", urls);
+    logger.log("urls", urls);
     return c.redirect("/");
   });
 
@@ -81,7 +84,7 @@ export function runWebServer() {
       (u: string) => u.split("\r"),
     );
     addVideos(urls);
-    console.log("added URL", urls);
+    logger.log("added URL", urls);
     return c.json({ message: "Videos being added to database." });
   });
 

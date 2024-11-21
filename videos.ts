@@ -1,7 +1,9 @@
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
-
 import { Video } from "./types.ts";
+import { Logger } from "./logger.ts";
+
+const logger = new Logger();
 
 const DBFile = "dlm.db";
 
@@ -31,7 +33,7 @@ export async function downloadVideos(limit: number = 0): Promise<Video[]> {
   const videos = selectVideos(limit);
 
   for (const video of videos) {
-    console.log("downloading", video.title || video.url);
+    logger.log("downloading", video.title || video.url);
 
     const command = new Deno.Command("yt-dlp", {
       args: [video.url],
@@ -42,11 +44,11 @@ export async function downloadVideos(limit: number = 0): Promise<Video[]> {
     if (output.success) {
       deleteVideo(video);
     } else {
-      console.error(`error downloading video: ${video.title || video.url}`);
+      logger.error(`error downloading video: ${video.title || video.url}`);
     }
   }
 
-  console.log("Finished downloading videos.");
+  logger.log("Finished downloading videos.");
   return videos;
 }
 
@@ -54,7 +56,7 @@ export function deleteVideo(video: Video) {
   const db = new DB(DBFile, { mode: "write" });
   db.query("DELETE FROM videos WHERE id = ?", [video.id]);
   db.close();
-  console.log(`video deleted from db: ${video.title || video.url}`);
+  logger.log(`video deleted from db: ${video.title || video.url}`);
 }
 
 export async function getVideo(id: number): Promise<Video | null> {
@@ -135,10 +137,10 @@ export async function addVideos(urls: string[]) {
         e?.name == "SqliteError" &&
         e?.message?.includes("UNIQUE constraint failed")
       ) {
-        console.log(`${video.title || video.url} already present`);
+        logger.log(`${video.title || video.url} already present`);
       } else {
-        console.error(`error inserting ${video.title || video.url}`);
-        console.error(e);
+        logger.error(`error inserting ${video.title || video.url}`);
+        logger.error(e);
       }
     }
 
@@ -159,14 +161,14 @@ function insertVideo(video: Video) {
   )
 `);
 
-  console.log(video.url);
+  logger.log(video.url);
   db.query("INSERT INTO videos (created_at, url, title) VALUES (?, ?, ?)", [
     video.createdAt,
     video.url,
     video.title,
   ]);
   db.close();
-  console.log(`added ${video.title || video.url} to db`);
+  logger.log(`added ${video.title || video.url} to db`);
 }
 
 async function pageTitle(url: string): Promise<string | undefined> {

@@ -1,16 +1,18 @@
+const logger = new Logger([LogOutput.stdout]);
+
 function runCLI() {
   const command = Deno.args[0];
 
   switch (command) {
     case undefined:
-      console.log("dlm cli");
-      console.log("Commands:");
-      console.log("count");
-      console.log("add");
-      console.log("ls");
-      console.log("dl LIMIT");
-      console.log("del ID");
-      console.log("init");
+      logger.log("dlm cli");
+      logger.log("Commands:");
+      logger.log("count");
+      logger.log("add");
+      logger.log("ls");
+      logger.log("dl LIMIT");
+      logger.log("del ID");
+      logger.log("init");
       break;
     case "add": {
       addURLs();
@@ -37,19 +39,20 @@ function runCLI() {
       break;
     }
     default:
-      console.error(`Unsupported command: ${command}`);
+      logger.error(`Unsupported command: ${command}`);
       Deno.exit(1);
   }
 }
 
 import { parse as parseTOML, stringify as stringifyTOML } from "jsr:@std/toml";
+import { Logger, LogOutput } from "./logger.ts";
 
 const configFile = "dlm.toml";
 
 async function init(): Promise<void> {
   const apiURL = prompt("enter API URL:");
   if (apiURL == null) {
-    console.error("API URL must be entered");
+    logger.error("API URL must be entered");
     Deno.exit(1);
   }
   const config = {
@@ -57,7 +60,7 @@ async function init(): Promise<void> {
   };
   const tomlConfig = stringifyTOML(config);
   await Deno.writeTextFile(configFile, tomlConfig);
-  console.log(`dlm config written to ${configFile}`);
+  logger.log(`dlm config written to ${configFile}`);
 }
 
 async function apiURL(): Promise<string> {
@@ -70,7 +73,7 @@ async function apiURL(): Promise<string> {
     return config.api_url;
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
-      console.error("dlm config not found, run `dlm init`");
+      logger.error("dlm config not found, run `dlm init`");
       Deno.exit(1);
     } else {
       // otherwise re-throw
@@ -116,7 +119,7 @@ async function httpDelete(path: string) {
 
 async function countVideos() {
   const res = await httpGet("/api/count");
-  console.log(`${res["count"]} videos`);
+  logger.log(`${res["count"]} videos`);
 }
 
 async function downloadVideos() {
@@ -126,7 +129,7 @@ async function downloadVideos() {
     limit = Number.parseInt(limitArg);
   }
   const res = await httpPost("/api/download", { limit: limit });
-  console.log(res["message"]);
+  logger.log(res["message"]);
 }
 
 async function addURLs() {
@@ -147,18 +150,18 @@ async function addURLs() {
   }
 
   if (urls.length === 0) {
-    console.error("No URLs provided");
+    logger.error("No URLs provided");
   }
 
   urls = urls.map((u) => u.trim()).filter((u) => u !== "");
   const res = await httpPost("/api/add-urls", { urls });
-  console.log(res);
+  logger.log(res);
 }
 
 async function deleteVideo() {
   const id = Deno.args[1];
   const res = await httpDelete(`/api/video/${id}`);
-  console.log(res["message"]);
+  logger.log(res["message"]);
 }
 
 async function listVideos() {

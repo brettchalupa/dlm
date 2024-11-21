@@ -1,20 +1,23 @@
 import { startDaemon } from "./daemon.ts";
+import { Logger } from "./logger.ts";
 import { addVideos, countVideos, downloadVideos } from "./videos.ts";
 import { runWebServer } from "./web.ts";
+
+const logger = new Logger();
 
 export async function runServerCLI() {
   const command = Deno.args[0];
 
   switch (command) {
     case undefined:
-      console.log("dlm_server");
-      console.log("Commands:");
-      console.log("serve");
-      console.log("count");
-      console.log("add");
-      console.log("dl");
-      console.log("dl LIMIT");
-      console.log("dd DELAY - daemon download every N minutes");
+      logger.log("dlm_server");
+      logger.log("Commands:");
+      logger.log("serve");
+      logger.log("count");
+      logger.log("add");
+      logger.log("dl");
+      logger.log("dl LIMIT");
+      logger.log("dd DELAY - daemon download every N minutes");
       break;
     case "add": {
       let urls: string[] = Deno.args.slice(1);
@@ -33,7 +36,7 @@ export async function runServerCLI() {
       }
 
       if (urls.length === 0) {
-        console.error("No URLs provided");
+        logger.error("No URLs provided");
         Deno.exit(1);
       }
 
@@ -51,7 +54,7 @@ export async function runServerCLI() {
     }
     case "count": {
       const count = countVideos();
-      console.log(`videos in db: ${count}`);
+      logger.log(`videos in db: ${count}`);
       break;
     }
     case "serve": {
@@ -63,7 +66,7 @@ export async function runServerCLI() {
       break;
     }
     default:
-      console.error(`Unsupported command: ${command}`);
+      logger.error(`Unsupported command: ${command}`);
       Deno.exit(1);
   }
 }
