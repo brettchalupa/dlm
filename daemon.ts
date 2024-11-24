@@ -1,5 +1,9 @@
+import {
+  downloadDownloads,
+  DownloadStatus,
+  selectDownloads,
+} from "./download.ts";
 import { Logger } from "./logger.ts";
-import { downloadVideos } from "./videos.ts";
 
 const logger = new Logger();
 
@@ -9,7 +13,11 @@ function minutesToMilli(minutes: number): number {
 
 async function runDaemon() {
   logger.log("running daemon", new Date());
-  await downloadVideos(2);
+  const downloads = await selectDownloads(
+    Deno.args[2] ? parseInt(Deno.args[2]) : 3,
+    DownloadStatus.pending,
+  );
+  await downloadDownloads(downloads);
 }
 
 export function startDaemon() {

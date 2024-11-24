@@ -3,13 +3,13 @@ import { Logger } from "./logger.ts";
 import { html, raw } from "jsr:@hono/hono/html";
 import { logger as honoLogger } from "jsr:@hono/hono/logger";
 import {
-  addVideos,
-  countVideos,
-  deleteVideo,
-  downloadVideos,
-  getVideo,
-  selectVideos,
-} from "./videos.ts";
+  addURLs,
+  countDownloads,
+  deleteDownload,
+  downloadDownloads,
+  getDownload,
+  selectDownloads,
+} from "./download.ts";
 
 const logger = new Logger();
 
@@ -25,9 +25,9 @@ export function runWebServer() {
   });
 
   app.get("/", (c) => {
-    const count = countVideos();
-    const videosList = selectVideos(10).map((v) =>
-      `<li>${v.id} - ${v.title} - ${v.url}</li>`
+    const count = countDownloads();
+    const downloadsList = selectDownloads(10).map((d) =>
+      `<li>${d.id} - ${d.title} - ${d.url} - ${d.status}</li>`
     ).join("");
 
     return c.html(
@@ -35,6 +35,7 @@ export function runWebServer() {
     <html>
       <head>
         <title>vdm</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <style>
           body {
             font-family: sans-serif;
@@ -49,15 +50,15 @@ export function runWebServer() {
       <body>
         <h1>vdm</h1>
 
-        <p>Videos in database: ${count}</p>
+        <p>Downloads in database: ${count}</p>
 
-        <h2>Next 10 Videos</h2>
+        <h2>Next 10 Downloads</h2>
 
-        <ul>${raw(videosList)}</ul>
+        <ul>${raw(downloadsList)}</ul>
 
         <h2>Logs</h2>
 
-        <h2>Add Videos</h2>
+        <h2>Add Downloads</h2>
 
         <form action="/add-urls" method="POST">
           <label>
@@ -74,7 +75,7 @@ export function runWebServer() {
 
   app.post("/add-urls", async (c) => {
     const urls = (await c.req.parseBody())["urls"].toString().split("\n");
-    addVideos(urls);
+    addURLs(urls);
     logger.log("urls", urls);
     return c.redirect("/");
   });
@@ -83,13 +84,13 @@ export function runWebServer() {
     const urls = (await c.req.json())["urls"].toString().split("\n").flatMap(
       (u: string) => u.split("\r"),
     );
-    addVideos(urls);
+    addURLs(urls);
     logger.log("added URL", urls);
-    return c.json({ message: "Videos being added to database." });
+    return c.json({ message: "Downloads being added to database." });
   });
 
   app.get("/api/count", (c) => {
-    return c.json({ count: countVideos() });
+    return c.json({ count: countDownloads() });
   });
 
   app.post("/api/download", async (c) => {
@@ -98,33 +99,34 @@ export function runWebServer() {
     if (limitBody) {
       limit = parseInt(limitBody);
     }
-    downloadVideos(limit);
-    return c.json({ message: `Downloading ${limit} videos async` });
+    const downloads = selectDownloads(limit);
+    downloadDownloads(downloads);
+    return c.json({ message: `Downloading ${limit} downloads async` });
   });
 
-  app.get("/api/videos", (c) => {
-    const videos = selectVideos(0);
-    return c.json({ videos });
+  app.get("/api/downloads", (c) => {
+    const downloads = selectDownloads(0);
+    return c.json({ downloads });
   });
 
-  app.get("/api/video/:id", async (c) => {
+  app.get("/api/download/:id", async (c) => {
     const id = parseInt(c.req.param("id"));
-    const video = await getVideo(id);
-    if (video) {
-      return c.json({ video: video });
+    const download = await getDownload(id);
+    if (download) {
+      return c.json({ download: download });
     } else {
-      return c.json({ message: "video not found" }, 404);
+      return c.json({ message: "download not found" }, 404);
     }
   });
 
-  app.delete("/api/video/:id", async (c) => {
+  app.delete("/api/download/:id", async (c) => {
     const id = parseInt(c.req.param("id"));
-    const video = await getVideo(id);
-    if (video) {
-      deleteVideo(video);
-      return c.json({ message: "video deleted" });
+    const download = await getDownload(id);
+    if (download) {
+      deleteDownload(download);
+      return c.json({ message: "download deleted" });
     } else {
-      return c.json({ message: "video not found" }, 404);
+      return c.json({ message: "download not found" }, 404);
     }
   });
 
