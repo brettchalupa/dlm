@@ -21,8 +21,9 @@ async function runDaemon() {
 }
 
 export function startDaemon() {
-  const delay = minutesToMilli(parseInt(Deno.args[1] || "5"));
-  logger.log(`running daemon every ${Deno.args[1]} minutes`);
+  const mins = Deno.args[1] || "5";
+  const delay = minutesToMilli(parseInt(mins));
+  logger.log(`running daemon every ${mins} minutes`);
   runDaemon();
   setInterval(runDaemon, delay);
 }

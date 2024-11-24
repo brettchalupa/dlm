@@ -57,11 +57,11 @@ export function countDownloads(): number {
  *
  * @param limit how many downloads to download, pass in `0` to download all
  */
-export function downloadDownloads(
+export async function downloadDownloads(
   downloads: Download[],
 ) {
   for (const download of downloads) {
-    downloadDownload(download);
+    await downloadDownload(download);
   }
 }
 
@@ -82,6 +82,7 @@ async function downloadDownload(download: Download) {
   const startDir = Deno.cwd();
 
   Deno.chdir(collection.dir);
+  logger.log(`Changed working directory to:`, collection.dir);
   download.status = DownloadStatus.downloading;
   updateDownload(download);
 
@@ -102,6 +103,7 @@ async function downloadDownload(download: Download) {
     logger.error(`error downloading url: ${download.id} ${download.url}`);
   }
   Deno.chdir(startDir);
+  logger.log(`Changed back to:`, Deno.cwd());
 }
 
 export function deleteDownload(download: Download) {
