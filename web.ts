@@ -7,6 +7,7 @@ import {
   countDownloads,
   deleteDownload,
   downloadDownloads,
+  DownloadStatus,
   getDownload,
   selectDownloads,
 } from "./download.ts";
@@ -24,11 +25,16 @@ export function runWebServer() {
     await next();
   });
 
-  app.get("/", (c) => {
-    const count = countDownloads();
-    const downloadsList = selectDownloads(10).map((d) =>
+  app.get("/", async (c) => {
+    const counts = countDownloads().map((c) => `${c.status}: ${c.count}`).join(
+      "<br>",
+    );
+    const downloadsList = selectDownloads(50, DownloadStatus.pending).map((d) =>
       `<li>${d.id} - ${d.title} - ${d.url} - ${d.status}</li>`
     ).join("");
+
+    let logs = await Deno.readTextFile("dlm.log");
+    logs = logs.split("\n").slice(-50).join("<br>");
 
     return c.html(
       html`<!doctype html>
@@ -48,26 +54,32 @@ export function runWebServer() {
       </head>
 
       <body>
-        <h1>vdm</h1>
+        <h1>dlm</h1>
 
-        <p>Downloads in database: ${count}</p>
-
-        <h2>Next 10 Downloads</h2>
-
-        <ul>${raw(downloadsList)}</ul>
-
-        <h2>Logs</h2>
+        <p><strong>Downloads in database:</strong><br>${raw(counts)}</p>
 
         <h2>Add Downloads</h2>
 
         <form action="/add-urls" method="POST">
           <label>
             URLs:
-            <textarea name="urls"></textarea>
+            <textarea rows="5" style="width: 100%;max-width: 520px" name="urls"></textarea>
           </label>
           <br>
           <button type="submit">Add</button>
         </form>
+
+        <h2>Next 50 Pending Downloads</h2>
+
+        <ul style="overflow: scroll">${raw(downloadsList)}</ul>
+
+        <h2>Logs</h2>
+
+        <p>Last 50 lines of the <code>dlm.log</code> file:</p>
+
+        <pre style="overflow:scroll">
+        ${raw(logs)}
+        </pre>
       </body>
     </html>`,
     );

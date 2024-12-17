@@ -38,18 +38,20 @@ const DBFile = path.join(Deno.cwd(), "dlm.db");
 /**
  * @returns the number of downloads in the database
  */
-export function countDownloads(): number {
+export function countDownloads(): { status: string; count: number }[] {
   const db = new DB(DBFile, { mode: "read" });
-  const query = db.prepareQuery<[number]>(
-    "SELECT COUNT(*) FROM downloads;",
+  const query = db.prepareQuery<[string, number]>(
+    "SELECT status, COUNT(*) FROM downloads GROUP BY status;",
   );
-  let count = 0;
-  for (const [c] of query.iter()) {
-    count = c;
+  let counts = [];
+  for (const c of query.iter()) {
+    counts.push(c);
   }
   query.finalize();
   db.close();
-  return count;
+  return counts.map(([status, count]) => {
+    return { status: status, count: count };
+  });
 }
 
 /**

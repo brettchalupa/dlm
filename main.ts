@@ -70,8 +70,12 @@ export async function runServerCLI() {
       break;
     }
     case "count": {
-      const count = countDownloads();
-      logger.log(`downloads in db: ${count}`);
+      const counts = countDownloads();
+      logger.log(
+        `downloads in db:\n${
+          counts.map((c) => `${c.status}: ${c.count}`).join("\n")
+        }`,
+      );
       break;
     }
     case "serve": {
