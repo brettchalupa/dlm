@@ -43,7 +43,7 @@ export function countDownloads(): { status: string; count: number }[] {
   const query = db.prepareQuery<[string, number]>(
     "SELECT status, COUNT(*) FROM downloads GROUP BY status;",
   );
-  let counts = [];
+  const counts = [];
   for (const c of query.iter()) {
     counts.push(c);
   }
