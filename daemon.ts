@@ -13,19 +13,21 @@ function minutesToMilli(minutes: number): number {
 
 async function runDaemon() {
   logger.log("running daemon", new Date());
-  const downloads = await selectDownloads(
+  const downloads = selectDownloads(
     Deno.args[2] ? parseInt(Deno.args[2]) : 3,
-    DownloadStatus.pending,
+    DownloadStatus.pending
   );
   await downloadDownloads(downloads);
 }
 
-export function startDaemon() {
+export async function startDaemon() {
   const mins = Deno.args[1] || "5";
   const delay = minutesToMilli(parseInt(mins));
   logger.log(`running daemon every ${mins} minutes`);
-  runDaemon();
-  setInterval(runDaemon, delay);
+  await runDaemon();
+  setInterval(async () => {
+    await runDaemon();
+  }, delay);
 }
 
 if (import.meta.main) {

@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --watch main.ts serve",
+    "dev": "deno run -A --watch main.ts serve",
     "check": "deno check . && deno fmt --check && deno lint"
   }
 }
