@@ -4,6 +4,7 @@ import { Logger } from "./logger.ts";
 import { collectionForURL } from "./collection.ts";
 import { loadCollectonsFromConfig } from "./config.ts";
 import * as path from "jsr:@std/path";
+import { spawnWorker } from "./worker_util.ts";
 
 export enum DownloadStatus {
   "downloading" = "downloading",
@@ -57,17 +58,21 @@ export function countDownloads(): { status: string; count: number }[] {
 /**
  * Dowloads downloads from the database. Deletes upon success.
  *
+ * TODO: make this not have race conditions by running a bunch at once; a real queue would be nice
+ *
  * @param limit how many downloads to download, pass in `0` to download all
  */
-export async function downloadDownloads(
+export function downloadDownloads(
   downloads: Download[],
 ) {
   for (const download of downloads) {
-    await downloadDownload(download);
+    spawnWorker("./download_worker.ts", {
+      download: download,
+    });
   }
 }
 
-async function downloadDownload(download: Download) {
+export async function downloadDownload(download: Download) {
   const collections = await loadCollectonsFromConfig();
   const collection = collections.find((c) => c.name == download.collection);
   if (!collection) {
