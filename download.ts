@@ -81,10 +81,7 @@ async function downloadDownload(download: Download) {
   logger.debug("command:", collectionCommand.join(" "));
 
   await Deno.mkdir(collection.dir, { recursive: true });
-  const startDir = Deno.cwd();
 
-  Deno.chdir(collection.dir);
-  logger.log(`Changed working directory to:`, collection.dir);
   download.status = DownloadStatus.downloading;
   updateDownload(download);
 
@@ -92,6 +89,7 @@ async function downloadDownload(download: Download) {
     args: collectionCommand.slice(1),
     stdout: "inherit",
     stderr: "inherit",
+    cwd: collection.dir,
   });
   const output = await command.output();
   if (output.success) {
@@ -104,8 +102,6 @@ async function downloadDownload(download: Download) {
     updateDownload(download);
     logger.error(`error downloading url: ${download.id} ${download.url}`);
   }
-  Deno.chdir(startDir);
-  logger.log(`Changed back to:`, Deno.cwd());
 }
 
 export function deleteDownload(download: Download) {
