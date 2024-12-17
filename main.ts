@@ -8,7 +8,7 @@
  * - port from config
  */
 
-import { startDaemon } from "./daemon.ts";
+import { runDaemonFromCLI, startDaemon } from "./daemon.ts";
 import { Logger } from "./logger.ts";
 import {
   addURLs,
@@ -79,11 +79,14 @@ export async function runServerCLI() {
       break;
     }
     case "serve": {
+      if (Deno.args[1] == "--with-daemon") {
+        startDaemon(2, 2);
+      }
       runWebServer();
       break;
     }
     case "dd": {
-      startDaemon();
+      runDaemonFromCLI();
       break;
     }
     default:
