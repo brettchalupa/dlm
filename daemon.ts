@@ -15,7 +15,7 @@ async function runDaemon() {
   logger.log("running daemon", new Date());
   const downloads = selectDownloads(
     Deno.args[2] ? parseInt(Deno.args[2]) : 3,
-    DownloadStatus.pending
+    DownloadStatus.pending,
   );
   await downloadDownloads(downloads);
 }
