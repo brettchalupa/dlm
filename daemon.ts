@@ -12,7 +12,6 @@ function minutesToMilli(minutes: number): number {
 }
 
 async function runDaemon(numDownloads: number) {
-  logger.log("running daemon", new Date());
   const downloads = selectDownloads(
     numDownloads,
     DownloadStatus.pending,
