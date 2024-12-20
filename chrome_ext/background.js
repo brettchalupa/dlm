@@ -6,7 +6,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.action.onClicked.addListener(async (tab) => {
   const currentUrl = tab.url;
-  const url = "http://bretts-macbook-pro:8001/api/add-urls"; // TODO: make this configurable
+  const url = "https://dlm.lab.bcodes.me/api/add-urls"; // TODO: make this configurable
 
   await chrome.action.setBadgeText({
     tabId: tab.id,
