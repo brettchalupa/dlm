@@ -11,7 +11,7 @@ export interface Collection extends CollectionBase {
 export function collectionForURL(
   collections: Collection[],
   url: string,
-): Collection {
+): Collection | null {
   const collection = collections.find((
     collection,
   ) => collection.domains.some((d) => url.includes(d)));
@@ -19,6 +19,6 @@ export function collectionForURL(
   if (collection) {
     return collection;
   } else {
-    throw new Error(`No matching collection found for URL: ${url}`);
+    return null;
   }
 }

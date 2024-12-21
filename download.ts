@@ -281,7 +281,14 @@ export async function addURLs(urls: string[]) {
   const collections = await loadCollectonsFromConfig();
   urls = urls.filter((u) => u.trim() !== "");
   for (const url of urls) {
-    addDownload(url, collectionForURL(collections, url).name);
+    const collection = collectionForURL(collections, url);
+
+    if (!collection) {
+      console.error("No collection found for URL:", url);
+      continue;
+    }
+
+    addDownload(url, collection.name);
 
     if (urls.length > 1) {
       // lazy rate-limit avoiding
