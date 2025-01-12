@@ -359,12 +359,17 @@ function updateDownload(download: Download) {
 }
 
 async function pageTitle(url: string): Promise<string | null> {
-  const res = await fetch(url);
-  const html = await res.text();
-  const document = new DOMParser().parseFromString(html, "text/html");
-  if (document === null) {
+  try {
+    const res = await fetch(url);
+    const html = await res.text();
+    const document = new DOMParser().parseFromString(html, "text/html");
+    if (document === null) {
+      return null;
+    }
+    const title = document?.querySelector("title")?.textContent;
+    return title || null;
+  } catch (err) {
+    logger.error(err);
     return null;
   }
-  const title = document?.querySelector("title")?.textContent;
-  return title || null;
 }
