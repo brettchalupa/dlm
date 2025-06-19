@@ -14,3 +14,14 @@ Run the cli (communicates over http):
 ```
 deno run -A cli.ts count
 ```
+
+## Collection Config Example:
+
+```yaml
+collections:
+  yt:
+    domains:
+      - youtube.com
+    dir: /home/brett/Videos
+    command: "yt-dlp %"
+```
