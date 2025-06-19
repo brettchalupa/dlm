@@ -20,7 +20,7 @@ resetBtn.addEventListener("click", resetToDefault);
 // Load settings from storage
 async function loadSettings() {
   try {
-    const result = await chrome.storage.sync.get(["apiUrl"]);
+    const result = await browser.storage.sync.get(["apiUrl"]);
     const savedUrl = result.apiUrl || DEFAULT_API_URL;
     apiUrlInput.value = savedUrl;
   } catch (error) {
@@ -46,7 +46,7 @@ async function saveSettings(event) {
   saveBtn.textContent = "Saving...";
 
   try {
-    await chrome.storage.sync.set({ apiUrl: apiUrl });
+    await browser.storage.sync.set({ apiUrl: apiUrl });
     showStatus("Settings saved successfully!", "success");
   } catch (error) {
     console.error("Error saving settings:", error);
@@ -63,7 +63,7 @@ async function resetToDefault() {
   apiUrlInput.value = DEFAULT_API_URL;
 
   try {
-    await chrome.storage.sync.set({ apiUrl: DEFAULT_API_URL });
+    await browser.storage.sync.set({ apiUrl: DEFAULT_API_URL });
     showStatus("Settings reset to default", "success");
   } catch (error) {
     console.error("Error resetting settings:", error);

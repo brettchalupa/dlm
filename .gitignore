@@ -6,3 +6,4 @@ dlm.toml
 *.exe
 *.log
 dlm.yml
+browser_ext/build

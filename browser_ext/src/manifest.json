@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "dlm",
+  "description": "Adds current tab to dlm",
+  "version": "1.0",
+  "permissions": ["activeTab", "storage", "contextMenus"],
+  "background": {
+    "scripts": ["polyfill.js", "background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_title": "Add to dlm",
+    "default_icon": "icon.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      }
+    }
+  },
+  "applications": {
+    "gecko": {
+      "id": "dlm@example.com",
+      "strict_min_version": "57.0"
+    }
+  }
+}
