@@ -119,7 +119,12 @@ async function httpDelete(path: string) {
 
 async function countVideos() {
   const res = await httpGet("/api/count");
-  logger.log(`${res["count"]} videos`);
+
+  logger.log("COUNTS BY STATUS");
+
+  res["statusGroups"].forEach((group: { count: number; status: string }) => {
+    logger.log(`${group.status}: ${group.count}`);
+  });
 }
 
 async function downloadVideos() {
