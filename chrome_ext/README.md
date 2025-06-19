@@ -7,8 +7,10 @@ dlm.
 
 The extension allows you to configure the API endpoint URL:
 
-1. **Via Options Page**: Right-click the extension icon and select "DLM Settings" to open the configuration page
-2. **Via Chrome Extensions**: Go to `chrome://extensions/`, find the DLM extension, and click "Extension options"
+1. **Via Options Page**: Right-click the extension icon and select "DLM
+   Settings" to open the configuration page
+2. **Via Chrome Extensions**: Go to `chrome://extensions/`, find the DLM
+   extension, and click "Extension options"
 
 ### Default Settings
 
@@ -18,7 +20,8 @@ The extension allows you to configure the API endpoint URL:
 ### Usage
 
 1. Navigate to any webpage you want to add to DLM
-2. Click the DLM extension icon (or use the keyboard shortcut `Ctrl+Shift+Y` / `Cmd+Shift+Y`)
+2. Click the DLM extension icon (or use the keyboard shortcut `Ctrl+Shift+Y` /
+   `Cmd+Shift+Y`)
 3. The extension will send the current tab's URL to your configured API endpoint
 4. A loading indicator ("...") will briefly appear on the extension icon
 
