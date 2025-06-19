@@ -8,6 +8,7 @@ DLM server with a single click.
 
 - **Universal compatibility**: Single extension works in all major browsers
 - **One-click URL submission**: Send current tab URL to DLM server
+- **Right-click context menu**: Send any URL to DLM by right-clicking on links
 - **Configurable API endpoint**: Set your own DLM server URL
 - **Visual feedback**: Loading indicator during requests
 - **Keyboard shortcuts**: `Ctrl+Shift+Y` / `Cmd+Shift+Y`
@@ -33,9 +34,18 @@ DLM server with a single click.
 
 ### Usage
 
+#### Send current tab URL
+
 1. Navigate to any webpage you want to add to DLM
 2. Click the DLM extension icon (or use `Ctrl+Shift+Y` / `Cmd+Shift+Y`)
 3. The extension will send the current tab's URL to your DLM server
+4. A loading indicator ("...") will briefly appear on the extension icon
+
+#### Send any URL via right-click
+
+1. Right-click on any link on a webpage
+2. Select "Send to DLM" from the context menu
+3. The extension will send that specific URL to your DLM server
 4. A loading indicator ("...") will briefly appear on the extension icon
 
 ### Configuration

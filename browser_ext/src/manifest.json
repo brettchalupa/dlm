@@ -8,9 +8,20 @@
     "scripts": ["polyfill.js", "background.js"],
     "persistent": false
   },
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
   "browser_action": {
     "default_title": "Add to dlm",
-    "default_icon": "icon.png"
+    "default_icon": {
+      "16": "icon.png",
+      "32": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
   },
   "options_ui": {
     "page": "options.html",
