@@ -1,0 +1,3 @@
+- Use TypeScript whenever possible
+- Prefer using Deno's standard library rather than third-party libraries
+- Use Deno as the TypeScript runtime
