@@ -6,10 +6,10 @@ import {
   countDownloads,
   deleteDownload,
   downloadDownloads,
-  DownloadStatus,
   getDownload,
   selectDownloads,
 } from "./download.ts";
+import { loadCollectonsFromConfig } from "./config.ts";
 
 function parseUrls(rawUrls: unknown): string[] {
   if (Array.isArray(rawUrls)) {
@@ -42,15 +42,31 @@ export function runWebServer() {
   });
 
   app.get("/", async (c) => {
-    const counts = countDownloads().map((c) => `${c.status}: ${c.count}`).join(
-      "<br>",
-    );
-    const downloadsList = selectDownloads(50, DownloadStatus.pending).map((d) =>
-      `<li>${d.id} - ${d.title} - ${d.url} - ${d.status}</li>`
+    const counts = countDownloads().map((c) =>
+      `<div class="stat-item">
+        <span class="stat-number ${c.status}">${c.count}</span>
+        <span class="stat-label">${c.status}</span>
+      </div>`
     ).join("");
 
-    let logs = await Deno.readTextFile("dlm.log");
-    logs = logs.split("\n").slice(-50).join("<br>");
+    const downloads = selectDownloads(50);
+    const downloadsList = downloads.map((d) =>
+      `<div class="download-item">
+        <div class="download-info">
+          <div class="download-title">${d.title || "Untitled"}</div>
+          <div class="download-url">${d.url}</div>
+        </div>
+        <div class="download-status ${d.status}">${d.status}</div>
+      </div>`
+    ).join("");
+
+    let logs = "";
+    try {
+      logs = await Deno.readTextFile("dlm.log");
+      logs = logs.split("\n").slice(-100).join("\n");
+    } catch (_error) {
+      logs = "No log file found or error reading logs.";
+    }
 
     return c.html(renderWeb(counts, downloadsList, logs));
   });
@@ -89,6 +105,53 @@ export function runWebServer() {
   app.get("/api/downloads", (c) => {
     const downloads = selectDownloads(0);
     return c.json({ downloads });
+  });
+
+  app.get("/api/config", async (c) => {
+    try {
+      const collections = await loadCollectonsFromConfig();
+      const config = {
+        collections: collections.reduce((acc, collection) => {
+          acc[collection.name] = {
+            dir: collection.dir,
+            command: collection.command,
+            domains: collection.domains,
+          };
+          return acc;
+        }, {} as Record<string, {
+          dir: string;
+          command: string;
+          domains: string[];
+        }>),
+      };
+      return c.json(config);
+    } catch (_error) {
+      return c.json({ error: "Failed to load configuration" }, 500);
+    }
+  });
+
+  app.get("/api/system", (c) => {
+    const memoryUsage = Deno.memoryUsage();
+    const systemInfo = {
+      memory: {
+        rss: Math.round(memoryUsage.rss / 1024 / 1024) + " MB",
+        heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + " MB",
+        heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + " MB",
+      },
+      version: Deno.version,
+      uptime: Math.floor(performance.now() / 1000) + "s",
+    };
+    return c.json(systemInfo);
+  });
+
+  app.get("/api/logs", async (c) => {
+    try {
+      const logs = await Deno.readTextFile("dlm.log");
+      const lines = logs.split("\n").slice(-100).filter((line) => line.trim());
+      return c.json({ logs: lines });
+    } catch (_error) {
+      return c.json({ logs: ["No log file found or error reading logs."] });
+    }
   });
 
   app.get("/api/download/:id", async (c) => {
