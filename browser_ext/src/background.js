@@ -58,7 +58,7 @@ async function sendUrlToDLM(url, tabId) {
   });
 
   try {
-    const response = await fetch(apiUrl, {
+    const _response = await fetch(apiUrl, {
       method: "POST",
       mode: "no-cors",
       headers: {

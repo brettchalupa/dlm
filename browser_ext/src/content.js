@@ -122,7 +122,7 @@
   }
 
   // Listen for messages from background script
-  browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     console.log("DLM content script received message:", message);
     if (message.type === "dlm-toast") {
       console.log("Showing toast:", message.message, message.toastType);
@@ -135,7 +135,7 @@
   console.log("DLM content script loaded and ready");
 
   // Clean up on page unload
-  window.addEventListener("beforeunload", () => {
+  globalThis.addEventListener("beforeunload", () => {
     if (toastContainer && toastContainer.parentNode) {
       toastContainer.parentNode.removeChild(toastContainer);
     }

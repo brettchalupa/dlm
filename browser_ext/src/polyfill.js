@@ -11,7 +11,7 @@
         onInstalled: chrome.runtime.onInstalled,
         openOptionsPage: chrome.runtime.openOptionsPage,
         onMessage: chrome.runtime.onMessage,
-        sendMessage: function (tabId, message) {
+        sendMessage: function (message) {
           return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage(message, (response) => {
               if (chrome.runtime.lastError) {
