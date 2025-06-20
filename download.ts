@@ -78,20 +78,33 @@ async function downloadDownload(download: Download) {
   const collectionCommand = collection.command.replace("%", download.url).split(
     " ",
   );
-  logger.debug("command:", collectionCommand.join(" "));
 
   await Deno.mkdir(collection.dir, { recursive: true });
 
   download.status = DownloadStatus.downloading;
   updateDownload(download);
 
+  const logFile = path.join(collection.dir, "downloads.log");
+
   const command = new Deno.Command(collectionCommand[0], {
     args: collectionCommand.slice(1),
-    stdout: "inherit",
-    stderr: "inherit",
+    stdout: "piped",
+    stderr: "piped",
     cwd: collection.dir,
   });
   const output = await command.output();
+
+  // Write output to log file
+  const logEntry =
+    `\n=== Download ${download.id} - ${new Date().toISOString()} ===\n` +
+    `URL: ${download.url}\n` +
+    `Command: ${collectionCommand.join(" ")}\n` +
+    `--- STDOUT ---\n${new TextDecoder().decode(output.stdout)}\n` +
+    `--- STDERR ---\n${new TextDecoder().decode(output.stderr)}\n` +
+    `--- END ---\n\n`;
+
+  await Deno.writeTextFile(logFile, logEntry, { append: true });
+
   if (output.success) {
     download.status = DownloadStatus.success;
     download.downloadedAt = new Date();
