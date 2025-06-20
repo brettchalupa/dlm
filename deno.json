@@ -1,6 +1,7 @@
 {
   "tasks": {
-    "dev": "deno run -A --watch main.ts serve --with-daemon",
+    "dev": "deno run -A --watch main.ts serve",
+    "daemon": "deno run -A main.ts dd",
     "run": "deno run -A main.ts serve --with-daemon",
     "check": "deno check . && deno fmt --check && deno lint",
     "test_ext": "cd browser_ext && deno run --allow-read test_ext.ts",
