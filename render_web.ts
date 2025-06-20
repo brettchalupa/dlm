@@ -656,6 +656,16 @@ export function renderWeb(
               </svg>
               Currently Downloading
             </h2>
+            <div
+              class="button-group"
+              style="margin-bottom: 16px;"
+              id="downloading-controls"
+              style="display: none;"
+            >
+              <button type="button" onclick="resetAllDownloading()">
+                Reset All to Pending
+              </button>
+            </div>
             <div class="download-items" id="downloading-container">
               <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
                 No downloads currently in progress
@@ -844,12 +854,19 @@ export function renderWeb(
           const otherItems = downloads.filter(d => d.status !== 'downloading').slice(0, 50);
 
           // Update currently downloading section
+          const downloadingControls = document.getElementById('downloading-controls');
           if (downloadingItems.length === 0) {
             downloadingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads currently in progress</div>';
+            downloadingControls.style.display = 'none';
           } else {
+            downloadingControls.style.display = 'block';
             downloadingItems.forEach(download => {
               const item = document.createElement('div');
               item.className = 'download-item';
+
+              const resetButton = '<div class="download-actions">' +
+                                 '<button onclick="resetDownload(' + download.id + ')" title="Reset to Pending">⟲</button>' +
+                                 '</div>';
 
               item.innerHTML = '<div class="download-info">' +
                               '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
@@ -858,6 +875,7 @@ export function renderWeb(
                               '</div>' +
                               '<div style="display: flex; align-items: center; gap: 8px;">' +
                               '<div class="download-status downloading">downloading</div>' +
+                              resetButton +
                               '</div>';
               downloadingContainer.appendChild(item);
             });
@@ -1187,6 +1205,44 @@ export function renderWeb(
             }
           } catch (error) {
             showNotification('Failed to delete downloads', 'error');
+          }
+        }
+
+        async function resetDownload(id) {
+          try {
+            const response = await fetch('/api/reset/' + id, {
+              method: 'POST'
+            });
+            if (response.ok) {
+              const result = await response.json();
+              showNotification(result.message, 'success');
+              refreshData();
+            } else {
+              showNotification('Failed to reset download', 'error');
+            }
+          } catch (error) {
+            showNotification('Failed to reset download', 'error');
+          }
+        }
+
+        async function resetAllDownloading() {
+          if (!confirm('Are you sure you want to reset all downloading items to pending?')) {
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/reset-all-downloading', {
+              method: 'POST'
+            });
+            if (response.ok) {
+              const result = await response.json();
+              showNotification(result.message, 'success');
+              refreshData();
+            } else {
+              showNotification('Failed to reset downloads', 'error');
+            }
+          } catch (error) {
+            showNotification('Failed to reset downloads', 'error');
           }
         }
 

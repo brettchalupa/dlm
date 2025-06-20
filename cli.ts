@@ -15,6 +15,8 @@ function runCLI() {
       logger.log("retry ID");
       logger.log("retry-all-failed");
       logger.log("delete-all-failed");
+      logger.log("reset ID");
+      logger.log("reset-all-downloading");
       logger.log("init");
       break;
     case "add": {
@@ -53,6 +55,14 @@ function runCLI() {
       deleteAllFailedVideos();
       break;
     }
+    case "reset": {
+      resetVideoById();
+      break;
+    }
+    case "reset-all-downloading": {
+      resetAllDownloadingVideos();
+      break;
+    }
     default:
       logger.error(`Unsupported command: ${command}`);
       Deno.exit(1);
@@ -63,6 +73,8 @@ import { parse as parseTOML, stringify as stringifyTOML } from "jsr:@std/toml";
 import { Logger, LogOutput } from "./logger.ts";
 import {
   deleteAllFailedDownloads,
+  resetAllDownloadingDownloads,
+  resetDownload,
   retryAllFailedDownloads,
   retryDownload,
   selectDownloads,
@@ -227,6 +239,27 @@ function deleteAllFailedVideos() {
 
   const count = deleteAllFailedDownloads();
   logger.log(`${count} failed downloads deleted`);
+}
+
+function resetVideoById() {
+  const id = parseInt(Deno.args[1]);
+  if (isNaN(id)) {
+    logger.error("Invalid ID provided");
+    Deno.exit(1);
+  }
+
+  const success = resetDownload(id);
+  if (success) {
+    logger.log(`Download ${id} reset to pending status`);
+  } else {
+    logger.error(`Download ${id} not found or not in downloading state`);
+    Deno.exit(1);
+  }
+}
+
+function resetAllDownloadingVideos() {
+  const count = resetAllDownloadingDownloads();
+  logger.log(`${count} downloading downloads reset to pending`);
 }
 
 if (import.meta.main) {

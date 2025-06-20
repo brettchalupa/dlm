@@ -9,6 +9,8 @@ import {
   downloadDownloads,
   DownloadStatus,
   getDownload,
+  resetAllDownloadingDownloads,
+  resetDownload,
   retryAllFailedDownloads,
   retryDownload,
   selectDownloads,
@@ -226,6 +228,26 @@ export function runWebServer() {
   app.delete("/api/delete-all-failed", (c) => {
     const count = deleteAllFailedDownloads();
     return c.json({ message: `${count} failed downloads deleted` });
+  });
+
+  app.post("/api/reset/:id", (c) => {
+    const id = parseInt(c.req.param("id"));
+    const success = resetDownload(id);
+    if (success) {
+      return c.json({ message: "download reset to pending" });
+    } else {
+      return c.json(
+        { message: "download not found or not in downloading state" },
+        404,
+      );
+    }
+  });
+
+  app.post("/api/reset-all-downloading", (c) => {
+    const count = resetAllDownloadingDownloads();
+    return c.json({
+      message: `${count} downloading downloads reset to pending`,
+    });
   });
 
   let port = 8001;

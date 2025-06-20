@@ -330,6 +330,28 @@ export function deleteAllFailedDownloads(): number {
   return changes;
 }
 
+export function resetDownload(id: number): boolean {
+  const db = new DB(DBFile);
+  db.query(
+    "UPDATE downloads SET status = ? WHERE id = ? AND status = ?",
+    [DownloadStatus.pending, id, DownloadStatus.downloading],
+  );
+  const changes = db.changes;
+  db.close();
+  return changes > 0;
+}
+
+export function resetAllDownloadingDownloads(): number {
+  const db = new DB(DBFile);
+  db.query(
+    "UPDATE downloads SET status = ? WHERE status = ?",
+    [DownloadStatus.pending, DownloadStatus.downloading],
+  );
+  const changes = db.changes;
+  db.close();
+  return changes;
+}
+
 /**
  * Saves the URLs to the database in collection set from database.
  *
