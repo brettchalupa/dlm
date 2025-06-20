@@ -10,6 +10,18 @@
       runtime: {
         onInstalled: chrome.runtime.onInstalled,
         openOptionsPage: chrome.runtime.openOptionsPage,
+        onMessage: chrome.runtime.onMessage,
+        sendMessage: function (tabId, message) {
+          return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage(message, (response) => {
+              if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+              } else {
+                resolve(response);
+              }
+            });
+          });
+        },
       },
       browserAction: {
         onClicked: chrome.browserAction.onClicked,
@@ -18,6 +30,30 @@
       contextMenus: {
         create: chrome.contextMenus.create,
         onClicked: chrome.contextMenus.onClicked,
+      },
+      tabs: {
+        sendMessage: function (tabId, message) {
+          return new Promise((resolve, reject) => {
+            chrome.tabs.sendMessage(tabId, message, (response) => {
+              if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+              } else {
+                resolve(response);
+              }
+            });
+          });
+        },
+        executeScript: function (tabId, details) {
+          return new Promise((resolve, reject) => {
+            chrome.tabs.executeScript(tabId, details, (result) => {
+              if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+              } else {
+                resolve(result);
+              }
+            });
+          });
+        },
       },
       storage: {
         sync: {
