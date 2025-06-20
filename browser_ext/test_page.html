@@ -1,185 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DLM Extension Test Page</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .header {
-            background: #f0f0f0;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .section {
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .article-link {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .article-link:hover {
-            text-decoration: underline;
-        }
-        .blog-post {
-            background: #f9f9f9;
-            padding: 10px;
-            margin: 5px 0;
-            border-left: 3px solid #3b82f6;
-        }
-        nav {
-            background: #333;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-right: 15px;
-            padding: 5px 10px;
-            border-radius: 3px;
-        }
-        nav a:hover {
-            background: #555;
-        }
-        .external-links {
-            background: #e6f3ff;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .github-links {
-            background: #f6f8fa;
-            padding: 15px;
-            border: 1px solid #d0d7de;
-            border-radius: 6px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin: 8px 0;
-        }
-        .test-instructions {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .header {
+        background: #f0f0f0;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .section {
+        margin-bottom: 30px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .article-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      .article-link:hover {
+        text-decoration: underline;
+      }
+      .blog-post {
+        background: #f9f9f9;
+        padding: 10px;
+        margin: 5px 0;
+        border-left: 3px solid #3b82f6;
+      }
+      nav {
+        background: #333;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+      nav a {
+        color: white;
+        text-decoration: none;
+        margin-right: 15px;
+        padding: 5px 10px;
+        border-radius: 3px;
+      }
+      nav a:hover {
+        background: #555;
+      }
+      .external-links {
+        background: #e6f3ff;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      .github-links {
+        background: #f6f8fa;
+        padding: 15px;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+      }
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+      li {
+        margin: 8px 0;
+      }
+      .test-instructions {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="test-instructions">
-        <h2>🧪 DLM Extension Test Page</h2>
-        <p>This page contains various types of links to test the DLM extension's query selector functionality.</p>
-        <p><strong>Test the extension:</strong> Click the DLM extension icon and try different CSS selectors!</p>
+      <h2>🧪 DLM Extension Test Page</h2>
+      <p>
+        This page contains various types of links to test the DLM extension's
+        query selector functionality.
+      </p>
+      <p>
+        <strong>Test the extension:</strong> Click the DLM extension icon and
+        try different CSS selectors!
+      </p>
     </div>
 
     <div class="header">
-        <h1>Welcome to the Test Page</h1>
-        <p>This page contains various links to test the DLM browser extension's query selector feature.</p>
+      <h1>Welcome to the Test Page</h1>
+      <p>
+        This page contains various links to test the DLM browser extension's
+        query selector feature.
+      </p>
     </div>
 
     <nav>
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#services">Services</a>
-        <a href="#contact">Contact</a>
-        <a href="https://example.com/external-nav">External Link</a>
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+      <a href="https://example.com/external-nav">External Link</a>
     </nav>
 
     <div class="section">
-        <h2>Article Links</h2>
-        <p>These links have the <code>article-link</code> class:</p>
-        <ul>
-            <li><a href="https://example.com/article/getting-started" class="article-link">Getting Started Guide</a></li>
-            <li><a href="https://example.com/article/advanced-features" class="article-link">Advanced Features</a></li>
-            <li><a href="https://example.com/article/troubleshooting" class="article-link">Troubleshooting Tips</a></li>
-            <li><a href="https://example.com/article/best-practices" class="article-link">Best Practices</a></li>
-        </ul>
+      <h2>Article Links</h2>
+      <p>These links have the <code>article-link</code> class:</p>
+      <ul>
+        <li>
+          <a
+            href="https://example.com/article/getting-started"
+            class="article-link"
+          >Getting Started Guide</a>
+        </li>
+        <li>
+          <a
+            href="https://example.com/article/advanced-features"
+            class="article-link"
+          >Advanced Features</a>
+        </li>
+        <li>
+          <a
+            href="https://example.com/article/troubleshooting"
+            class="article-link"
+          >Troubleshooting Tips</a>
+        </li>
+        <li>
+          <a
+            href="https://example.com/article/best-practices"
+            class="article-link"
+          >Best Practices</a>
+        </li>
+      </ul>
     </div>
 
     <div class="section">
-        <h2>Blog Posts</h2>
-        <p>These links contain 'blog' in their href:</p>
-        <div class="blog-post">
-            <h3><a href="https://example.com/blog/web-development-trends">Web Development Trends 2024</a></h3>
-            <p>Exploring the latest trends in web development...</p>
-        </div>
-        <div class="blog-post">
-            <h3><a href="https://example.com/blog/javascript-tips">JavaScript Tips and Tricks</a></h3>
-            <p>Useful JavaScript techniques for modern developers...</p>
-        </div>
-        <div class="blog-post">
-            <h3><a href="https://example.com/blog/css-grid-layout">Mastering CSS Grid Layout</a></h3>
-            <p>A comprehensive guide to CSS Grid...</p>
-        </div>
+      <h2>Blog Posts</h2>
+      <p>These links contain 'blog' in their href:</p>
+      <div class="blog-post">
+        <h3>
+          <a href="https://example.com/blog/web-development-trends"
+          >Web Development Trends 2024</a>
+        </h3>
+        <p>Exploring the latest trends in web development...</p>
+      </div>
+      <div class="blog-post">
+        <h3>
+          <a href="https://example.com/blog/javascript-tips"
+          >JavaScript Tips and Tricks</a>
+        </h3>
+        <p>Useful JavaScript techniques for modern developers...</p>
+      </div>
+      <div class="blog-post">
+        <h3>
+          <a href="https://example.com/blog/css-grid-layout"
+          >Mastering CSS Grid Layout</a>
+        </h3>
+        <p>A comprehensive guide to CSS Grid...</p>
+      </div>
     </div>
 
     <div class="section github-links">
-        <h2>GitHub Links</h2>
-        <p>These links contain 'github' in their href:</p>
-        <ul>
-            <li><a href="https://github.com/example/awesome-project">Awesome Project Repository</a></li>
-            <li><a href="https://github.com/example/web-components">Web Components Library</a></li>
-            <li><a href="https://github.com/example/typescript-utils">TypeScript Utilities</a></li>
-            <li><a href="https://github.com/example/browser-extension">Browser Extension Framework</a></li>
-        </ul>
+      <h2>GitHub Links</h2>
+      <p>These links contain 'github' in their href:</p>
+      <ul>
+        <li>
+          <a href="https://github.com/example/awesome-project"
+          >Awesome Project Repository</a>
+        </li>
+        <li>
+          <a href="https://github.com/example/web-components"
+          >Web Components Library</a>
+        </li>
+        <li>
+          <a href="https://github.com/example/typescript-utils"
+          >TypeScript Utilities</a>
+        </li>
+        <li>
+          <a href="https://github.com/example/browser-extension"
+          >Browser Extension Framework</a>
+        </li>
+      </ul>
     </div>
 
     <div class="section external-links">
-        <h2>External HTTPS Links</h2>
-        <p>These are external HTTPS links:</p>
-        <ul>
-            <li><a href="https://developer.mozilla.org/docs">MDN Web Docs</a></li>
-            <li><a href="https://stackoverflow.com/questions">Stack Overflow</a></li>
-            <li><a href="https://www.w3schools.com/css/">W3Schools CSS</a></li>
-            <li><a href="https://deno.land/manual">Deno Manual</a></li>
-        </ul>
+      <h2>External HTTPS Links</h2>
+      <p>These are external HTTPS links:</p>
+      <ul>
+        <li><a href="https://developer.mozilla.org/docs">MDN Web Docs</a></li>
+        <li>
+          <a href="https://stackoverflow.com/questions">Stack Overflow</a>
+        </li>
+        <li><a href="https://www.w3schools.com/css/">W3Schools CSS</a></li>
+        <li><a href="https://deno.land/manual">Deno Manual</a></li>
+      </ul>
     </div>
 
     <div class="section">
-        <h2>Mixed Internal Links</h2>
-        <p>These are relative/internal links:</p>
-        <ul>
-            <li><a href="/docs/installation">Installation Guide</a></li>
-            <li><a href="/docs/configuration">Configuration</a></li>
-            <li><a href="/api/reference">API Reference</a></li>
-            <li><a href="/examples">Examples</a></li>
-        </ul>
+      <h2>Mixed Internal Links</h2>
+      <p>These are relative/internal links:</p>
+      <ul>
+        <li><a href="/docs/installation">Installation Guide</a></li>
+        <li><a href="/docs/configuration">Configuration</a></li>
+        <li><a href="/api/reference">API Reference</a></li>
+        <li><a href="/examples">Examples</a></li>
+      </ul>
     </div>
 
     <div class="section">
-        <h2>Test Query Selectors</h2>
-        <p>Try these selectors in the DLM extension popup:</p>
-        <ul>
-            <li><code>a</code> - All links on the page</li>
-            <li><code>a[href*='article']</code> - Links containing 'article'</li>
-            <li><code>a[href*='blog']</code> - Links containing 'blog'</li>
-            <li><code>a[href*='github']</code> - Links containing 'github'</li>
-            <li><code>a[href^='https://']</code> - External HTTPS links</li>
-            <li><code>.article-link</code> - Links with 'article-link' class</li>
-            <li><code>nav a</code> - Navigation links</li>
-            <li><code>.blog-post a</code> - Links inside blog posts</li>
-            <li><code>.github-links a</code> - Links in GitHub section</li>
-            <li><code>a[href*='example.com']</code> - Links to example.com</li>
-        </ul>
+      <h2>Test Query Selectors</h2>
+      <p>Try these selectors in the DLM extension popup:</p>
+      <ul>
+        <li><code>a</code> - All links on the page</li>
+        <li><code>a[href*='article']</code> - Links containing 'article'</li>
+        <li><code>a[href*='blog']</code> - Links containing 'blog'</li>
+        <li><code>a[href*='github']</code> - Links containing 'github'</li>
+        <li><code>a[href^='https://']</code> - External HTTPS links</li>
+        <li><code>.article-link</code> - Links with 'article-link' class</li>
+        <li><code>nav a</code> - Navigation links</li>
+        <li><code>.blog-post a</code> - Links inside blog posts</li>
+        <li><code>.github-links a</code> - Links in GitHub section</li>
+        <li><code>a[href*='example.com']</code> - Links to example.com</li>
+      </ul>
     </div>
 
-    <footer style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
-        <p>DLM Extension Test Page | <a href="https://github.com/example/dlm">View on GitHub</a></p>
+    <footer style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666">
+      <p>
+        DLM Extension Test Page | <a href="https://github.com/example/dlm"
+        >View on GitHub</a>
+      </p>
     </footer>
-</body>
+  </body>
 </html>

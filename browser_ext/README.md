@@ -7,13 +7,14 @@ DLM server with a single click.
 ## Features
 
 - **Universal compatibility**: Single extension works in all major browsers
-- **Query selector link collection**: Find and add multiple URLs using CSS selectors
+- **Query selector link collection**: Find and add multiple URLs using CSS
+  selectors
 - **One-click URL submission**: Send current tab URL to DLM server
 - **Right-click context menu**: Send any URL to DLM by right-clicking on links
 - **Toast notifications**: Success and error messages displayed on the page
 - **Configurable API endpoint**: Set your own DLM server URL
 - **Visual feedback**: Loading indicator during requests
-- **Keyboard shortcuts**: 
+- **Keyboard shortcuts**:
   - `Ctrl+Shift+Y` / `Cmd+Shift+Y` - Add current page
   - `Ctrl+Shift+Q` / `Cmd+Shift+Q` - Open query selector (advanced mode)
 - **Cross-browser API polyfill**: Automatic browser detection and compatibility
@@ -55,17 +56,21 @@ The extension has two modes:
 #### Query Selector Link Collection (Advanced Mode)
 
 **Access via:**
+
 - Right-click anywhere on page → "Find Links with Query Selector"
 - Keyboard shortcut: `Ctrl+Shift+Q` / `Cmd+Shift+Q`
 
 **How to use:**
+
 1. Opens the query selector interface in a popup window
 2. Enter a CSS selector to find links (e.g., `a[href*='article']`)
-3. Use quick action buttons for common selectors or click "Preview" to see matches
+3. Use quick action buttons for common selectors or click "Preview" to see
+   matches
 4. Click "Add URLs" to send all matching URLs to your DLM server
 5. Alternatively, click "Add Current Page" to just add the current tab's URL
 
 **Example selectors:**
+
 - `a` - All links on the page
 - `a[href*='github']` - Links containing 'github'
 - `.article-link` - Links with class 'article-link'
@@ -164,7 +169,8 @@ Content-Type: application/json
 3. **CORS errors**: Ensure server supports cross-origin requests
 4. **Settings not saving**: Check storage permissions in manifest
 5. **Query selector not finding links**: Ensure selector syntax is valid CSS
-6. **No links highlighted**: Content script may need time to load, try refreshing
+6. **No links highlighted**: Content script may need time to load, try
+   refreshing
 
 ### Debug Mode
 

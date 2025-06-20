@@ -1,6 +1,5 @@
 import * as hono from "jsr:@hono/hono";
 import { Logger } from "./logger.ts";
-import { html, raw } from "jsr:@hono/hono/html";
 import { logger as honoLogger } from "jsr:@hono/hono/logger";
 import {
   addURLs,
