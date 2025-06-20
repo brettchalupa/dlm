@@ -5,6 +5,8 @@ export function renderWeb(
   counts: string,
   downloadsList: string,
   logs: string,
+  errorSectionDisplay: string,
+  errorList: string,
 ): HtmlEscapedString | Promise<HtmlEscapedString> {
   return html`
     <!DOCTYPE html>
@@ -247,8 +249,9 @@ export function renderWeb(
           font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
           font-size: 0.875rem;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: space-between;
+          gap: 12px;
           transition: background-color 0.2s ease;
         }
 
@@ -275,6 +278,13 @@ export function renderWeb(
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          margin-bottom: 4px;
+        }
+
+        .download-collection {
+          color: var(--text-secondary);
+          font-size: 0.75rem;
+          font-style: italic;
         }
 
         .download-status {
@@ -291,6 +301,7 @@ export function renderWeb(
           border: 1px solid var(--border-primary);
           border-radius: 8px;
           padding: 20px;
+          margin-bottom: 30px;
         }
 
         .logs-section h2 {
@@ -471,6 +482,56 @@ export function renderWeb(
           color: var(--accent-red);
           font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
           font-size: 0.875rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .error-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .error-message {
+          background: rgba(248, 81, 73, 0.2);
+          padding: 8px;
+          border-radius: 4px;
+          margin-top: 8px;
+          font-size: 0.75rem;
+          font-family: monospace;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+
+        .error-actions {
+          display: flex;
+          gap: 4px;
+          flex-shrink: 0;
+        }
+
+        .error-actions button {
+          padding: 4px 8px;
+          font-size: 0.75rem;
+          min-width: auto;
+        }
+
+        .download-actions {
+          display: flex;
+          gap: 4px;
+          flex-shrink: 0;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        }
+
+        .download-item:hover .download-actions {
+          opacity: 1;
+        }
+
+        .download-actions button {
+          padding: 4px 8px;
+          font-size: 0.75rem;
+          min-width: auto;
         }
         </style>
       </head>
@@ -562,26 +623,44 @@ export function renderWeb(
             </form>
           </div>
 
-          <div class="config-section">
-            <h2>
-              <svg class="icon" viewBox="0 0 16 16">
-                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34ZM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858Z" />
-              </svg>
-              Configuration
-            </h2>
-            <div id="config-container">
-              Loading configuration...
-            </div>
-          </div>
-
-          <div id="error-section" class="error-section" style="display: none;">
+          <div
+            id="error-section"
+            class="error-section"
+            style="display: ${errorSectionDisplay};"
+          >
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
                 <path d="M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L8 6.94Z" />
               </svg>
-              Recent Errors
+              Failed Downloads
             </h2>
-            <div id="error-container"></div>
+            <div class="button-group" style="margin-bottom: 16px;">
+              <button type="button" onclick="retryAllFailed()">
+                Retry All Failed
+              </button>
+              <button
+                type="button"
+                onclick="deleteAllFailed()"
+                style="background: var(--accent-red);"
+              >
+                Delete All Failed
+              </button>
+            </div>
+            <div id="error-container">${raw(errorList)}</div>
+          </div>
+
+          <div class="download-list">
+            <h2>
+              <svg class="icon" viewBox="0 0 16 16">
+                <path d="M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0v-.214c-2.162-1.241-4.49-1.843-6.912-2.083l.405 2.712A1 1 0 0 1 5.51 15.1h-.548a1 1 0 0 1-.916-.599l-1.85-3.49-.202-.003A2.014 2.014 0 0 1 0 9V7a2.014 2.014 0 0 1 1.994-2.008L2 5c.777 0 1.449.325 1.937.835.59-.312 1.263-.507 2.063-.507z" />
+              </svg>
+              Currently Downloading
+            </h2>
+            <div class="download-items" id="downloading-container">
+              <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
+                No downloads currently in progress
+              </div>
+            </div>
           </div>
 
           <div class="download-list">
@@ -635,6 +714,18 @@ export function renderWeb(
       logs.split("\n").map((line) => `<div class="log-line">${line}</div>`)
         .join(""),
     )}
+            </div>
+          </div>
+
+          <div class="config-section">
+            <h2>
+              <svg class="icon" viewBox="0 0 16 16">
+                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34ZM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858Z" />
+              </svg>
+              Configuration
+            </h2>
+            <div id="config-container">
+              Loading configuration...
             </div>
           </div>
         </div>
@@ -738,21 +829,67 @@ export function renderWeb(
 
         function updateDownloadsList(downloads) {
           const container = document.getElementById('downloads-container');
+          const downloadingContainer = document.getElementById('downloading-container');
+
           container.innerHTML = '';
+          downloadingContainer.innerHTML = '';
 
           if (downloads.length === 0) {
             container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads found</div>';
+            downloadingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads currently in progress</div>';
             return;
           }
 
-          downloads.slice(0, 50).forEach(download => {
+          const downloadingItems = downloads.filter(d => d.status === 'downloading');
+          const otherItems = downloads.filter(d => d.status !== 'downloading').slice(0, 50);
+
+          // Update currently downloading section
+          if (downloadingItems.length === 0) {
+            downloadingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads currently in progress</div>';
+          } else {
+            downloadingItems.forEach(download => {
+              const item = document.createElement('div');
+              item.className = 'download-item';
+
+              item.innerHTML = '<div class="download-info">' +
+                              '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
+                              '<div class="download-url">' + download.url + '</div>' +
+                              '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                              '</div>' +
+                              '<div style="display: flex; align-items: center; gap: 8px;">' +
+                              '<div class="download-status downloading">downloading</div>' +
+                              '</div>';
+              downloadingContainer.appendChild(item);
+            });
+          }
+
+          // Update recent downloads section
+          otherItems.forEach(download => {
             const item = document.createElement('div');
             item.className = 'download-item';
+
+            let actionsHtml = '';
+            if (download.status === 'error') {
+              actionsHtml = '<div class="download-actions">' +
+                           '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
+                           '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                           '</div>';
+            } else if (download.status === 'success' || download.status === 'pending') {
+              actionsHtml = '<div class="download-actions">' +
+                           '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                           '</div>';
+            }
+
             item.innerHTML = '<div class="download-info">' +
                             '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
                             '<div class="download-url">' + download.url + '</div>' +
+                            '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                            (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
                             '</div>' +
-                            '<div class="download-status ' + download.status + '">' + download.status + '</div>';
+                            '<div style="display: flex; align-items: center; gap: 8px;">' +
+                            '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
+                            actionsHtml +
+                            '</div>';
             container.appendChild(item);
           });
         }
@@ -772,8 +909,15 @@ export function renderWeb(
           errorDownloads.forEach(download => {
             const item = document.createElement('div');
             item.className = 'error-item';
-            item.innerHTML = '<strong>ID ' + download.id + ':</strong> ' + (download.title || 'Untitled') + '<br>' +
-                            '<small>' + download.url + '</small>';
+            item.innerHTML = '<div class="error-info">' +
+                            '<strong>ID ' + download.id + ':</strong> ' + (download.title || 'Untitled') + '<br>' +
+                            '<small>' + download.url + '</small>' +
+                            (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
+                            '</div>' +
+                            '<div class="error-actions">' +
+                            '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
+                            '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                            '</div>';
             container.appendChild(item);
           });
         }
@@ -964,6 +1108,86 @@ export function renderWeb(
             return div.outerHTML;
           }).join('');
           container.innerHTML = lines;
+        }
+
+        async function retryDownload(id) {
+          try {
+            const response = await fetch('/api/retry/' + id, {
+              method: 'POST'
+            });
+            if (response.ok) {
+              const result = await response.json();
+              showNotification(result.message, 'success');
+              refreshData();
+            } else {
+              showNotification('Failed to retry download', 'error');
+            }
+          } catch (error) {
+            showNotification('Failed to retry download', 'error');
+          }
+        }
+
+        async function deleteDownload(id) {
+          if (!confirm('Are you sure you want to delete this download?')) {
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/download/' + id, {
+              method: 'DELETE'
+            });
+            if (response.ok) {
+              const result = await response.json();
+              showNotification(result.message, 'success');
+              refreshData();
+            } else {
+              showNotification('Failed to delete download', 'error');
+            }
+          } catch (error) {
+            showNotification('Failed to delete download', 'error');
+          }
+        }
+
+        async function retryAllFailed() {
+          if (!confirm('Are you sure you want to retry all failed downloads?')) {
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/retry-all-failed', {
+              method: 'POST'
+            });
+            if (response.ok) {
+              const result = await response.json();
+              showNotification(result.message, 'success');
+              refreshData();
+            } else {
+              showNotification('Failed to retry downloads', 'error');
+            }
+          } catch (error) {
+            showNotification('Failed to retry downloads', 'error');
+          }
+        }
+
+        async function deleteAllFailed() {
+          if (!confirm('Are you sure you want to delete ALL failed downloads? This cannot be undone.')) {
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/delete-all-failed', {
+              method: 'DELETE'
+            });
+            if (response.ok) {
+              const result = await response.json();
+              showNotification(result.message, 'success');
+              refreshData();
+            } else {
+              showNotification('Failed to delete downloads', 'error');
+            }
+          } catch (error) {
+            showNotification('Failed to delete downloads', 'error');
+          }
         }
 
         // Start everything when page loads

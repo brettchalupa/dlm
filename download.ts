@@ -25,6 +25,7 @@ interface DownloadBase {
   status: DownloadStatus;
   title: string | null;
   url: string;
+  errorMessage: string | null;
 }
 
 interface Download extends DownloadBase {
@@ -112,8 +113,14 @@ async function downloadDownload(download: Download) {
     logger.log("successfully downloaded:", download.title || download.url); // display more info
   } else {
     download.status = DownloadStatus.error;
+    const errorMessage = new TextDecoder().decode(output.stderr).trim() ||
+      new TextDecoder().decode(output.stdout).trim() ||
+      `Command failed with exit code ${output.code}`;
+    download.errorMessage = errorMessage;
     updateDownload(download);
-    logger.error(`error downloading url: ${download.id} ${download.url}`);
+    logger.error(
+      `error downloading url: ${download.id} ${download.url}: ${errorMessage}`,
+    );
   }
 }
 
@@ -124,16 +131,17 @@ export function deleteDownload(download: Download) {
   logger.log(`download deleted from db: ${download.title || download.url}`);
 }
 
-export async function getDownload(id: number): Promise<Download | null> {
+export function getDownload(id: number): Download | null {
   const queryStr = `SELECT
       id,
-      collection
+      collection,
       createdAt,
       downloadedAt,
       priority,
       status,
       title,
       url,
+      errorMessage
     FROM downloads
     WHERE id = ${id}`;
 
@@ -148,12 +156,13 @@ export async function getDownload(id: number): Promise<Download | null> {
       DownloadStatus,
       string | null,
       string,
+      string | null,
     ]
   >(
     queryStr,
   );
   let download: Download | null = null;
-  for await (
+  for (
     const [
       id,
       collection,
@@ -163,6 +172,7 @@ export async function getDownload(id: number): Promise<Download | null> {
       status,
       title,
       url,
+      errorMessage,
     ] of query.iter()
   ) {
     download = {
@@ -174,6 +184,7 @@ export async function getDownload(id: number): Promise<Download | null> {
       downloadedAt: downloadedAt ? new Date(downloadedAt) : null,
       status: status,
       collection: collection,
+      errorMessage: errorMessage,
     };
   }
   query.finalize();
@@ -195,7 +206,7 @@ export function selectDownloads(
   filter: DownloadStatus | typeof AllFilter = AllFilter,
 ): Download[] {
   let queryStr =
-    `SELECT id, collection, createdAt, downloadedAt, priority, status, title, url
+    `SELECT id, collection, createdAt, downloadedAt, priority, status, title, url, errorMessage
     FROM downloads`;
   if (filter != AllFilter) {
     queryStr += ` WHERE status='${filter}'`;
@@ -220,10 +231,9 @@ export function selectDownloads(
       DownloadStatus,
       string | null,
       string,
+      string | null,
     ]
-  >(
-    queryStr,
-  );
+  >(queryStr);
   const downloads: Download[] = [];
   for (
     const [
@@ -235,8 +245,8 @@ export function selectDownloads(
       status,
       title,
       url,
-    ] of query
-      .iter()
+      errorMessage,
+    ] of query.iter()
   ) {
     downloads.push({
       id: id,
@@ -244,9 +254,10 @@ export function selectDownloads(
       url: url,
       createdAt: new Date(createdAt),
       title: title,
-      status: status,
       downloadedAt: downloadedAt ? new Date(downloadedAt) : null,
+      status: status,
       collection: collection,
+      errorMessage: errorMessage || null,
     });
   }
   query.finalize();
@@ -267,6 +278,7 @@ export async function addDownload(url: string, collection: string) {
     priority: Priority.normal,
     collection: collection,
     status: DownloadStatus.pending,
+    errorMessage: null,
   };
 
   try {
@@ -283,6 +295,39 @@ export async function addDownload(url: string, collection: string) {
       logger.error(e);
     }
   }
+}
+
+export function retryDownload(id: number): boolean {
+  const db = new DB(DBFile);
+  db.query(
+    "UPDATE downloads SET status = ?, errorMessage = NULL WHERE id = ? AND status = ?",
+    [DownloadStatus.pending, id, DownloadStatus.error],
+  );
+  const changes = db.changes;
+  db.close();
+  return changes > 0;
+}
+
+export function retryAllFailedDownloads(): number {
+  const db = new DB(DBFile);
+  db.query(
+    "UPDATE downloads SET status = ?, errorMessage = NULL WHERE status = ?",
+    [DownloadStatus.pending, DownloadStatus.error],
+  );
+  const changes = db.changes;
+  db.close();
+  return changes;
+}
+
+export function deleteAllFailedDownloads(): number {
+  const db = new DB(DBFile);
+  db.query(
+    "DELETE FROM downloads WHERE status = ?",
+    [DownloadStatus.error],
+  );
+  const changes = db.changes;
+  db.close();
+  return changes;
 }
 
 /**
@@ -321,23 +366,32 @@ function insertDownload(download: DownloadBase) {
     priority TEXT NOT NULL,
     status TEXT NOT NULL,
     title TEXT,
-    url TEXT NOT NULL UNIQUE
+    url TEXT NOT NULL UNIQUE,
+    errorMessage TEXT
   )
 `);
+
+  // Add errorMessage column if it doesn't exist (migration)
+  try {
+    db.execute(`ALTER TABLE downloads ADD COLUMN errorMessage TEXT`);
+  } catch (_error) {
+    // Column already exists, ignore error
+  }
 
   logger.log(download.url);
   db.query(
     `INSERT INTO downloads
-      (collection, createdAt, downloadedAt, priority, status, title, url)
-      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      (collection, createdAt, downloadedAt, priority, status, title, url, errorMessage)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       download.collection,
-      download.createdAt,
-      download.downloadedAt,
+      download.createdAt.toISOString(),
+      download.downloadedAt?.toISOString() || null,
       download.priority,
       download.status,
       download.title,
       download.url,
+      download.errorMessage,
     ],
   );
   db.close();
@@ -347,24 +401,25 @@ function insertDownload(download: DownloadBase) {
 function updateDownload(download: Download) {
   const db = new DB(DBFile);
   db.query(
-    `UPDATE downloads
-    SET
+    `UPDATE downloads SET
       collection = ?,
       createdAt = ?,
       downloadedAt = ?,
       priority = ?,
       status = ?,
       title = ?,
-      url = ?
+      url = ?,
+      errorMessage = ?
     WHERE id = ?`,
     [
       download.collection,
-      download.createdAt,
-      download.downloadedAt,
+      download.createdAt.toISOString(),
+      download.downloadedAt?.toISOString() || null,
       download.priority,
       download.status,
       download.title,
       download.url,
+      download.errorMessage,
       download.id,
     ],
   );

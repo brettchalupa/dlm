@@ -12,6 +12,9 @@ function runCLI() {
       logger.log("ls");
       logger.log("dl LIMIT");
       logger.log("del ID");
+      logger.log("retry ID");
+      logger.log("retry-all-failed");
+      logger.log("delete-all-failed");
       logger.log("init");
       break;
     case "add": {
@@ -38,6 +41,18 @@ function runCLI() {
       countVideos();
       break;
     }
+    case "retry": {
+      retryVideoById();
+      break;
+    }
+    case "retry-all-failed": {
+      retryAllFailedVideos();
+      break;
+    }
+    case "delete-all-failed": {
+      deleteAllFailedVideos();
+      break;
+    }
     default:
       logger.error(`Unsupported command: ${command}`);
       Deno.exit(1);
@@ -46,6 +61,12 @@ function runCLI() {
 
 import { parse as parseTOML, stringify as stringifyTOML } from "jsr:@std/toml";
 import { Logger, LogOutput } from "./logger.ts";
+import {
+  deleteAllFailedDownloads,
+  retryAllFailedDownloads,
+  retryDownload,
+  selectDownloads,
+} from "./download.ts";
 
 const configFile = "dlm.toml";
 
@@ -169,9 +190,43 @@ async function deleteVideo() {
   logger.log(res["message"]);
 }
 
-async function listVideos() {
-  const res = await httpGet(`/api/videos`);
-  console.table(res["videos"]);
+function listVideos() {
+  const downloads = selectDownloads(0);
+  console.table(downloads);
+  logger.log("total:", downloads.length);
+}
+
+function retryVideoById() {
+  const id = parseInt(Deno.args[1]);
+  if (isNaN(id)) {
+    logger.error("Invalid ID provided");
+    Deno.exit(1);
+  }
+
+  const success = retryDownload(id);
+  if (success) {
+    logger.log(`Download ${id} marked for retry`);
+  } else {
+    logger.error(`Download ${id} not found or not in error state`);
+    Deno.exit(1);
+  }
+}
+
+function retryAllFailedVideos() {
+  const count = retryAllFailedDownloads();
+  logger.log(`${count} failed downloads marked for retry`);
+}
+
+function deleteAllFailedVideos() {
+  logger.log("WARNING: This will permanently delete all failed downloads!");
+  const confirm = prompt("Type 'yes' to confirm: ");
+  if (confirm !== "yes") {
+    logger.log("Operation cancelled");
+    return;
+  }
+
+  const count = deleteAllFailedDownloads();
+  logger.log(`${count} failed downloads deleted`);
 }
 
 if (import.meta.main) {

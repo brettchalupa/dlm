@@ -31,18 +31,20 @@ downloads with real-time updates and comprehensive monitoring capabilities.
 - API-driven configuration updates
 
 ### 🔍 Enhanced Logging
-
 - Real-time log viewing with auto-refresh
 - Log filtering by type (All, Errors, Warnings, Info)
 - Search functionality for log entries
 - Color-coded log levels for better readability
 - Clear logs functionality
+- API request logs automatically filtered from web UI display
 
-### 🚨 Error Monitoring
-
-- Dedicated error section showing failed downloads
+### 🚨 Error Monitoring & Management
+- Dedicated error section showing failed downloads with detailed error messages
 - Real-time error tracking and display
 - Error highlighting in logs
+- Individual download retry and delete functionality
+- Bulk operations for all failed downloads
+- Persistent error message storage in database
 
 ### 🔔 Notifications
 
@@ -69,9 +71,14 @@ The web interface utilizes the following API endpoints:
 - `GET /api/downloads` - List all downloads
 - `GET /api/config` - Current configuration
 - `GET /api/system` - System information
-- `GET /api/logs` - Recent log entries
+- `GET /api/logs` - Recent log entries (filtered to exclude API requests)
 - `POST /api/add-urls` - Add new URLs
 - `POST /api/download` - Start downloads
+- `POST /api/retry/:id` - Retry a specific failed download
+- `POST /api/retry-all-failed` - Retry all failed downloads
+- `DELETE /api/delete-all-failed` - Delete all failed downloads
+- `GET /api/download/:id` - Get details for a specific download
+- `DELETE /api/download/:id` - Delete a specific download
 
 ## Usage
 
@@ -112,10 +119,11 @@ The web interface utilizes the following API endpoints:
 - Success/error feedback
 
 ### Downloads List
-
 - Recent downloads with titles and URLs
 - Status indicators with color coding
 - Scrollable list with hover effects
+- Per-download action buttons (retry/delete) on hover
+- Error messages displayed inline for failed downloads
 
 ### Configuration Panel
 
@@ -124,9 +132,10 @@ The web interface utilizes the following API endpoints:
 - Domain mappings
 
 ### Error Section
-
-- Failed downloads with details
-- Error highlighting
+- Failed downloads with detailed error messages
+- Individual retry and delete buttons for each failed download
+- Bulk operations (Retry All Failed, Delete All Failed)
+- Error highlighting with expandable error details
 - Automatic show/hide based on error presence
 
 ### Logs Section
@@ -163,6 +172,35 @@ The interface uses CSS custom properties (variables) for easy theming:
 - Safari 12+
 - Edge 79+
 
+## CLI Commands
+
+The enhanced CLI now supports error management:
+
+```bash
+# Retry a specific failed download
+deno run --allow-all cli.ts retry 123
+
+# Retry all failed downloads
+deno run --allow-all cli.ts retry-all-failed
+
+# Delete all failed downloads (with confirmation)
+deno run --allow-all cli.ts delete-all-failed
+
+# List all downloads
+deno run --allow-all cli.ts ls
+
+# Show download statistics
+deno run --allow-all cli.ts count
+```
+
+## Database Schema Updates
+
+The downloads table now includes error tracking:
+
+- `errorMessage TEXT` - Stores detailed error information from failed downloads
+- Automatic schema migration adds the column if it doesn't exist
+- Error messages are captured from command stderr/stdout during download failures
+
 ## Performance
 
 - Minimal JavaScript bundle size
@@ -170,3 +208,4 @@ The interface uses CSS custom properties (variables) for easy theming:
 - Smart refresh logic
 - Responsive design patterns
 - Optimized for low-latency updates
+- Filtered API request logs reduce noise in web interface

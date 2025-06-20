@@ -4,9 +4,13 @@ import { logger as honoLogger } from "jsr:@hono/hono/logger";
 import {
   addURLs,
   countDownloads,
+  deleteAllFailedDownloads,
   deleteDownload,
   downloadDownloads,
+  DownloadStatus,
   getDownload,
+  retryAllFailedDownloads,
+  retryDownload,
   selectDownloads,
 } from "./download.ts";
 import { loadCollectonsFromConfig } from "./config.ts";
@@ -55,8 +59,30 @@ export function runWebServer() {
         <div class="download-info">
           <div class="download-title">${d.title || "Untitled"}</div>
           <div class="download-url">${d.url}</div>
+          <div class="download-collection">Collection: ${d.collection}</div>
         </div>
         <div class="download-status ${d.status}">${d.status}</div>
+      </div>`
+    ).join("");
+
+    // Get error downloads for initial page load
+    const errorDownloads = selectDownloads(0, DownloadStatus.error);
+    const errorSection = errorDownloads.length > 0 ? "block" : "none";
+    const errorList = errorDownloads.map((d) =>
+      `<div class="error-item">
+        <div class="error-info">
+          <strong>ID ${d.id}:</strong> ${d.title || "Untitled"}<br>
+          <small>${d.url}</small>
+          ${
+        d.errorMessage
+          ? `<div class="error-message">${d.errorMessage}</div>`
+          : ""
+      }
+        </div>
+        <div class="error-actions">
+          <button onclick="retryDownload(${d.id})" title="Retry">↻</button>
+          <button onclick="deleteDownload(${d.id})" title="Delete" style="background: var(--accent-red);">✗</button>
+        </div>
       </div>`
     ).join("");
 
@@ -68,7 +94,9 @@ export function runWebServer() {
       logs = "No log file found or error reading logs.";
     }
 
-    return c.html(renderWeb(counts, downloadsList, logs));
+    return c.html(
+      renderWeb(counts, downloadsList, logs, errorSection, errorList),
+    );
   });
 
   app.post("/add-urls", async (c) => {
@@ -147,7 +175,9 @@ export function runWebServer() {
   app.get("/api/logs", async (c) => {
     try {
       const logs = await Deno.readTextFile("dlm.log");
-      const lines = logs.split("\n").slice(-100).filter((line) => line.trim());
+      const lines = logs.split("\n").slice(-100)
+        .filter((line) => line.trim())
+        .filter((line) => !line.includes("[GET]") && !line.includes("[POST]"));
       return c.json({ logs: lines });
     } catch (_error) {
       return c.json({ logs: ["No log file found or error reading logs."] });
@@ -173,6 +203,29 @@ export function runWebServer() {
     } else {
       return c.json({ message: "download not found" }, 404);
     }
+  });
+
+  app.post("/api/retry/:id", (c) => {
+    const id = parseInt(c.req.param("id"));
+    const success = retryDownload(id);
+    if (success) {
+      return c.json({ message: "download marked for retry" });
+    } else {
+      return c.json(
+        { message: "download not found or not in error state" },
+        404,
+      );
+    }
+  });
+
+  app.post("/api/retry-all-failed", (c) => {
+    const count = retryAllFailedDownloads();
+    return c.json({ message: `${count} failed downloads marked for retry` });
+  });
+
+  app.delete("/api/delete-all-failed", (c) => {
+    const count = deleteAllFailedDownloads();
+    return c.json({ message: `${count} failed downloads deleted` });
   });
 
   let port = 8001;
