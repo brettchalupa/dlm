@@ -1,5 +1,6 @@
 import * as hono from "jsr:@hono/hono";
 import { Logger } from "./logger.ts";
+import { html, raw } from "jsr:@hono/hono/html";
 import { logger as honoLogger } from "jsr:@hono/hono/logger";
 import {
   addURLs,
@@ -10,6 +11,22 @@ import {
   getDownload,
   selectDownloads,
 } from "./download.ts";
+
+function parseUrls(rawUrls: unknown): string[] {
+  if (Array.isArray(rawUrls)) {
+    return rawUrls.map((u) => u.toString().trim()).filter((u) => u);
+  }
+
+  if (typeof rawUrls === "string") {
+    return rawUrls
+      .split("\n")
+      .flatMap((u: string) => u.split(","))
+      .map((u) => u.trim())
+      .filter((u) => u);
+  }
+
+  return [];
+}
 import { renderWeb } from "./render_web.ts";
 
 const logger = new Logger();
@@ -40,16 +57,16 @@ export function runWebServer() {
   });
 
   app.post("/add-urls", async (c) => {
-    const urls = (await c.req.parseBody())["urls"].toString().split("\n");
+    const rawUrls = (await c.req.parseBody())["urls"];
+    const urls = parseUrls(rawUrls);
     addURLs(urls);
     logger.log("urls", urls);
     return c.redirect("/");
   });
 
   app.post("/api/add-urls", async (c) => {
-    const urls = (await c.req.json())["urls"].toString().split("\n").flatMap(
-      (u: string) => u.split("\r"),
-    );
+    const rawUrls = (await c.req.json())["urls"];
+    const urls = parseUrls(rawUrls);
     addURLs(urls);
     logger.log("added URLs:", urls.join(", "));
     return c.json({ message: "Downloads being added to database." });

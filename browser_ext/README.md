@@ -7,12 +7,15 @@ DLM server with a single click.
 ## Features
 
 - **Universal compatibility**: Single extension works in all major browsers
+- **Query selector link collection**: Find and add multiple URLs using CSS selectors
 - **One-click URL submission**: Send current tab URL to DLM server
 - **Right-click context menu**: Send any URL to DLM by right-clicking on links
 - **Toast notifications**: Success and error messages displayed on the page
 - **Configurable API endpoint**: Set your own DLM server URL
 - **Visual feedback**: Loading indicator during requests
-- **Keyboard shortcuts**: `Ctrl+Shift+Y` / `Cmd+Shift+Y`
+- **Keyboard shortcuts**: 
+  - `Ctrl+Shift+Y` / `Cmd+Shift+Y` - Add current page
+  - `Ctrl+Shift+Q` / `Cmd+Shift+Q` - Open query selector (advanced mode)
 - **Cross-browser API polyfill**: Automatic browser detection and compatibility
 
 ## Quick Start
@@ -35,7 +38,12 @@ DLM server with a single click.
 
 ### Usage
 
-#### Send current tab URL
+The extension has two modes:
+
+1. **Simple Mode (Default)**: Click extension icon → saves current page
+2. **Advanced Mode**: Query selector interface for bulk link collection
+
+#### Send current tab URL (Default)
 
 1. Navigate to any webpage you want to add to DLM
 2. Click the DLM extension icon (or use `Ctrl+Shift+Y` / `Cmd+Shift+Y`)
@@ -43,6 +51,26 @@ DLM server with a single click.
 4. A loading indicator ("...") will briefly appear on the extension icon
 5. A success toast will appear confirming the URL was added, or an error toast
    if something went wrong
+
+#### Query Selector Link Collection (Advanced Mode)
+
+**Access via:**
+- Right-click anywhere on page → "Find Links with Query Selector"
+- Keyboard shortcut: `Ctrl+Shift+Q` / `Cmd+Shift+Q`
+
+**How to use:**
+1. Opens the query selector interface in a popup window
+2. Enter a CSS selector to find links (e.g., `a[href*='article']`)
+3. Use quick action buttons for common selectors or click "Preview" to see matches
+4. Click "Add URLs" to send all matching URLs to your DLM server
+5. Alternatively, click "Add Current Page" to just add the current tab's URL
+
+**Example selectors:**
+- `a` - All links on the page
+- `a[href*='github']` - Links containing 'github'
+- `.article-link` - Links with class 'article-link'
+- `nav a` - Links inside navigation elements
+- `a[href^='https://']` - External HTTPS links
 
 #### Send any URL via right-click
 
@@ -121,9 +149,11 @@ Content-Type: application/json
 - **Manifest Version**: 2 (maximum browser compatibility)
 - **API Polyfill**: Automatic detection of `chrome.*` vs `browser.*` APIs
 - **Storage**: Uses browser sync storage for settings persistence
-- **Permissions**: `activeTab`, `storage`, `contextMenus`
+- **Permissions**: `activeTab`, `storage`, `contextMenus`, `tabs`
 - **Toast Notifications**: Non-intrusive success/error messages with
   auto-dismiss
+- **Query Selector Engine**: CSS selector-based link discovery with preview
+- **Element Highlighting**: Temporary visual highlighting of matched elements
 
 ## Troubleshooting
 
@@ -133,6 +163,8 @@ Content-Type: application/json
 2. **API calls failing**: Verify API endpoint URL in settings
 3. **CORS errors**: Ensure server supports cross-origin requests
 4. **Settings not saving**: Check storage permissions in manifest
+5. **Query selector not finding links**: Ensure selector syntax is valid CSS
+6. **No links highlighted**: Content script may need time to load, try refreshing
 
 ### Debug Mode
 

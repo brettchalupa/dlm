@@ -112,10 +112,39 @@ browser.runtime.onInstalled.addListener(() => {
     title: "Send to DLM",
     contexts: ["link"],
   });
+
+  // Create context menu item for query selector functionality
+  browser.contextMenus.create({
+    id: "dlm-query-selector",
+    title: "Find Links with Query Selector",
+    contexts: ["page"],
+  });
 });
 
+// Browser action directly adds current page URL (restored default behavior)
 browser.browserAction.onClicked.addListener(async (tab) => {
   await sendUrlToDLM(tab.url, tab.id);
+});
+
+// Handle keyboard shortcuts
+browser.commands.onCommand.addListener((command) => {
+  if (command === "query-selector") {
+    // Try to open query selector in a popup window, fallback to tab
+    browser.windows.create({
+      url: browser.runtime.getURL("popup.html"),
+      type: "popup",
+      width: 400,
+      height: 600,
+      left: Math.round((screen.width - 400) / 2),
+      top: Math.round((screen.height - 600) / 2),
+    }).catch(() => {
+      // Fallback to opening in a new tab if popup fails
+      browser.tabs.create({
+        url: browser.runtime.getURL("popup.html"),
+        active: true,
+      });
+    });
+  }
 });
 
 // Handle context menu clicks
@@ -124,5 +153,21 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     browser.runtime.openOptionsPage();
   } else if (info.menuItemId === "dlm-send-url") {
     await sendUrlToDLM(info.linkUrl, tab.id);
+  } else if (info.menuItemId === "dlm-query-selector") {
+    // Try to open query selector in a popup window, fallback to tab
+    browser.windows.create({
+      url: browser.runtime.getURL("popup.html"),
+      type: "popup",
+      width: 400,
+      height: 600,
+      left: Math.round((screen.width - 400) / 2),
+      top: Math.round((screen.height - 600) / 2),
+    }).catch(() => {
+      // Fallback to opening in a new tab if popup fails
+      browser.tabs.create({
+        url: browser.runtime.getURL("popup.html"),
+        active: true,
+      });
+    });
   }
 });

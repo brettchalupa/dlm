@@ -121,15 +121,118 @@
     }, 300);
   }
 
-  // Listen for messages from background script
+  // Function to find anchors using query selector
+  function findAnchors(selector) {
+    const results = {
+      success: false,
+      urls: [],
+      count: 0,
+      error: null,
+    };
+
+    try {
+      // Find all matching elements
+      const elements = document.querySelectorAll(selector);
+      const urls = [];
+
+      elements.forEach((element) => {
+        // Check if element is an anchor or contains anchors
+        if (element.tagName === "A" && element.href) {
+          urls.push(element.href);
+        } else {
+          // Look for anchor elements within the selected element
+          const anchors = element.querySelectorAll("a[href]");
+          anchors.forEach((anchor) => {
+            urls.push(anchor.href);
+          });
+        }
+      });
+
+      // Remove duplicates and filter out invalid URLs
+      const uniqueUrls = [...new Set(urls)].filter((url) => {
+        try {
+          new URL(url);
+          return true;
+        } catch {
+          return false;
+        }
+      });
+
+      results.success = true;
+      results.urls = uniqueUrls;
+      results.count = uniqueUrls.length;
+
+      console.log(
+        `Found ${uniqueUrls.length} URLs with selector "${selector}"`,
+      );
+    } catch (error) {
+      console.error("Error finding anchors:", error);
+      results.error = error.message;
+    }
+
+    return results;
+  }
+
+  // Listen for messages from background script and popup
   browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     console.log("DLM content script received message:", message);
+
     if (message.type === "dlm-toast") {
       console.log("Showing toast:", message.message, message.toastType);
       showToast(message.message, message.toastType, message.duration);
       sendResponse({ success: true });
+    } else if (message.type === "dlm-find-anchors") {
+      console.log("Finding anchors with selector:", message.selector);
+      const results = findAnchors(message.selector);
+
+      // If preview mode, also highlight the found elements temporarily
+      if (message.preview && results.success) {
+        highlightElements(message.selector);
+      }
+
+      sendResponse(results);
     }
   });
+
+  // Function to temporarily highlight matching elements
+  function highlightElements(selector) {
+    try {
+      // Remove any existing highlights
+      document.querySelectorAll(".dlm-highlight").forEach((el) => {
+        el.classList.remove("dlm-highlight");
+      });
+
+      // Add highlight style if not already present
+      if (!document.getElementById("dlm-highlight-style")) {
+        const style = document.createElement("style");
+        style.id = "dlm-highlight-style";
+        style.textContent = `
+          .dlm-highlight {
+            outline: 2px solid #3b82f6 !important;
+            outline-offset: 2px !important;
+            background-color: rgba(59, 130, 246, 0.1) !important;
+            transition: all 0.3s ease !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      // Highlight matching elements
+      const elements = document.querySelectorAll(selector);
+      elements.forEach((element) => {
+        element.classList.add("dlm-highlight");
+      });
+
+      // Remove highlights after a few seconds
+      setTimeout(() => {
+        document.querySelectorAll(".dlm-highlight").forEach((el) => {
+          el.classList.remove("dlm-highlight");
+        });
+      }, 3000);
+    } catch (error) {
+      console.error("Error highlighting elements:", error);
+    }
+  }
 
   // Log that content script is loaded
   console.log("DLM content script loaded and ready");
