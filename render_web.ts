@@ -676,9 +676,37 @@ export function renderWeb(
           <div class="download-list">
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
+                <path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0ZM8 5.5a.5.5 0 0 1 .5.5v2.793l1.646-1.647a.5.5 0 0 1 .708.708l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5a.5.5 0 0 1 .708-.708L7.5 8.793V6a.5.5 0 0 1 .5-.5Z" />
+              </svg>
+              Upcoming Downloads
+            </h2>
+            <div class="download-items" id="upcoming-container">
+              <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
+                No pending downloads in queue
+              </div>
+            </div>
+          </div>
+
+          <div class="download-list">
+            <h2>
+              <svg class="icon" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5V6z" />
+              </svg>
+              Recently Added
+            </h2>
+            <div class="download-items" id="recent-container">
+              <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
+                No recent downloads
+              </div>
+            </div>
+          </div>
+
+          <div class="download-list">
+            <h2>
+              <svg class="icon" viewBox="0 0 16 16">
                 <path d="M2.5 3.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11ZM2.5 7.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11ZM2.5 11.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11Z" />
               </svg>
-              Recent Downloads
+              All Downloads
             </h2>
             <div class="download-items" id="downloads-container">
               ${raw(downloadsList)}
@@ -792,7 +820,16 @@ export function renderWeb(
             // Fetch downloads
             const downloadsResponse = await fetch('/api/downloads');
             const downloadsData = await downloadsResponse.json();
-            updateDownloadsList(downloadsData.downloads);
+
+            // Fetch upcoming downloads
+            const upcomingResponse = await fetch('/api/upcoming');
+            const upcomingData = await upcomingResponse.json();
+
+            // Fetch recent downloads
+            const recentResponse = await fetch('/api/recent');
+            const recentData = await recentResponse.json();
+
+            updateDownloadsList(downloadsData.downloads, upcomingData.downloads, recentData.downloads);
 
             // Fetch system info
             const systemResponse = await fetch('/api/system');
@@ -837,17 +874,19 @@ export function renderWeb(
           });
         }
 
-        function updateDownloadsList(downloads) {
+        function updateDownloadsList(downloads, upcomingDownloads, recentDownloads) {
           const container = document.getElementById('downloads-container');
           const downloadingContainer = document.getElementById('downloading-container');
+          const upcomingContainer = document.getElementById('upcoming-container');
+          const recentContainer = document.getElementById('recent-container');
 
           container.innerHTML = '';
           downloadingContainer.innerHTML = '';
+          upcomingContainer.innerHTML = '';
+          recentContainer.innerHTML = '';
 
           if (downloads.length === 0) {
             container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads found</div>';
-            downloadingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads currently in progress</div>';
-            return;
           }
 
           const downloadingItems = downloads.filter(d => d.status === 'downloading');
@@ -881,7 +920,66 @@ export function renderWeb(
             });
           }
 
-          // Update recent downloads section
+          // Update upcoming downloads section (next pending downloads)
+          if (upcomingDownloads.length === 0) {
+            upcomingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No pending downloads in queue</div>';
+          } else {
+            upcomingDownloads.forEach(download => {
+              const item = document.createElement('div');
+              item.className = 'download-item';
+
+              const actionsHtml = '<div class="download-actions">' +
+                                 '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                                 '</div>';
+
+              item.innerHTML = '<div class="download-info">' +
+                              '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
+                              '<div class="download-url">' + download.url + '</div>' +
+                              '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                              '</div>' +
+                              '<div style="display: flex; align-items: center; gap: 8px;">' +
+                              '<div class="download-status pending">pending</div>' +
+                              actionsHtml +
+                              '</div>';
+              upcomingContainer.appendChild(item);
+            });
+          }
+
+          // Update recently added section (newest downloads regardless of status)
+          if (recentDownloads.length === 0) {
+            recentContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No recent downloads</div>';
+          } else {
+            recentDownloads.forEach(download => {
+              const item = document.createElement('div');
+              item.className = 'download-item';
+
+              let actionsHtml = '';
+              if (download.status === 'error') {
+                actionsHtml = '<div class="download-actions">' +
+                             '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
+                             '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                             '</div>';
+              } else if (download.status === 'success' || download.status === 'pending') {
+                actionsHtml = '<div class="download-actions">' +
+                             '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                             '</div>';
+              }
+
+              item.innerHTML = '<div class="download-info">' +
+                              '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
+                              '<div class="download-url">' + download.url + '</div>' +
+                              '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                              (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
+                              '</div>' +
+                              '<div style="display: flex; align-items: center; gap: 8px;">' +
+                              '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
+                              actionsHtml +
+                              '</div>';
+              recentContainer.appendChild(item);
+            });
+          }
+
+          // Update all downloads section
           otherItems.forEach(download => {
             const item = document.createElement('div');
             item.className = 'download-item';

@@ -137,6 +137,16 @@ export function runWebServer() {
     return c.json({ downloads });
   });
 
+  app.get("/api/upcoming", (c) => {
+    const upcoming = selectDownloads(10, DownloadStatus.pending);
+    return c.json({ downloads: upcoming });
+  });
+
+  app.get("/api/recent", (c) => {
+    const recent = selectDownloads(10);
+    return c.json({ downloads: recent });
+  });
+
   app.get("/api/config", async (c) => {
     try {
       const collections = await loadCollectonsFromConfig();
