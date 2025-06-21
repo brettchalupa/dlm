@@ -228,6 +228,7 @@ export function renderWeb(
         }
 
         .download-list h2 {
+          display: inline-block;
           margin: 0;
           padding: 20px 20px 0 20px;
           font-size: 1.25rem;
@@ -658,7 +659,6 @@ export function renderWeb(
             </h2>
             <div
               class="button-group"
-              style="margin-bottom: 16px;"
               id="downloading-controls"
               style="display: none;"
             >
@@ -895,10 +895,10 @@ export function renderWeb(
           // Update currently downloading section
           const downloadingControls = document.getElementById('downloading-controls');
           if (downloadingItems.length === 0) {
-            downloadingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads currently in progress</div>';
+            downloadingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); display: inline-block; padding: 8px;">No downloads currently in progress</div>';
             downloadingControls.style.display = 'none';
           } else {
-            downloadingControls.style.display = 'block';
+            downloadingControls.style.display = 'inline-block';
             downloadingItems.forEach(download => {
               const item = document.createElement('div');
               item.className = 'download-item';
