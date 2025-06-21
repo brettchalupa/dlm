@@ -1112,7 +1112,7 @@ export function renderWeb(
         // Initialize auto-refresh
         function startAutoRefresh() {
           refreshData(); // Initial load
-          refreshInterval = setInterval(refreshData, 3000); // Refresh every 3 seconds
+          refreshInterval = setInterval(refreshData, 10000); // Refresh every 10 seconds
         }
 
         function stopAutoRefresh() {
