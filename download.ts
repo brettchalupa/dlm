@@ -448,7 +448,13 @@ function updateDownload(download: Download) {
   db.close();
 }
 
+const FILE_EXTS = [".zip", ".mp4", ".mp3", ".png", ".jpg", ".jpeg", ".gif"];
+
 async function pageTitle(url: string): Promise<string | null> {
+  if (FILE_EXTS.some(ext => url.endsWith(ext))) {
+    return null;
+  }
+
   try {
     const res = await fetch(url);
     const html = await res.text();
