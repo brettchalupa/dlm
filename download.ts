@@ -110,7 +110,11 @@ async function downloadDownload(download: Download) {
     download.status = DownloadStatus.success;
     download.downloadedAt = new Date();
     updateDownload(download);
-    logger.log("successfully downloaded:", download.title || download.url); // display more info
+    logger.log(
+      `[${new Date().toISOString()}]`,
+      "successfully downloaded:",
+      download.title || download.url,
+    ); // display more info
   } else {
     download.status = DownloadStatus.error;
     const errorMessage = new TextDecoder().decode(output.stderr).trim() ||
@@ -451,7 +455,7 @@ function updateDownload(download: Download) {
 const FILE_EXTS = [".zip", ".mp4", ".mp3", ".png", ".jpg", ".jpeg", ".gif"];
 
 async function pageTitle(url: string): Promise<string | null> {
-  if (FILE_EXTS.some(ext => url.endsWith(ext))) {
+  if (FILE_EXTS.some((ext) => url.endsWith(ext))) {
     return null;
   }
 
