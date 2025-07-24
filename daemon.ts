@@ -1,37 +1,62 @@
-import {
-  downloadDownloads,
-  DownloadStatus,
-  selectDownloads,
-} from "./download.ts";
 import { Logger } from "./logger.ts";
 
 const logger = new Logger();
 
-function minutesToMilli(minutes: number): number {
-  return 1000 * 60 * minutes;
-}
-
-async function runDaemon(numDownloads: number) {
-  const downloads = selectDownloads(
-    numDownloads,
-    DownloadStatus.pending,
+export function startDaemon(mins: number, downloadsPerRun: number) {
+  // Create a new web worker
+  const worker = new Worker(
+    new URL("./daemon.worker.ts", import.meta.url).href,
+    { type: "module" },
   );
-  await downloadDownloads(downloads);
-}
 
-export async function startDaemon(mins: number, downloadsPerRun: number) {
-  const delay = minutesToMilli(mins);
-  logger.log(`running daemon every ${mins} minutes`);
-  await runDaemon(downloadsPerRun);
-  setInterval(async () => {
-    await runDaemon(downloadsPerRun);
-  }, delay);
+  // Set up message handler
+  worker.addEventListener("message", (event) => {
+    const { type, message } = event.data;
+
+    switch (type) {
+      case "ready":
+        logger.log("Daemon worker is ready");
+        // Start the daemon
+        worker.postMessage({
+          type: "start",
+          mins,
+          downloadsPerRun,
+        });
+        break;
+      case "started":
+        logger.log(`Main thread: ${message}`);
+        break;
+      case "status":
+        logger.log(`Main thread: ${message}`);
+        break;
+      default:
+        logger.log(`Unknown message type: ${type}`);
+    }
+  });
+
+  // Handle worker errors
+  worker.addEventListener("error", (error) => {
+    logger.error("Worker error:", error);
+  });
+
+  return worker;
 }
 
 export function runDaemonFromCLI() {
   const mins = Deno.args[1] || "5";
   const downloadsPerRun = Deno.args[2] ? parseInt(Deno.args[2]) : 3;
-  startDaemon(parseInt(mins), downloadsPerRun);
+
+  const worker = startDaemon(parseInt(mins), downloadsPerRun);
+
+  // Keep the main thread alive
+  logger.log("Daemon running in worker thread. Press Ctrl+C to stop.");
+
+  // Handle graceful shutdown
+  Deno.addSignalListener("SIGINT", () => {
+    logger.log("Shutting down daemon worker...");
+    worker.terminate();
+    Deno.exit(0);
+  });
 }
 
 if (import.meta.main) {
