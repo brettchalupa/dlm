@@ -561,7 +561,9 @@ export function renderWeb(
             <div class="card">
               <h2>
                 <svg class="icon" viewBox="0 0 16 16">
-                  <path d="M8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8ZM2 8a6 6 0 1 0 12 0A6 6 0 0 0 2 8Z" />
+                  <path
+                    d="M8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8ZM2 8a6 6 0 1 0 12 0A6 6 0 0 0 2 8Z"
+                  />
                 </svg>
                 Download Statistics
               </h2>
@@ -573,7 +575,9 @@ export function renderWeb(
             <div class="card">
               <h2>
                 <svg class="icon" viewBox="0 0 16 16">
-                  <path d="M9.585.52a2.678 2.678 0 0 0-3.17 0l-.928.68a1.178 1.178 0 0 1-.518.215L3.83 1.59a2.678 2.678 0 0 0-2.24 2.24l-.175 1.14a1.178 1.178 0 0 1-.215.518l-.68.928a2.678 2.678 0 0 0 0 3.17l.68.928c.113.153.186.33.215.518l.175 1.138a2.678 2.678 0 0 0 2.24 2.24l1.138.175c.187.029.365.102.518.215l.928.68a2.678 2.678 0 0 0 3.17 0l.928-.68a1.17 1.17 0 0 1 .518-.215l1.138-.175a2.678 2.678 0 0 0 2.24-2.24l.175-1.138c.029-.187.102-.365.215-.518l.68-.928a2.678 2.678 0 0 0 0-3.17l-.68-.928a1.179 1.179 0 0 1-.215-.518L14.17 3.83a2.678 2.678 0 0 0-2.24-2.24l-1.138-.175a1.179 1.179 0 0 1-.518-.215L9.585.52ZM7.303 1.728c.415-.305.973-.305 1.388 0l.928.68c.348.256.752.423 1.18.489l1.136.174c.51.078.909.478.987.987l.174 1.137c.066.427.233.831.489 1.18l.68.927c.305.415.305.973 0 1.388l-.68.928a2.678 2.678 0 0 0-.489 1.18l-.174 1.136a1.178 1.178 0 0 1-.987.987l-1.137.174a2.678 2.678 0 0 0-1.18.489l-.927.68c-.415.305-.973.305-1.388 0l-.928-.68a2.678 2.678 0 0 0-1.18-.489l-1.136-.174a1.178 1.178 0 0 1-.987-.987L3.93 10.05a2.678 2.678 0 0 0-.489-1.18l-.68-.928a1.178 1.178 0 0 1 0-1.388l.68-.927a2.678 2.678 0 0 0 .489-1.18L3.104 3.17c.078-.51.478-.909.987-.987l1.137-.174a2.678 2.678 0 0 0 1.18-.489l.928-.68ZM11.28 6.78a.75.75 0 0 0-1.06-1.06L7.25 8.689 5.78 7.22a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0l3.5-3.5Z" />
+                  <path
+                    d="M9.585.52a2.678 2.678 0 0 0-3.17 0l-.928.68a1.178 1.178 0 0 1-.518.215L3.83 1.59a2.678 2.678 0 0 0-2.24 2.24l-.175 1.14a1.178 1.178 0 0 1-.215.518l-.68.928a2.678 2.678 0 0 0 0 3.17l.68.928c.113.153.186.33.215.518l.175 1.138a2.678 2.678 0 0 0 2.24 2.24l1.138.175c.187.029.365.102.518.215l.928.68a2.678 2.678 0 0 0 3.17 0l.928-.68a1.17 1.17 0 0 1 .518-.215l1.138-.175a2.678 2.678 0 0 0 2.24-2.24l.175-1.138c.029-.187.102-.365.215-.518l.68-.928a2.678 2.678 0 0 0 0-3.17l-.68-.928a1.179 1.179 0 0 1-.215-.518L14.17 3.83a2.678 2.678 0 0 0-2.24-2.24l-1.138-.175a1.179 1.179 0 0 1-.518-.215L9.585.52ZM7.303 1.728c.415-.305.973-.305 1.388 0l.928.68c.348.256.752.423 1.18.489l1.136.174c.51.078.909.478.987.987l.174 1.137c.066.427.233.831.489 1.18l.68.927c.305.415.305.973 0 1.388l-.68.928a2.678 2.678 0 0 0-.489 1.18l-.174 1.136a1.178 1.178 0 0 1-.987.987l-1.137.174a2.678 2.678 0 0 0-1.18.489l-.927.68c-.415.305-.973.305-1.388 0l-.928-.68a2.678 2.678 0 0 0-1.18-.489l-1.136-.174a1.178 1.178 0 0 1-.987-.987L3.93 10.05a2.678 2.678 0 0 0-.489-1.18l-.68-.928a1.178 1.178 0 0 1 0-1.388l.68-.927a2.678 2.678 0 0 0 .489-1.18L3.104 3.17c.078-.51.478-.909.987-.987l1.137-.174a2.678 2.678 0 0 0 1.18-.489l.928-.68ZM11.28 6.78a.75.75 0 0 0-1.06-1.06L7.25 8.689 5.78 7.22a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0l3.5-3.5Z"
+                  />
                 </svg>
                 System Status
               </h2>
@@ -597,7 +601,9 @@ export function renderWeb(
           <div class="form-section">
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
-                <path d="M7.47 10.78a.75.75 0 0 0 1.06 0l3.75-3.75a.75.75 0 0 0-1.06-1.06L8.75 8.44V1.75a.75.75 0 0 0-1.5 0v6.69L4.78 5.97a.75.75 0 0 0-1.06 1.06l3.75 3.75ZM3.75 13a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z" />
+                <path
+                  d="M7.47 10.78a.75.75 0 0 0 1.06 0l3.75-3.75a.75.75 0 0 0-1.06-1.06L8.75 8.44V1.75a.75.75 0 0 0-1.5 0v6.69L4.78 5.97a.75.75 0 0 0-1.06 1.06l3.75 3.75ZM3.75 13a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z"
+                />
               </svg>
               Add Downloads
             </h2>
@@ -631,7 +637,9 @@ export function renderWeb(
           >
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
-                <path d="M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L8 6.94Z" />
+                <path
+                  d="M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L8 6.94Z"
+                />
               </svg>
               Failed Downloads
             </h2>
@@ -653,7 +661,9 @@ export function renderWeb(
           <div class="download-list">
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
-                <path d="M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0v-.214c-2.162-1.241-4.49-1.843-6.912-2.083l.405 2.712A1 1 0 0 1 5.51 15.1h-.548a1 1 0 0 1-.916-.599l-1.85-3.49-.202-.003A2.014 2.014 0 0 1 0 9V7a2.014 2.014 0 0 1 1.994-2.008L2 5c.777 0 1.449.325 1.937.835.59-.312 1.263-.507 2.063-.507z" />
+                <path
+                  d="M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0v-.214c-2.162-1.241-4.49-1.843-6.912-2.083l.405 2.712A1 1 0 0 1 5.51 15.1h-.548a1 1 0 0 1-.916-.599l-1.85-3.49-.202-.003A2.014 2.014 0 0 1 0 9V7a2.014 2.014 0 0 1 1.994-2.008L2 5c.777 0 1.449.325 1.937.835.59-.312 1.263-.507 2.063-.507z"
+                />
               </svg>
               Currently Downloading
             </h2>
@@ -667,7 +677,9 @@ export function renderWeb(
               </button>
             </div>
             <div class="download-items" id="downloading-container">
-              <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
+              <div
+                style="text-align: center; color: var(--text-secondary); padding: 20px;"
+              >
                 No downloads currently in progress
               </div>
             </div>
@@ -676,12 +688,16 @@ export function renderWeb(
           <div class="download-list">
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
-                <path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0ZM8 5.5a.5.5 0 0 1 .5.5v2.793l1.646-1.647a.5.5 0 0 1 .708.708l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5a.5.5 0 0 1 .708-.708L7.5 8.793V6a.5.5 0 0 1 .5-.5Z" />
+                <path
+                  d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0ZM8 5.5a.5.5 0 0 1 .5.5v2.793l1.646-1.647a.5.5 0 0 1 .708.708l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5a.5.5 0 0 1 .708-.708L7.5 8.793V6a.5.5 0 0 1 .5-.5Z"
+                />
               </svg>
               Upcoming Downloads
             </h2>
             <div class="download-items" id="upcoming-container">
-              <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
+              <div
+                style="text-align: center; color: var(--text-secondary); padding: 20px;"
+              >
                 No pending downloads in queue
               </div>
             </div>
@@ -690,12 +706,16 @@ export function renderWeb(
           <div class="download-list">
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5V6z" />
+                <path
+                  d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5V6z"
+                />
               </svg>
               Recently Added
             </h2>
             <div class="download-items" id="recent-container">
-              <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
+              <div
+                style="text-align: center; color: var(--text-secondary); padding: 20px;"
+              >
                 No recent downloads
               </div>
             </div>
@@ -704,7 +724,9 @@ export function renderWeb(
           <div class="download-list">
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
-                <path d="M2.5 3.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11ZM2.5 7.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11ZM2.5 11.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11Z" />
+                <path
+                  d="M2.5 3.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11ZM2.5 7.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11ZM2.5 11.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11Z"
+                />
               </svg>
               All Downloads
             </h2>
@@ -716,7 +738,9 @@ export function renderWeb(
           <div class="logs-section">
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
-                <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828ZM7.5 1.093V12.85c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V1.093Z" />
+                <path
+                  d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828ZM7.5 1.093V12.85c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V1.093Z"
+                />
               </svg>
               System Logs
             </h2>
@@ -749,16 +773,20 @@ export function renderWeb(
             </div>
             <div class="logs-container" id="logs-container">
               ${raw(
-      logs.split("\n").map((line) => `<div class="log-line">${line}</div>`)
-        .join(""),
-    )}
+                logs.split("\n").map((line) =>
+                  `<div class="log-line">${line}</div>`
+                )
+                  .join(""),
+              )}
             </div>
           </div>
 
           <div class="config-section">
             <h2>
               <svg class="icon" viewBox="0 0 16 16">
-                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34ZM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858Z" />
+                <path
+                  d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34ZM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858Z"
+                />
               </svg>
               Configuration
             </h2>
@@ -852,151 +880,151 @@ export function renderWeb(
             const errorDownloads = downloadsData.downloads.filter(d => d.status === 'error');
             updateErrorSection(errorDownloads);
 
-          } catch (error) {
-            console.error('Failed to refresh data:', error);
-            showNotification('Failed to refresh data', 'error');
-          } finally {
-            isRefreshing = false;
-            hideRefreshIndicator();
-          }
-        }
-
-        function updateStats(statusGroups) {
-          const container = document.getElementById('stats-container');
-          container.innerHTML = '';
-
-          statusGroups.forEach(stat => {
-            const statItem = document.createElement('div');
-            statItem.className = 'stat-item';
-            statItem.innerHTML = '<span class="stat-number ' + stat.status + '">' + stat.count + '</span>' +
-                                '<span class="stat-label">' + stat.status + '</span>';
-            container.appendChild(statItem);
-          });
-        }
-
-        function updateDownloadsList(downloads, upcomingDownloads, recentDownloads) {
-          const container = document.getElementById('downloads-container');
-          const downloadingContainer = document.getElementById('downloading-container');
-          const upcomingContainer = document.getElementById('upcoming-container');
-          const recentContainer = document.getElementById('recent-container');
-
-          container.innerHTML = '';
-          downloadingContainer.innerHTML = '';
-          upcomingContainer.innerHTML = '';
-          recentContainer.innerHTML = '';
-
-          if (downloads.length === 0) {
-            container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads found</div>';
+            } catch (error) {
+              console.error('Failed to refresh data:', error);
+              showNotification('Failed to refresh data', 'error');
+            } finally {
+              isRefreshing = false;
+              hideRefreshIndicator();
+            }
           }
 
-          const downloadingItems = downloads.filter(d => d.status === 'downloading');
-          const otherItems = downloads.filter(d => d.status !== 'downloading').slice(0, 50);
+          function updateStats(statusGroups) {
+            const container = document.getElementById('stats-container');
+            container.innerHTML = '';
 
-          // Update currently downloading section
-          const downloadingControls = document.getElementById('downloading-controls');
-          if (downloadingItems.length === 0) {
-            downloadingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); display: inline-block; padding: 8px;">No downloads currently in progress</div>';
-            downloadingControls.style.display = 'none';
-          } else {
-            downloadingControls.style.display = 'inline-block';
-            downloadingItems.forEach(download => {
-              const item = document.createElement('div');
-              item.className = 'download-item';
-
-              const resetButton = '<div class="download-actions">' +
-                                 '<button onclick="resetDownload(' + download.id + ')" title="Reset to Pending">⟲</button>' +
-                                 '</div>';
-
-              item.innerHTML = '<div class="download-info">' +
-                              '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
-                              '<div class="download-url">' + download.url + '</div>' +
-                              '<div class="download-collection">Collection: ' + download.collection + '</div>' +
-                              '</div>' +
-                              '<div style="display: flex; align-items: center; gap: 8px;">' +
-                              '<div class="download-status downloading">downloading</div>' +
-                              resetButton +
-                              '</div>';
-              downloadingContainer.appendChild(item);
+            statusGroups.forEach(stat => {
+              const statItem = document.createElement('div');
+              statItem.className = 'stat-item';
+              statItem.innerHTML = '<span class="stat-number ' + stat.status + '">' + stat.count + '</span>' +
+                '<span class="stat-label">' + stat.status + '</span>';
+              container.appendChild(statItem);
             });
           }
 
-          // Update upcoming downloads section (next pending downloads)
-          if (upcomingDownloads.length === 0) {
-            upcomingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No pending downloads in queue</div>';
-          } else {
-            upcomingDownloads.forEach(download => {
-              const item = document.createElement('div');
-              item.className = 'download-item';
+          function updateDownloadsList(downloads, upcomingDownloads, recentDownloads) {
+            const container = document.getElementById('downloads-container');
+            const downloadingContainer = document.getElementById('downloading-container');
+            const upcomingContainer = document.getElementById('upcoming-container');
+            const recentContainer = document.getElementById('recent-container');
 
-              const actionsHtml = '<div class="download-actions">' +
-                                 '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
-                                 '</div>';
+            container.innerHTML = '';
+            downloadingContainer.innerHTML = '';
+            upcomingContainer.innerHTML = '';
+            recentContainer.innerHTML = '';
 
-              item.innerHTML = '<div class="download-info">' +
-                              '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
-                              '<div class="download-url">' + download.url + '</div>' +
-                              '<div class="download-collection">Collection: ' + download.collection + '</div>' +
-                              '</div>' +
-                              '<div style="display: flex; align-items: center; gap: 8px;">' +
-                              '<div class="download-status pending">pending</div>' +
-                              actionsHtml +
-                              '</div>';
-              upcomingContainer.appendChild(item);
-            });
-          }
-
-          // Update recently added section (newest downloads regardless of status)
-          if (recentDownloads.length === 0) {
-            recentContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No recent downloads</div>';
-          } else {
-            recentDownloads.forEach(download => {
-              const item = document.createElement('div');
-              item.className = 'download-item';
-
-              let actionsHtml = '';
-              if (download.status === 'error') {
-                actionsHtml = '<div class="download-actions">' +
-                             '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
-                             '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
-                             '</div>';
-              } else if (download.status === 'success' || download.status === 'pending') {
-                actionsHtml = '<div class="download-actions">' +
-                             '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
-                             '</div>';
-              }
-
-              item.innerHTML = '<div class="download-info">' +
-                              '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
-                              '<div class="download-url">' + download.url + '</div>' +
-                              '<div class="download-collection">Collection: ' + download.collection + '</div>' +
-                              (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
-                              '</div>' +
-                              '<div style="display: flex; align-items: center; gap: 8px;">' +
-                              '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
-                              actionsHtml +
-                              '</div>';
-              recentContainer.appendChild(item);
-            });
-          }
-
-          // Update all downloads section
-          otherItems.forEach(download => {
-            const item = document.createElement('div');
-            item.className = 'download-item';
-
-            let actionsHtml = '';
-            if (download.status === 'error') {
-              actionsHtml = '<div class="download-actions">' +
-                           '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
-                           '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
-                           '</div>';
-            } else if (download.status === 'success' || download.status === 'pending') {
-              actionsHtml = '<div class="download-actions">' +
-                           '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
-                           '</div>';
+            if (downloads.length === 0) {
+              container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads found</div>';
             }
 
-            item.innerHTML = '<div class="download-info">' +
+            const downloadingItems = downloads.filter(d => d.status === 'downloading');
+            const otherItems = downloads.filter(d => d.status !== 'downloading').slice(0, 50);
+
+            // Update currently downloading section
+            const downloadingControls = document.getElementById('downloading-controls');
+            if (downloadingItems.length === 0) {
+              downloadingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); display: inline-block; padding: 8px;">No downloads currently in progress</div>';
+              downloadingControls.style.display = 'none';
+            } else {
+              downloadingControls.style.display = 'inline-block';
+              downloadingItems.forEach(download => {
+                const item = document.createElement('div');
+                item.className = 'download-item';
+
+                const resetButton = '<div class="download-actions">' +
+                  '<button onclick="resetDownload(' + download.id + ')" title="Reset to Pending">⟲</button>' +
+                  '</div>';
+
+                  item.innerHTML = '<div class="download-info">' +
+                    '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
+                    '<div class="download-url">' + download.url + '</div>' +
+                    '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                    '</div>' +
+                    '<div style="display: flex; align-items: center; gap: 8px;">' +
+                    '<div class="download-status downloading">downloading</div>' +
+                    resetButton +
+                    '</div>';
+                  downloadingContainer.appendChild(item);
+                });
+              }
+
+              // Update upcoming downloads section (next pending downloads)
+              if (upcomingDownloads.length === 0) {
+                upcomingContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No pending downloads in queue</div>';
+              } else {
+                upcomingDownloads.forEach(download => {
+                  const item = document.createElement('div');
+                  item.className = 'download-item';
+
+                  const actionsHtml = '<div class="download-actions">' +
+                    '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                    '</div>';
+
+                    item.innerHTML = '<div class="download-info">' +
+                      '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
+                      '<div class="download-url">' + download.url + '</div>' +
+                      '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                      '</div>' +
+                      '<div style="display: flex; align-items: center; gap: 8px;">' +
+                      '<div class="download-status pending">pending</div>' +
+                      actionsHtml +
+                      '</div>';
+                    upcomingContainer.appendChild(item);
+                  });
+                }
+
+                // Update recently added section (newest downloads regardless of status)
+                if (recentDownloads.length === 0) {
+                  recentContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No recent downloads</div>';
+                } else {
+                  recentDownloads.forEach(download => {
+                    const item = document.createElement('div');
+                    item.className = 'download-item';
+
+                    let actionsHtml = '';
+                    if (download.status === 'error') {
+                      actionsHtml = '<div class="download-actions">' +
+                        '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
+                        '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                        '</div>';
+                      } else if (download.status === 'success' || download.status === 'pending') {
+                        actionsHtml = '<div class="download-actions">' +
+                          '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                          '</div>';
+                        }
+
+                        item.innerHTML = '<div class="download-info">' +
+                          '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
+                          '<div class="download-url">' + download.url + '</div>' +
+                          '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                          (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
+                          '</div>' +
+                          '<div style="display: flex; align-items: center; gap: 8px;">' +
+                          '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
+                          actionsHtml +
+                          '</div>';
+                        recentContainer.appendChild(item);
+                      });
+                    }
+
+                    // Update all downloads section
+                    otherItems.forEach(download => {
+                      const item = document.createElement('div');
+                      item.className = 'download-item';
+
+                      let actionsHtml = '';
+                      if (download.status === 'error') {
+                        actionsHtml = '<div class="download-actions">' +
+                          '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
+                          '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                          '</div>';
+                        } else if (download.status === 'success' || download.status === 'pending') {
+                          actionsHtml = '<div class="download-actions">' +
+                            '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                            '</div>';
+                          }
+
+                          item.innerHTML = '<div class="download-info">' +
                             '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
                             '<div class="download-url">' + download.url + '</div>' +
                             '<div class="download-collection">Collection: ' + download.collection + '</div>' +
@@ -1006,26 +1034,26 @@ export function renderWeb(
                             '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
                             actionsHtml +
                             '</div>';
-            container.appendChild(item);
-          });
-        }
+                          container.appendChild(item);
+                        });
+                      }
 
-        function updateErrorSection(errorDownloads) {
-          const section = document.getElementById('error-section');
-          const container = document.getElementById('error-container');
+                      function updateErrorSection(errorDownloads) {
+                        const section = document.getElementById('error-section');
+                        const container = document.getElementById('error-container');
 
-          if (errorDownloads.length === 0) {
-            section.style.display = 'none';
-            return;
-          }
+                        if (errorDownloads.length === 0) {
+                          section.style.display = 'none';
+                          return;
+                        }
 
-          section.style.display = 'block';
-          container.innerHTML = '';
+                        section.style.display = 'block';
+                        container.innerHTML = '';
 
-          errorDownloads.forEach(download => {
-            const item = document.createElement('div');
-            item.className = 'error-item';
-            item.innerHTML = '<div class="error-info">' +
+                        errorDownloads.forEach(download => {
+                          const item = document.createElement('div');
+                          item.className = 'error-item';
+                          item.innerHTML = '<div class="error-info">' +
                             '<strong>ID ' + download.id + ':</strong> ' + (download.title || 'Untitled') + '<br>' +
                             '<small>' + download.url + '</small>' +
                             (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
@@ -1034,331 +1062,331 @@ export function renderWeb(
                             '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
                             '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
                             '</div>';
-            container.appendChild(item);
-          });
-        }
+                          container.appendChild(item);
+                        });
+                      }
 
-        function updateSystemInfo(systemData) {
-          if (systemData.uptime) {
-            document.getElementById('uptime').textContent = systemData.uptime;
-          }
-          if (systemData.memory && systemData.memory.rss) {
-            document.getElementById('memory').textContent = systemData.memory.rss;
-          }
-          if (systemData.version && systemData.version.deno) {
-            document.getElementById('version').textContent = systemData.version.deno;
-          }
-        }
+                      function updateSystemInfo(systemData) {
+                        if (systemData.uptime) {
+                          document.getElementById('uptime').textContent = systemData.uptime;
+                        }
+                        if (systemData.memory && systemData.memory.rss) {
+                          document.getElementById('memory').textContent = systemData.memory.rss;
+                        }
+                        if (systemData.version && systemData.version.deno) {
+                          document.getElementById('version').textContent = systemData.version.deno;
+                        }
+                      }
 
-        async function loadConfig() {
-          try {
-            const response = await fetch('/api/config');
-            if (response.ok) {
-              const config = await response.json();
-              updateConfigSection(config);
-            } else {
-              document.getElementById('config-container').innerHTML = '<div style="color: var(--text-secondary);">Configuration not available via API</div>';
-              showNotification('Configuration not available', 'error');
-            }
-          } catch (error) {
-            document.getElementById('config-container').innerHTML = '<div style="color: var(--accent-red);">Failed to load configuration</div>';
-            showNotification('Failed to load configuration', 'error');
-          }
-        }
+                      async function loadConfig() {
+                        try {
+                          const response = await fetch('/api/config');
+                          if (response.ok) {
+                            const config = await response.json();
+                            updateConfigSection(config);
+                          } else {
+                            document.getElementById('config-container').innerHTML = '<div style="color: var(--text-secondary);">Configuration not available via API</div>';
+                            showNotification('Configuration not available', 'error');
+                          }
+                        } catch (error) {
+                          document.getElementById('config-container').innerHTML = '<div style="color: var(--accent-red);">Failed to load configuration</div>';
+                          showNotification('Failed to load configuration', 'error');
+                        }
+                      }
 
-        function updateConfigSection(config) {
-          const container = document.getElementById('config-container');
-          container.innerHTML = '';
+                      function updateConfigSection(config) {
+                        const container = document.getElementById('config-container');
+                        container.innerHTML = '';
 
-          if (config.collections) {
-            Object.entries(config.collections).forEach(([name, collection]) => {
-              const item = document.createElement('div');
-              item.className = 'config-item';
-              item.innerHTML = '<strong>' + name + ':</strong><br>' +
+                        if (config.collections) {
+                          Object.entries(config.collections).forEach(([name, collection]) => {
+                            const item = document.createElement('div');
+                            item.className = 'config-item';
+                            item.innerHTML = '<strong>' + name + ':</strong><br>' +
                               '<small>Directory: ' + (collection.dir || 'N/A') + '</small><br>' +
                               '<small>Command: ' + (collection.command || 'N/A') + '</small><br>' +
                               '<small>Domains: ' + (collection.domains ? collection.domains.join(', ') : 'N/A') + '</small>';
-              container.appendChild(item);
-            });
-          } else {
-            container.innerHTML = 'No collections configured';
-          }
-        }
+                            container.appendChild(item);
+                          });
+                        } else {
+                          container.innerHTML = 'No collections configured';
+                        }
+                      }
 
-        async function startDownloads() {
-          try {
-            const response = await fetch('/api/download', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ limit: 5 })
-            });
+                      async function startDownloads() {
+                        try {
+                          const response = await fetch('/api/download', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ limit: 5 })
+                          });
 
-            if (response.ok) {
-              const result = await response.json();
-              showNotification(result.message, 'success');
-              refreshData();
-            } else {
-              showNotification('Failed to start downloads', 'error');
-            }
-          } catch (error) {
-            showNotification('Failed to start downloads', 'error');
-          }
-        }
+                          if (response.ok) {
+                            const result = await response.json();
+                            showNotification(result.message, 'success');
+                            refreshData();
+                          } else {
+                            showNotification('Failed to start downloads', 'error');
+                          }
+                        } catch (error) {
+                          showNotification('Failed to start downloads', 'error');
+                        }
+                      }
 
-        function clearForm() {
-          document.getElementById('urls').value = '';
-        }
+                      function clearForm() {
+                        document.getElementById('urls').value = '';
+                      }
 
-        // Initialize auto-refresh
-        function startAutoRefresh() {
-          refreshData(); // Initial load
-          refreshInterval = setInterval(refreshData, 10000); // Refresh every 10 seconds
-        }
+                      // Initialize auto-refresh
+                      function startAutoRefresh() {
+                        refreshData(); // Initial load
+                        refreshInterval = setInterval(refreshData, 10000); // Refresh every 10 seconds
+                      }
 
-        function stopAutoRefresh() {
-          if (refreshInterval) {
-            clearInterval(refreshInterval);
-          }
-        }
+                      function stopAutoRefresh() {
+                        if (refreshInterval) {
+                          clearInterval(refreshInterval);
+                        }
+                      }
 
-        // Handle form submission
-        document.getElementById('add-urls-form').addEventListener('submit', async function(e) {
-          e.preventDefault();
+                      // Handle form submission
+                      document.getElementById('add-urls-form').addEventListener('submit', async function(e) {
+                        e.preventDefault();
 
-          const formData = new FormData(this);
+                        const formData = new FormData(this);
 
-          try {
-            const response = await fetch('/add-urls', {
-              method: 'POST',
-              body: formData
-            });
+                        try {
+                          const response = await fetch('/add-urls', {
+                            method: 'POST',
+                            body: formData
+                          });
 
-            if (response.ok) {
-              clearForm();
-              refreshData();
-              showNotification('URLs added successfully', 'success');
-            } else {
-              showNotification('Failed to add URLs', 'error');
-            }
-          } catch (error) {
-            showNotification('Failed to add URLs', 'error');
-          }
-        });
+                          if (response.ok) {
+                            clearForm();
+                            refreshData();
+                            showNotification('URLs added successfully', 'success');
+                          } else {
+                            showNotification('Failed to add URLs', 'error');
+                          }
+                        } catch (error) {
+                          showNotification('Failed to add URLs', 'error');
+                        }
+                      });
 
-        // Handle visibility change to pause/resume auto-refresh
-        document.addEventListener('visibilitychange', function() {
-          if (document.hidden) {
-            stopAutoRefresh();
-          } else {
-            startAutoRefresh();
-          }
-        });
+                      // Handle visibility change to pause/resume auto-refresh
+                      document.addEventListener('visibilitychange', function() {
+                        if (document.hidden) {
+                          stopAutoRefresh();
+                        } else {
+                          startAutoRefresh();
+                        }
+                      });
 
-        // Add keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-          if (e.ctrlKey || e.metaKey) {
-            switch(e.key) {
-              case 'r':
-                e.preventDefault();
-                refreshData();
-                break;
-              case 'd':
-                e.preventDefault();
-                startDownloads();
-                break;
-            }
-          }
-        });
+                      // Add keyboard shortcuts
+                      document.addEventListener('keydown', function(e) {
+                        if (e.ctrlKey || e.metaKey) {
+                          switch(e.key) {
+                            case 'r':
+                              e.preventDefault();
+                              refreshData();
+                              break;
+                            case 'd':
+                              e.preventDefault();
+                              startDownloads();
+                              break;
+                            }
+                          }
+                        });
 
-        function filterLogs(type) {
-          const lines = document.querySelectorAll('.log-line');
-          const buttons = document.querySelectorAll('.logs-controls button');
+                        function filterLogs(type) {
+                          const lines = document.querySelectorAll('.log-line');
+                          const buttons = document.querySelectorAll('.logs-controls button');
 
-          buttons.forEach(btn => btn.classList.remove('active'));
-          document.getElementById('filter-' + type).classList.add('active');
+                          buttons.forEach(btn => btn.classList.remove('active'));
+                          document.getElementById('filter-' + type).classList.add('active');
 
-          lines.forEach(line => {
-            line.classList.remove('hidden');
-            if (type !== 'all') {
-              if (type === 'error' && !line.textContent.toLowerCase().includes('error')) {
-                line.classList.add('hidden');
-              } else if (type === 'warning' && !line.textContent.toLowerCase().includes('warning')) {
-                line.classList.add('hidden');
-              } else if (type === 'info' && !line.textContent.toLowerCase().includes('info')) {
-                line.classList.add('hidden');
+                          lines.forEach(line => {
+                            line.classList.remove('hidden');
+                            if (type !== 'all') {
+                              if (type === 'error' && !line.textContent.toLowerCase().includes('error')) {
+                                line.classList.add('hidden');
+                              } else if (type === 'warning' && !line.textContent.toLowerCase().includes('warning')) {
+                                line.classList.add('hidden');
+                              } else if (type === 'info' && !line.textContent.toLowerCase().includes('info')) {
+                                line.classList.add('hidden');
+                              }
+                            }
+                          });
+                        }
+
+                        function searchLogs() {
+                          const searchTerm = document.getElementById('log-search').value.toLowerCase();
+                          const lines = document.querySelectorAll('.log-line');
+
+                          lines.forEach(line => {
+                            if (searchTerm === '' || line.textContent.toLowerCase().includes(searchTerm)) {
+                              line.classList.remove('hidden');
+                            } else {
+                              line.classList.add('hidden');
+                            }
+                          });
+                        }
+
+                        function clearLogs() {
+                          document.getElementById('logs-container').innerHTML = '<div class="log-line">Logs cleared</div>';
+                        }
+
+                        function updateLogs(logs) {
+                          const container = document.getElementById('logs-container');
+                          const lines = logs.split('\\n').map(line => {
+                            const div = document.createElement('div');
+                            div.className = 'log-line';
+                            if (line.toLowerCase().includes('error')) {
+                              div.classList.add('error');
+                            } else if (line.toLowerCase().includes('warning')) {
+                              div.classList.add('warning');
+                            } else if (line.toLowerCase().includes('info')) {
+                              div.classList.add('info');
+                            }
+                            div.textContent = line;
+                            return div.outerHTML;
+                          }).join('');
+                          container.innerHTML = lines;
+                        }
+
+                        async function retryDownload(id) {
+                          try {
+                            const response = await fetch('/api/retry/' + id, {
+                              method: 'POST'
+                            });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
+                              showNotification('Failed to retry download', 'error');
+                            }
+                          } catch (error) {
+                            showNotification('Failed to retry download', 'error');
+                          }
+                        }
+
+                        async function deleteDownload(id) {
+                          if (!confirm('Are you sure you want to delete this download?')) {
+                            return;
+                          }
+
+                          try {
+                            const response = await fetch('/api/download/' + id, {
+                              method: 'DELETE'
+                            });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
+                              showNotification('Failed to delete download', 'error');
+                            }
+                          } catch (error) {
+                            showNotification('Failed to delete download', 'error');
+                          }
+                        }
+
+                        async function retryAllFailed() {
+                          if (!confirm('Are you sure you want to retry all failed downloads?')) {
+                            return;
+                          }
+
+                          try {
+                            const response = await fetch('/api/retry-all-failed', {
+                              method: 'POST'
+                            });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
+                              showNotification('Failed to retry downloads', 'error');
+                            }
+                          } catch (error) {
+                            showNotification('Failed to retry downloads', 'error');
+                          }
+                        }
+
+                        async function deleteAllFailed() {
+                          if (!confirm('Are you sure you want to delete ALL failed downloads? This cannot be undone.')) {
+                            return;
+                          }
+
+                          try {
+                            const response = await fetch('/api/delete-all-failed', {
+                              method: 'DELETE'
+                            });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
+                              showNotification('Failed to delete downloads', 'error');
+                            }
+                          } catch (error) {
+                            showNotification('Failed to delete downloads', 'error');
+                          }
+                        }
+
+                        async function resetDownload(id) {
+                          try {
+                            const response = await fetch('/api/reset/' + id, {
+                              method: 'POST'
+                            });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
+                              showNotification('Failed to reset download', 'error');
+                            }
+                          } catch (error) {
+                            showNotification('Failed to reset download', 'error');
+                          }
+                        }
+
+                        async function resetAllDownloading() {
+                          if (!confirm('Are you sure you want to reset all downloading items to pending?')) {
+                            return;
+                          }
+
+                          try {
+                            const response = await fetch('/api/reset-all-downloading', {
+                              method: 'POST'
+                            });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
+                              showNotification('Failed to reset downloads', 'error');
+                            }
+                          } catch (error) {
+                            showNotification('Failed to reset downloads', 'error');
+                          }
+                        }
+
+                        // Start everything when page loads
+                        window.addEventListener('load', function() {
+                          startAutoRefresh();
+                          loadConfig();
+
+                          // Add search functionality
+                          document.getElementById('log-search').addEventListener('input', searchLogs);
+                        });
+
+                        // Cleanup on page unload
+                        window.addEventListener('beforeunload', function() {
+                          stopAutoRefresh();
+                        });
+                      </script>
+                    </body>
+                  </html>
+                `;
               }
-            }
-          });
-        }
-
-        function searchLogs() {
-          const searchTerm = document.getElementById('log-search').value.toLowerCase();
-          const lines = document.querySelectorAll('.log-line');
-
-          lines.forEach(line => {
-            if (searchTerm === '' || line.textContent.toLowerCase().includes(searchTerm)) {
-              line.classList.remove('hidden');
-            } else {
-              line.classList.add('hidden');
-            }
-          });
-        }
-
-        function clearLogs() {
-          document.getElementById('logs-container').innerHTML = '<div class="log-line">Logs cleared</div>';
-        }
-
-        function updateLogs(logs) {
-          const container = document.getElementById('logs-container');
-          const lines = logs.split('\\n').map(line => {
-            const div = document.createElement('div');
-            div.className = 'log-line';
-            if (line.toLowerCase().includes('error')) {
-              div.classList.add('error');
-            } else if (line.toLowerCase().includes('warning')) {
-              div.classList.add('warning');
-            } else if (line.toLowerCase().includes('info')) {
-              div.classList.add('info');
-            }
-            div.textContent = line;
-            return div.outerHTML;
-          }).join('');
-          container.innerHTML = lines;
-        }
-
-        async function retryDownload(id) {
-          try {
-            const response = await fetch('/api/retry/' + id, {
-              method: 'POST'
-            });
-            if (response.ok) {
-              const result = await response.json();
-              showNotification(result.message, 'success');
-              refreshData();
-            } else {
-              showNotification('Failed to retry download', 'error');
-            }
-          } catch (error) {
-            showNotification('Failed to retry download', 'error');
-          }
-        }
-
-        async function deleteDownload(id) {
-          if (!confirm('Are you sure you want to delete this download?')) {
-            return;
-          }
-
-          try {
-            const response = await fetch('/api/download/' + id, {
-              method: 'DELETE'
-            });
-            if (response.ok) {
-              const result = await response.json();
-              showNotification(result.message, 'success');
-              refreshData();
-            } else {
-              showNotification('Failed to delete download', 'error');
-            }
-          } catch (error) {
-            showNotification('Failed to delete download', 'error');
-          }
-        }
-
-        async function retryAllFailed() {
-          if (!confirm('Are you sure you want to retry all failed downloads?')) {
-            return;
-          }
-
-          try {
-            const response = await fetch('/api/retry-all-failed', {
-              method: 'POST'
-            });
-            if (response.ok) {
-              const result = await response.json();
-              showNotification(result.message, 'success');
-              refreshData();
-            } else {
-              showNotification('Failed to retry downloads', 'error');
-            }
-          } catch (error) {
-            showNotification('Failed to retry downloads', 'error');
-          }
-        }
-
-        async function deleteAllFailed() {
-          if (!confirm('Are you sure you want to delete ALL failed downloads? This cannot be undone.')) {
-            return;
-          }
-
-          try {
-            const response = await fetch('/api/delete-all-failed', {
-              method: 'DELETE'
-            });
-            if (response.ok) {
-              const result = await response.json();
-              showNotification(result.message, 'success');
-              refreshData();
-            } else {
-              showNotification('Failed to delete downloads', 'error');
-            }
-          } catch (error) {
-            showNotification('Failed to delete downloads', 'error');
-          }
-        }
-
-        async function resetDownload(id) {
-          try {
-            const response = await fetch('/api/reset/' + id, {
-              method: 'POST'
-            });
-            if (response.ok) {
-              const result = await response.json();
-              showNotification(result.message, 'success');
-              refreshData();
-            } else {
-              showNotification('Failed to reset download', 'error');
-            }
-          } catch (error) {
-            showNotification('Failed to reset download', 'error');
-          }
-        }
-
-        async function resetAllDownloading() {
-          if (!confirm('Are you sure you want to reset all downloading items to pending?')) {
-            return;
-          }
-
-          try {
-            const response = await fetch('/api/reset-all-downloading', {
-              method: 'POST'
-            });
-            if (response.ok) {
-              const result = await response.json();
-              showNotification(result.message, 'success');
-              refreshData();
-            } else {
-              showNotification('Failed to reset downloads', 'error');
-            }
-          } catch (error) {
-            showNotification('Failed to reset downloads', 'error');
-          }
-        }
-
-        // Start everything when page loads
-        window.addEventListener('load', function() {
-          startAutoRefresh();
-          loadConfig();
-
-          // Add search functionality
-          document.getElementById('log-search').addEventListener('input', searchLogs);
-        });
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', function() {
-          stopAutoRefresh();
-        });
-        </script>
-      </body>
-    </html>
-  `;
-}

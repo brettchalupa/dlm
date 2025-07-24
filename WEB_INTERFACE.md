@@ -31,6 +31,7 @@ downloads with real-time updates and comprehensive monitoring capabilities.
 - API-driven configuration updates
 
 ### 🔍 Enhanced Logging
+
 - Real-time log viewing with auto-refresh
 - Log filtering by type (All, Errors, Warnings, Info)
 - Search functionality for log entries
@@ -39,6 +40,7 @@ downloads with real-time updates and comprehensive monitoring capabilities.
 - API request logs automatically filtered from web UI display
 
 ### 🚨 Error Monitoring & Management
+
 - Dedicated error section showing failed downloads with detailed error messages
 - Real-time error tracking and display
 - Error highlighting in logs
@@ -119,6 +121,7 @@ The web interface utilizes the following API endpoints:
 - Success/error feedback
 
 ### Downloads List
+
 - Recent downloads with titles and URLs
 - Status indicators with color coding
 - Scrollable list with hover effects
@@ -132,6 +135,7 @@ The web interface utilizes the following API endpoints:
 - Domain mappings
 
 ### Error Section
+
 - Failed downloads with detailed error messages
 - Individual retry and delete buttons for each failed download
 - Bulk operations (Retry All Failed, Delete All Failed)
@@ -199,7 +203,8 @@ The downloads table now includes error tracking:
 
 - `errorMessage TEXT` - Stores detailed error information from failed downloads
 - Automatic schema migration adds the column if it doesn't exist
-- Error messages are captured from command stderr/stdout during download failures
+- Error messages are captured from command stderr/stdout during download
+  failures
 
 ## Performance
 
