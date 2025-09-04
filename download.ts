@@ -356,6 +356,17 @@ export function resetAllDownloadingDownloads(): number {
   return changes;
 }
 
+export function redownload(id: number): boolean {
+  const db = new DB(DBFile);
+  db.query(
+    "UPDATE downloads SET status = ?, downloadedAt = NULL WHERE id = ? AND status = ?",
+    [DownloadStatus.pending, id, DownloadStatus.success],
+  );
+  const changes = db.changes;
+  db.close();
+  return changes > 0;
+}
+
 /**
  * Saves the URLs to the database in collection set from database.
  *

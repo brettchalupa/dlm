@@ -938,7 +938,7 @@ export function renderWeb(
                   item.innerHTML = '<div class="download-info">' +
                     '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
                     '<div class="download-url">' + download.url + '</div>' +
-                    '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                    '<div class="download-collection">Collection: ' + download.collection + ' | ID: ' + download.id + '</div>' +
                     '</div>' +
                     '<div style="display: flex; align-items: center; gap: 8px;">' +
                     '<div class="download-status downloading">downloading</div>' +
@@ -963,7 +963,7 @@ export function renderWeb(
                     item.innerHTML = '<div class="download-info">' +
                       '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
                       '<div class="download-url">' + download.url + '</div>' +
-                      '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                      '<div class="download-collection">Collection: ' + download.collection + ' | ID: ' + download.id + '</div>' +
                       '</div>' +
                       '<div style="display: flex; align-items: center; gap: 8px;">' +
                       '<div class="download-status pending">pending</div>' +
@@ -987,38 +987,12 @@ export function renderWeb(
                         '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
                         '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
                         '</div>';
-                      } else if (download.status === 'success' || download.status === 'pending') {
+                      } else if (download.status === 'success') {
                         actionsHtml = '<div class="download-actions">' +
+                          '<button onclick="redownloadItem(' + download.id + ')" title="Redownload" style="padding: 4px 8px; font-size: 12px; background: var(--accent-purple);">↻</button>' +
                           '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
                           '</div>';
-                        }
-
-                        item.innerHTML = '<div class="download-info">' +
-                          '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
-                          '<div class="download-url">' + download.url + '</div>' +
-                          '<div class="download-collection">Collection: ' + download.collection + '</div>' +
-                          (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
-                          '</div>' +
-                          '<div style="display: flex; align-items: center; gap: 8px;">' +
-                          '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
-                          actionsHtml +
-                          '</div>';
-                        recentContainer.appendChild(item);
-                      });
-                    }
-
-                    // Update all downloads section
-                    otherItems.forEach(download => {
-                      const item = document.createElement('div');
-                      item.className = 'download-item';
-
-                      let actionsHtml = '';
-                      if (download.status === 'error') {
-                        actionsHtml = '<div class="download-actions">' +
-                          '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
-                          '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
-                          '</div>';
-                        } else if (download.status === 'success' || download.status === 'pending') {
+                        } else if (download.status === 'pending') {
                           actionsHtml = '<div class="download-actions">' +
                             '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
                             '</div>';
@@ -1027,366 +1001,423 @@ export function renderWeb(
                           item.innerHTML = '<div class="download-info">' +
                             '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
                             '<div class="download-url">' + download.url + '</div>' +
-                            '<div class="download-collection">Collection: ' + download.collection + '</div>' +
+                            '<div class="download-collection">Collection: ' + download.collection + ' | ID: ' + download.id + '</div>' +
                             (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
                             '</div>' +
                             '<div style="display: flex; align-items: center; gap: 8px;">' +
                             '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
                             actionsHtml +
                             '</div>';
-                          container.appendChild(item);
+                          recentContainer.appendChild(item);
                         });
                       }
 
-                      function updateErrorSection(errorDownloads) {
-                        const section = document.getElementById('error-section');
-                        const container = document.getElementById('error-container');
+                      // Update all downloads section
+                      otherItems.forEach(download => {
+                        const item = document.createElement('div');
+                        item.className = 'download-item';
 
-                        if (errorDownloads.length === 0) {
-                          section.style.display = 'none';
-                          return;
-                        }
-
-                        section.style.display = 'block';
-                        container.innerHTML = '';
-
-                        errorDownloads.forEach(download => {
-                          const item = document.createElement('div');
-                          item.className = 'error-item';
-                          item.innerHTML = '<div class="error-info">' +
-                            '<strong>ID ' + download.id + ':</strong> ' + (download.title || 'Untitled') + '<br>' +
-                            '<small>' + download.url + '</small>' +
-                            (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
-                            '</div>' +
-                            '<div class="error-actions">' +
+                        let actionsHtml = '';
+                        if (download.status === 'error') {
+                          actionsHtml = '<div class="download-actions">' +
                             '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
                             '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
                             '</div>';
-                          container.appendChild(item);
-                        });
-                      }
+                          } else if (download.status === 'success') {
+                            actionsHtml = '<div class="download-actions">' +
+                              '<button onclick="redownloadItem(' + download.id + ')" title="Redownload" style="padding: 4px 8px; font-size: 12px; background: var(--accent-purple);">↻</button>' +
+                              '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                              '</div>';
+                            } else if (download.status === 'pending') {
+                              actionsHtml = '<div class="download-actions">' +
+                                '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                                '</div>';
+                              }
 
-                      function updateSystemInfo(systemData) {
-                        if (systemData.uptime) {
-                          document.getElementById('uptime').textContent = systemData.uptime;
-                        }
-                        if (systemData.memory && systemData.memory.rss) {
-                          document.getElementById('memory').textContent = systemData.memory.rss;
-                        }
-                        if (systemData.version && systemData.version.deno) {
-                          document.getElementById('version').textContent = systemData.version.deno;
-                        }
-                      }
-
-                      async function loadConfig() {
-                        try {
-                          const response = await fetch('/api/config');
-                          if (response.ok) {
-                            const config = await response.json();
-                            updateConfigSection(config);
-                          } else {
-                            document.getElementById('config-container').innerHTML = '<div style="color: var(--text-secondary);">Configuration not available via API</div>';
-                            showNotification('Configuration not available', 'error');
+                              item.innerHTML = '<div class="download-info">' +
+                                '<div class="download-title">' + (download.title || 'Untitled') + '</div>' +
+                                '<div class="download-url">' + download.url + '</div>' +
+                                '<div class="download-collection">Collection: ' + download.collection + ' | ID: ' + download.id + '</div>' +
+                                (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
+                                '</div>' +
+                                '<div style="display: flex; align-items: center; gap: 8px;">' +
+                                '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
+                                actionsHtml +
+                                '</div>';
+                              container.appendChild(item);
+                            });
                           }
-                        } catch (error) {
-                          document.getElementById('config-container').innerHTML = '<div style="color: var(--accent-red);">Failed to load configuration</div>';
-                          showNotification('Failed to load configuration', 'error');
-                        }
-                      }
 
-                      function updateConfigSection(config) {
-                        const container = document.getElementById('config-container');
-                        container.innerHTML = '';
+                          function updateErrorSection(errorDownloads) {
+                            const section = document.getElementById('error-section');
+                            const container = document.getElementById('error-container');
 
-                        if (config.collections) {
-                          Object.entries(config.collections).forEach(([name, collection]) => {
-                            const item = document.createElement('div');
-                            item.className = 'config-item';
-                            item.innerHTML = '<strong>' + name + ':</strong><br>' +
-                              '<small>Directory: ' + (collection.dir || 'N/A') + '</small><br>' +
-                              '<small>Command: ' + (collection.command || 'N/A') + '</small><br>' +
-                              '<small>Domains: ' + (collection.domains ? collection.domains.join(', ') : 'N/A') + '</small>';
-                            container.appendChild(item);
-                          });
-                        } else {
-                          container.innerHTML = 'No collections configured';
-                        }
-                      }
+                            if (errorDownloads.length === 0) {
+                              section.style.display = 'none';
+                              return;
+                            }
 
-                      async function startDownloads() {
-                        try {
-                          const response = await fetch('/api/download', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ limit: 5 })
-                          });
+                            section.style.display = 'block';
+                            container.innerHTML = '';
 
-                          if (response.ok) {
-                            const result = await response.json();
-                            showNotification(result.message, 'success');
-                            refreshData();
-                          } else {
-                            showNotification('Failed to start downloads', 'error');
+                            errorDownloads.forEach(download => {
+                              const item = document.createElement('div');
+                              item.className = 'error-item';
+                              item.innerHTML = '<div class="error-info">' +
+                                '<strong>ID ' + download.id + ':</strong> ' + (download.title || 'Untitled') + '<br>' +
+                                '<small>' + download.url + '</small>' +
+                                (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
+                                '</div>' +
+                                '<div class="error-actions">' +
+                                '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
+                                '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                                '</div>';
+                              container.appendChild(item);
+                            });
                           }
-                        } catch (error) {
-                          showNotification('Failed to start downloads', 'error');
-                        }
-                      }
 
-                      function clearForm() {
-                        document.getElementById('urls').value = '';
-                      }
-
-                      // Initialize auto-refresh
-                      function startAutoRefresh() {
-                        refreshData(); // Initial load
-                        refreshInterval = setInterval(refreshData, 10000); // Refresh every 10 seconds
-                      }
-
-                      function stopAutoRefresh() {
-                        if (refreshInterval) {
-                          clearInterval(refreshInterval);
-                        }
-                      }
-
-                      // Handle form submission
-                      document.getElementById('add-urls-form').addEventListener('submit', async function(e) {
-                        e.preventDefault();
-
-                        const formData = new FormData(this);
-
-                        try {
-                          const response = await fetch('/add-urls', {
-                            method: 'POST',
-                            body: formData
-                          });
-
-                          if (response.ok) {
-                            clearForm();
-                            refreshData();
-                            showNotification('URLs added successfully', 'success');
-                          } else {
-                            showNotification('Failed to add URLs', 'error');
-                          }
-                        } catch (error) {
-                          showNotification('Failed to add URLs', 'error');
-                        }
-                      });
-
-                      // Handle visibility change to pause/resume auto-refresh
-                      document.addEventListener('visibilitychange', function() {
-                        if (document.hidden) {
-                          stopAutoRefresh();
-                        } else {
-                          startAutoRefresh();
-                        }
-                      });
-
-                      // Add keyboard shortcuts
-                      document.addEventListener('keydown', function(e) {
-                        if (e.ctrlKey || e.metaKey) {
-                          switch(e.key) {
-                            case 'r':
-                              e.preventDefault();
-                              refreshData();
-                              break;
-                            case 'd':
-                              e.preventDefault();
-                              startDownloads();
-                              break;
+                          function updateSystemInfo(systemData) {
+                            if (systemData.uptime) {
+                              document.getElementById('uptime').textContent = systemData.uptime;
+                            }
+                            if (systemData.memory && systemData.memory.rss) {
+                              document.getElementById('memory').textContent = systemData.memory.rss;
+                            }
+                            if (systemData.version && systemData.version.deno) {
+                              document.getElementById('version').textContent = systemData.version.deno;
                             }
                           }
-                        });
 
-                        function filterLogs(type) {
-                          const lines = document.querySelectorAll('.log-line');
-                          const buttons = document.querySelectorAll('.logs-controls button');
+                          async function loadConfig() {
+                            try {
+                              const response = await fetch('/api/config');
+                              if (response.ok) {
+                                const config = await response.json();
+                                updateConfigSection(config);
+                              } else {
+                                document.getElementById('config-container').innerHTML = '<div style="color: var(--text-secondary);">Configuration not available via API</div>';
+                                showNotification('Configuration not available', 'error');
+                              }
+                            } catch (error) {
+                              document.getElementById('config-container').innerHTML = '<div style="color: var(--accent-red);">Failed to load configuration</div>';
+                              showNotification('Failed to load configuration', 'error');
+                            }
+                          }
 
-                          buttons.forEach(btn => btn.classList.remove('active'));
-                          document.getElementById('filter-' + type).classList.add('active');
+                          function updateConfigSection(config) {
+                            const container = document.getElementById('config-container');
+                            container.innerHTML = '';
 
-                          lines.forEach(line => {
-                            line.classList.remove('hidden');
-                            if (type !== 'all') {
-                              if (type === 'error' && !line.textContent.toLowerCase().includes('error')) {
-                                line.classList.add('hidden');
-                              } else if (type === 'warning' && !line.textContent.toLowerCase().includes('warning')) {
-                                line.classList.add('hidden');
-                              } else if (type === 'info' && !line.textContent.toLowerCase().includes('info')) {
-                                line.classList.add('hidden');
+                            if (config.collections) {
+                              Object.entries(config.collections).forEach(([name, collection]) => {
+                                const item = document.createElement('div');
+                                item.className = 'config-item';
+                                item.innerHTML = '<strong>' + name + ':</strong><br>' +
+                                  '<small>Directory: ' + (collection.dir || 'N/A') + '</small><br>' +
+                                  '<small>Command: ' + (collection.command || 'N/A') + '</small><br>' +
+                                  '<small>Domains: ' + (collection.domains ? collection.domains.join(', ') : 'N/A') + '</small>';
+                                container.appendChild(item);
+                              });
+                            } else {
+                              container.innerHTML = 'No collections configured';
+                            }
+                          }
+
+                          async function startDownloads() {
+                            try {
+                              const response = await fetch('/api/download', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ limit: 5 })
+                              });
+
+                              if (response.ok) {
+                                const result = await response.json();
+                                showNotification(result.message, 'success');
+                                refreshData();
+                              } else {
+                                showNotification('Failed to start downloads', 'error');
+                              }
+                            } catch (error) {
+                              showNotification('Failed to start downloads', 'error');
+                            }
+                          }
+
+                          function clearForm() {
+                            document.getElementById('urls').value = '';
+                          }
+
+                          // Initialize auto-refresh
+                          function startAutoRefresh() {
+                            refreshData(); // Initial load
+                            refreshInterval = setInterval(refreshData, 10000); // Refresh every 10 seconds
+                          }
+
+                          function stopAutoRefresh() {
+                            if (refreshInterval) {
+                              clearInterval(refreshInterval);
+                            }
+                          }
+
+                          // Handle form submission
+                          document.getElementById('add-urls-form').addEventListener('submit', async function(e) {
+                            e.preventDefault();
+
+                            const formData = new FormData(this);
+
+                            try {
+                              const response = await fetch('/add-urls', {
+                                method: 'POST',
+                                body: formData
+                              });
+
+                              if (response.ok) {
+                                clearForm();
+                                refreshData();
+                                showNotification('URLs added successfully', 'success');
+                              } else {
+                                showNotification('Failed to add URLs', 'error');
+                              }
+                            } catch (error) {
+                              showNotification('Failed to add URLs', 'error');
+                            }
+                          });
+
+                          // Handle visibility change to pause/resume auto-refresh
+                          document.addEventListener('visibilitychange', function() {
+                            if (document.hidden) {
+                              stopAutoRefresh();
+                            } else {
+                              startAutoRefresh();
+                            }
+                          });
+
+                          // Add keyboard shortcuts
+                          document.addEventListener('keydown', function(e) {
+                            if (e.ctrlKey || e.metaKey) {
+                              switch(e.key) {
+                                case 'r':
+                                  e.preventDefault();
+                                  refreshData();
+                                  break;
+                                case 'd':
+                                  e.preventDefault();
+                                  startDownloads();
+                                  break;
+                                }
+                              }
+                            });
+
+                            function filterLogs(type) {
+                              const lines = document.querySelectorAll('.log-line');
+                              const buttons = document.querySelectorAll('.logs-controls button');
+
+                              buttons.forEach(btn => btn.classList.remove('active'));
+                              document.getElementById('filter-' + type).classList.add('active');
+
+                              lines.forEach(line => {
+                                line.classList.remove('hidden');
+                                if (type !== 'all') {
+                                  if (type === 'error' && !line.textContent.toLowerCase().includes('error')) {
+                                    line.classList.add('hidden');
+                                  } else if (type === 'warning' && !line.textContent.toLowerCase().includes('warning')) {
+                                    line.classList.add('hidden');
+                                  } else if (type === 'info' && !line.textContent.toLowerCase().includes('info')) {
+                                    line.classList.add('hidden');
+                                  }
+                                }
+                              });
+                            }
+
+                            function searchLogs() {
+                              const searchTerm = document.getElementById('log-search').value.toLowerCase();
+                              const lines = document.querySelectorAll('.log-line');
+
+                              lines.forEach(line => {
+                                if (searchTerm === '' || line.textContent.toLowerCase().includes(searchTerm)) {
+                                  line.classList.remove('hidden');
+                                } else {
+                                  line.classList.add('hidden');
+                                }
+                              });
+                            }
+
+                            function clearLogs() {
+                              document.getElementById('logs-container').innerHTML = '<div class="log-line">Logs cleared</div>';
+                            }
+
+                            function updateLogs(logs) {
+                              const container = document.getElementById('logs-container');
+                              const lines = logs.split('\\n').map(line => {
+                                const div = document.createElement('div');
+                                div.className = 'log-line';
+                                if (line.toLowerCase().includes('error')) {
+                                  div.classList.add('error');
+                                } else if (line.toLowerCase().includes('warning')) {
+                                  div.classList.add('warning');
+                                } else if (line.toLowerCase().includes('info')) {
+                                  div.classList.add('info');
+                                }
+                                div.textContent = line;
+                                return div.outerHTML;
+                              }).join('');
+                              container.innerHTML = lines;
+                            }
+
+                            async function retryDownload(id) {
+                              try {
+                                const response = await fetch('/api/retry/' + id, {
+                                  method: 'POST'
+                                });
+                                if (response.ok) {
+                                  const result = await response.json();
+                                  showNotification(result.message, 'success');
+                                  refreshData();
+                                } else {
+                                  showNotification('Failed to retry download', 'error');
+                                }
+                              } catch (error) {
+                                showNotification('Failed to retry download', 'error');
                               }
                             }
-                          });
-                        }
 
-                        function searchLogs() {
-                          const searchTerm = document.getElementById('log-search').value.toLowerCase();
-                          const lines = document.querySelectorAll('.log-line');
+                            async function deleteDownload(id) {
+                              if (!confirm('Are you sure you want to delete this download?')) {
+                                return;
+                              }
 
-                          lines.forEach(line => {
-                            if (searchTerm === '' || line.textContent.toLowerCase().includes(searchTerm)) {
-                              line.classList.remove('hidden');
-                            } else {
-                              line.classList.add('hidden');
+                              try {
+                                const response = await fetch('/api/download/' + id, {
+                                  method: 'DELETE'
+                                });
+                                if (response.ok) {
+                                  const result = await response.json();
+                                  showNotification(result.message, 'success');
+                                  refreshData();
+                                } else {
+                                  showNotification('Failed to delete download', 'error');
+                                }
+                              } catch (error) {
+                                showNotification('Failed to delete download', 'error');
+                              }
                             }
-                          });
-                        }
 
-                        function clearLogs() {
-                          document.getElementById('logs-container').innerHTML = '<div class="log-line">Logs cleared</div>';
-                        }
+                            async function retryAllFailed() {
+                              if (!confirm('Are you sure you want to retry all failed downloads?')) {
+                                return;
+                              }
 
-                        function updateLogs(logs) {
-                          const container = document.getElementById('logs-container');
-                          const lines = logs.split('\\n').map(line => {
-                            const div = document.createElement('div');
-                            div.className = 'log-line';
-                            if (line.toLowerCase().includes('error')) {
-                              div.classList.add('error');
-                            } else if (line.toLowerCase().includes('warning')) {
-                              div.classList.add('warning');
-                            } else if (line.toLowerCase().includes('info')) {
-                              div.classList.add('info');
+                              try {
+                                const response = await fetch('/api/retry-all-failed', {
+                                  method: 'POST'
+                                });
+                                if (response.ok) {
+                                  const result = await response.json();
+                                  showNotification(result.message, 'success');
+                                  refreshData();
+                                } else {
+                                  showNotification('Failed to retry downloads', 'error');
+                                }
+                              } catch (error) {
+                                showNotification('Failed to retry downloads', 'error');
+                              }
                             }
-                            div.textContent = line;
-                            return div.outerHTML;
-                          }).join('');
-                          container.innerHTML = lines;
-                        }
 
-                        async function retryDownload(id) {
-                          try {
-                            const response = await fetch('/api/retry/' + id, {
-                              method: 'POST'
+                            async function deleteAllFailed() {
+                              if (!confirm('Are you sure you want to delete ALL failed downloads? This cannot be undone.')) {
+                                return;
+                              }
+
+                              try {
+                                const response = await fetch('/api/delete-all-failed', {
+                                  method: 'DELETE'
+                                });
+                                if (response.ok) {
+                                  const result = await response.json();
+                                  showNotification(result.message, 'success');
+                                  refreshData();
+                                } else {
+                                  showNotification('Failed to delete downloads', 'error');
+                                }
+                              } catch (error) {
+                                showNotification('Failed to delete downloads', 'error');
+                              }
+                            }
+
+                            async function resetDownload(id) {
+                              try {
+                                const response = await fetch('/api/reset/' + id, {
+                                  method: 'POST'
+                                });
+                                if (response.ok) {
+                                  const result = await response.json();
+                                  showNotification(result.message, 'success');
+                                  refreshData();
+                                } else {
+                                  showNotification('Failed to reset download', 'error');
+                                }
+                              } catch (error) {
+                                showNotification('Failed to reset download', 'error');
+                              }
+                            }
+
+                            async function resetAllDownloading() {
+                              if (!confirm('Are you sure you want to reset all downloading items to pending?')) {
+                                return;
+                              }
+
+                              try {
+                                const response = await fetch('/api/reset-all-downloading', {
+                                  method: 'POST'
+                                });
+                                if (response.ok) {
+                                  const result = await response.json();
+                                  showNotification(result.message, 'success');
+                                  refreshData();
+                                } else {
+                                  showNotification('Failed to reset downloads', 'error');
+                                }
+                              } catch (error) {
+                                showNotification('Failed to reset downloads', 'error');
+                              }
+                            }
+
+                            async function redownloadItem(id) {
+                              if (!confirm('Are you sure you want to redownload this completed item?')) {
+                                return;
+                              }
+
+                              try {
+                                const response = await fetch('/api/redownload/' + id, {
+                                  method: 'POST'
+                                });
+                                if (response.ok) {
+                                  const result = await response.json();
+                                  showNotification(result.message, 'success');
+                                  refreshData();
+                                } else {
+                                  showNotification('Failed to redownload item', 'error');
+                                }
+                              } catch (error) {
+                                showNotification('Failed to redownload item', 'error');
+                              }
+                            }
+
+                            // Start everything when page loads
+                            window.addEventListener('load', function() {
+                              startAutoRefresh();
+                              loadConfig();
+
+                              // Add search functionality
+                              document.getElementById('log-search').addEventListener('input', searchLogs);
                             });
-                            if (response.ok) {
-                              const result = await response.json();
-                              showNotification(result.message, 'success');
-                              refreshData();
-                            } else {
-                              showNotification('Failed to retry download', 'error');
-                            }
-                          } catch (error) {
-                            showNotification('Failed to retry download', 'error');
-                          }
-                        }
 
-                        async function deleteDownload(id) {
-                          if (!confirm('Are you sure you want to delete this download?')) {
-                            return;
-                          }
-
-                          try {
-                            const response = await fetch('/api/download/' + id, {
-                              method: 'DELETE'
+                            // Cleanup on page unload
+                            window.addEventListener('beforeunload', function() {
+                              stopAutoRefresh();
                             });
-                            if (response.ok) {
-                              const result = await response.json();
-                              showNotification(result.message, 'success');
-                              refreshData();
-                            } else {
-                              showNotification('Failed to delete download', 'error');
-                            }
-                          } catch (error) {
-                            showNotification('Failed to delete download', 'error');
-                          }
-                        }
-
-                        async function retryAllFailed() {
-                          if (!confirm('Are you sure you want to retry all failed downloads?')) {
-                            return;
-                          }
-
-                          try {
-                            const response = await fetch('/api/retry-all-failed', {
-                              method: 'POST'
-                            });
-                            if (response.ok) {
-                              const result = await response.json();
-                              showNotification(result.message, 'success');
-                              refreshData();
-                            } else {
-                              showNotification('Failed to retry downloads', 'error');
-                            }
-                          } catch (error) {
-                            showNotification('Failed to retry downloads', 'error');
-                          }
-                        }
-
-                        async function deleteAllFailed() {
-                          if (!confirm('Are you sure you want to delete ALL failed downloads? This cannot be undone.')) {
-                            return;
-                          }
-
-                          try {
-                            const response = await fetch('/api/delete-all-failed', {
-                              method: 'DELETE'
-                            });
-                            if (response.ok) {
-                              const result = await response.json();
-                              showNotification(result.message, 'success');
-                              refreshData();
-                            } else {
-                              showNotification('Failed to delete downloads', 'error');
-                            }
-                          } catch (error) {
-                            showNotification('Failed to delete downloads', 'error');
-                          }
-                        }
-
-                        async function resetDownload(id) {
-                          try {
-                            const response = await fetch('/api/reset/' + id, {
-                              method: 'POST'
-                            });
-                            if (response.ok) {
-                              const result = await response.json();
-                              showNotification(result.message, 'success');
-                              refreshData();
-                            } else {
-                              showNotification('Failed to reset download', 'error');
-                            }
-                          } catch (error) {
-                            showNotification('Failed to reset download', 'error');
-                          }
-                        }
-
-                        async function resetAllDownloading() {
-                          if (!confirm('Are you sure you want to reset all downloading items to pending?')) {
-                            return;
-                          }
-
-                          try {
-                            const response = await fetch('/api/reset-all-downloading', {
-                              method: 'POST'
-                            });
-                            if (response.ok) {
-                              const result = await response.json();
-                              showNotification(result.message, 'success');
-                              refreshData();
-                            } else {
-                              showNotification('Failed to reset downloads', 'error');
-                            }
-                          } catch (error) {
-                            showNotification('Failed to reset downloads', 'error');
-                          }
-                        }
-
-                        // Start everything when page loads
-                        window.addEventListener('load', function() {
-                          startAutoRefresh();
-                          loadConfig();
-
-                          // Add search functionality
-                          document.getElementById('log-search').addEventListener('input', searchLogs);
-                        });
-
-                        // Cleanup on page unload
-                        window.addEventListener('beforeunload', function() {
-                          stopAutoRefresh();
-                        });
-                      </script>
-                    </body>
-                  </html>
-                `;
-              }
+                          </script>
+                        </body>
+                      </html>
+                    `;
+                  }

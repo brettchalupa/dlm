@@ -9,6 +9,7 @@ import {
   downloadDownloads,
   DownloadStatus,
   getDownload,
+  redownload,
   resetAllDownloadingDownloads,
   resetDownload,
   retryAllFailedDownloads,
@@ -61,9 +62,21 @@ export function runWebServer() {
         <div class="download-info">
           <div class="download-title">${d.title || "Untitled"}</div>
           <div class="download-url">${d.url}</div>
-          <div class="download-collection">Collection: ${d.collection}</div>
+          <div class="download-collection">Collection: ${d.collection} | ID: ${d.id}</div>
         </div>
-        <div class="download-status ${d.status}">${d.status}</div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <div class="download-status ${d.status}">${d.status}</div>
+          ${
+        d.status === "success"
+          ? `<button onclick="redownloadItem(${d.id})" title="Redownload" style="padding: 4px 8px; font-size: 12px; background: var(--accent-purple);">↻</button>`
+          : ""
+      }
+          ${
+        d.status === "error"
+          ? `<button onclick="retryDownload(${d.id})" title="Retry" style="padding: 4px 8px; font-size: 12px;">↻</button>`
+          : ""
+      }
+        </div>
       </div>`
     ).join("");
 
@@ -258,6 +271,19 @@ export function runWebServer() {
     return c.json({
       message: `${count} downloading downloads reset to pending`,
     });
+  });
+
+  app.post("/api/redownload/:id", (c) => {
+    const id = parseInt(c.req.param("id"));
+    const success = redownload(id);
+    if (success) {
+      return c.json({ message: "download marked for redownload" });
+    } else {
+      return c.json(
+        { message: "download not found or not in success state" },
+        404,
+      );
+    }
   });
 
   let port = 8001;
