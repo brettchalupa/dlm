@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLM - Download Manager</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            min-width: 100px;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+        .stat-number.pending { color: #f39c12; }
+        .stat-number.downloading { color: #3498db; }
+        .stat-number.success { color: #27ae60; }
+        .stat-number.error { color: #e74c3c; }
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #7f8c8d;
+        }
+        .add-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        .add-form textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        .add-form button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .add-form button:hover {
+            background: #2980b9;
+        }
+        .downloads {
+            margin-bottom: 30px;
+        }
+        .download-item {
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .download-info {
+            flex: 1;
+        }
+        .download-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .download-url {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+        .download-collection {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+        .download-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .download-status.pending { background: #f39c12; color: white; }
+        .download-status.downloading { background: #3498db; color: white; }
+        .download-status.success { background: #27ae60; color: white; }
+        .download-status.error { background: #e74c3c; color: white; }
+        .logs {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .error-section {
+            background: #fdf2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .error-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #fecaca;
+        }
+        .error-item:last-child {
+            border-bottom: none;
+        }
+        .error-message {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+        .error-actions button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 12px;
+        }
+        .error-actions button:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 DLM - Download Manager (Go)</h1>
+        
+        <div class="stats">
+            {{range .counts}}
+            <div class="stat-item">
+                <span class="stat-number {{.Status}}">{{.Count}}</span>
+                <span class="stat-label">{{.Status}}</span>
+            </div>
+            {{end}}
+        </div>
+
+        <div class="add-form">
+            <div class="section-title">Add URLs</div>
+            <form method="POST" action="/add-urls">
+                <textarea name="urls" placeholder="Enter URLs (one per line or comma-separated)"></textarea>
+                <button type="submit">Add Downloads</button>
+            </form>
+        </div>
+
+        {{if .errorDownloads}}
+        <div class="error-section">
+            <div class="section-title">❌ Failed Downloads</div>
+            {{range .errorDownloads}}
+            <div class="error-item">
+                <div class="error-info">
+                    <strong>ID {{.ID}}:</strong> {{if .Title}}{{.Title}}{{else}}Untitled{{end}}<br>
+                    <small>{{.URL}}</small>
+                    {{if .ErrorMessage}}
+                    <div class="error-message">{{.ErrorMessage}}</div>
+                    {{end}}
+                </div>
+                <div class="error-actions">
+                    <button onclick="retryDownload({{.ID}})" title="Retry">↻</button>
+                    <button onclick="deleteDownload({{.ID}})" title="Delete">✗</button>
+                </div>
+            </div>
+            {{end}}
+        </div>
+        {{end}}
+
+        <div class="downloads">
+            <div class="section-title">📥 Recent Downloads</div>
+            {{range .downloads}}
+            <div class="download-item">
+                <div class="download-info">
+                    <div class="download-title">{{if .Title}}{{.Title}}{{else}}Untitled{{end}}</div>
+                    <div class="download-url">{{.URL}}</div>
+                    <div class="download-collection">Collection: {{.Collection}} | ID: {{.ID}}</div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <div class="download-status {{.Status}}">{{.Status}}</div>
+                    {{if eq .Status "success"}}
+                    <button onclick="redownloadItem({{.ID}})" title="Redownload" style="padding: 4px 8px; font-size: 12px; background: #9b59b6; color: white; border: none; border-radius: 4px; cursor: pointer;">↻</button>
+                    {{end}}
+                    {{if eq .Status "error"}}
+                    <button onclick="retryDownload({{.ID}})" title="Retry" style="padding: 4px 8px; font-size: 12px; background: #f39c12; color: white; border: none; border-radius: 4px; cursor: pointer;">↻</button>
+                    {{end}}
+                </div>
+            </div>
+            {{end}}
+        </div>
+
+        <div class="section-title">📋 Recent Logs</div>
+        <div class="logs">{{.logs}}</div>
+    </div>
+
+    <script>
+        function retryDownload(id) {
+            fetch(`/api/retry/${id}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message || 'Download marked for retry');
+                    location.reload();
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        }
+
+        function deleteDownload(id) {
+            if (confirm('Are you sure you want to delete this download?')) {
+                fetch(`/api/download/${id}`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message || 'Download deleted');
+                        location.reload();
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                    });
+            }
+        }
+
+        function redownloadItem(id) {
+            fetch(`/api/redownload/${id}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message || 'Download marked for redownload');
+                    location.reload();
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        }
+
+        // Auto-refresh every 30 seconds
+        setTimeout(() => {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>
