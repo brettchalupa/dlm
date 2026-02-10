@@ -1,0 +1,10 @@
+*.db
+*.webm
+*.mp4
+test.txt
+dlm.toml
+*.exe
+*.log
+dlm.yml
+browser_ext/build
+.claude

@@ -1,0 +1,28 @@
+{
+  "version": "0.1.0-dev",
+  "imports": {
+    "deno-dom": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts",
+    "sqlite": "https://deno.land/x/sqlite@v3.9.1/mod.ts",
+    "@std/path": "jsr:@std/path@^1.0.8",
+    "@std/yaml": "jsr:@std/yaml@^1.0.5",
+    "@std/toml": "jsr:@std/toml@^1.0.1",
+    "@std/fs": "https://deno.land/std@0.208.0/fs/mod.ts",
+    "@std/fs/exists": "https://deno.land/std@0.208.0/fs/exists.ts",
+    "@std/fs/copy": "https://deno.land/std@0.208.0/fs/copy.ts",
+    "@std/path/join": "https://deno.land/std@0.208.0/path/join.ts",
+    "@std/testing/asserts": "https://deno.land/std@0.220.0/testing/asserts.ts",
+    "@hono/hono": "jsr:@hono/hono@^4.6.10",
+    "@hono/hono/html": "jsr:@hono/hono@^4.6.10/html",
+    "@hono/hono/logger": "jsr:@hono/hono@^4.6.10/logger",
+    "@hono/hono/utils/html": "jsr:@hono/hono@^4.6.10/utils/html"
+  },
+  "tasks": {
+    "dev": "deno run -A --watch main.ts serve",
+    "daemon": "deno run -A main.ts dd",
+    "run": "deno run -A main.ts serve --with-daemon",
+    "test": "deno test --allow-all collection_test.ts web_test.ts web_server_test.ts",
+    "ok": "deno check . && deno fmt --check && deno lint && deno task test && deno task test_ext",
+    "test_ext": "cd browser_ext && deno run --allow-read test_ext.ts",
+    "build_ext": "cd browser_ext && deno run --allow-read --allow-write --allow-run build_ext.ts"
+  }
+}

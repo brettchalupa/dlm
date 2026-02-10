@@ -1,0 +1,49 @@
+# dlm configuration file
+#
+# Copy this file to dlm.yml and customize it for your setup:
+#   cp dlm.example.yml dlm.yml
+#
+# Each collection defines:
+#   - domains: list of domain patterns to match URLs against
+#   - dir: directory where downloads are saved
+#   - command: shell command to run; % is replaced with the URL
+#
+# Examples of download tools (install separately):
+#   - yt-dlp: https://github.com/yt-dlp/yt-dlp (video/audio)
+#   - gallery-dl: https://github.com/mikf/gallery-dl (images/galleries)
+#   - wget: built into most systems (general files)
+#   - curl: built into most systems (general files)
+#   - aria2c: https://aria2.github.io/ (fast parallel downloads)
+
+collections:
+  # YouTube videos using yt-dlp
+  yt:
+    domains:
+      - youtube.com
+      - youtu.be
+    dir: ~/Videos/YouTube
+    command: "yt-dlp %"
+
+  # Image galleries using gallery-dl
+  images:
+    domains:
+      - imgur.com
+      - flickr.com
+    dir: ~/Pictures
+    command: "gallery-dl %"
+
+  # Reddit media
+  reddit:
+    domains:
+      - reddit.com
+      - i.redd.it
+      - v.redd.it
+    dir: ~/Downloads/Reddit
+    command: "gallery-dl %"
+
+  # Generic file downloads using wget
+  files:
+    domains:
+      - example.com
+    dir: ~/Downloads
+    command: "wget %"

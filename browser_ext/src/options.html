@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DLM Extension Options</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+
+      .header {
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      input[type="url"] {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      input[type="url"]:focus {
+        outline: none;
+        border-color: #4285f4;
+        box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .save-btn {
+        background-color: #4285f4;
+        color: white;
+      }
+
+      .save-btn:hover {
+        background-color: #3367d6;
+      }
+
+      .save-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .reset-btn {
+        background-color: #f8f9fa;
+        color: #5f6368;
+        border: 1px solid #dadce0;
+      }
+
+      .reset-btn:hover {
+        background-color: #e8eaed;
+      }
+
+      .help-text {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .status {
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+        display: none;
+      }
+
+      .status.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>DLM Extension Settings</h1>
+      <p>Configure your DLM API endpoint</p>
+    </div>
+
+    <form id="options-form">
+      <div class="form-group">
+        <label for="api-url">API URL:</label>
+        <input
+          type="url"
+          id="api-url"
+          name="apiUrl"
+          placeholder="http://localhost:8001"
+          required
+        />
+        <div class="help-text">
+          Enter the full URL to your DLM API endpoint (e.g.,
+          https://your-domain.com/api/add-urls)
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="save-btn" id="save-btn">
+          Save Settings
+        </button>
+        <button type="button" class="reset-btn" id="reset-btn">
+          Reset to Default
+        </button>
+      </div>
+
+      <div id="status" class="status"></div>
+    </form>
+
+    <script src="polyfill.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>
