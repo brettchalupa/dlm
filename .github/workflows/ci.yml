@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  deno:
+    name: Deno
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/deno
+          key: deno-${{ runner.os }}-${{ hashFiles('deno.lock') }}
+          restore-keys: deno-${{ runner.os }}-
+
+      - name: Check, lint, test
+        run: deno task ok
+
+  desktop-gtk:
+    name: Desktop GTK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: desktop_gtk
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-4-dev libadwaita-1-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            desktop_gtk/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('desktop_gtk/Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: Install just
+        run: cargo install just
+
+      - name: Check, lint, test
+        run: just ok
