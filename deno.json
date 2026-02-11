@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0-dev",
+  "version": "0.1.0",
   "imports": {
     "deno-dom": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts",
     "sqlite": "https://deno.land/x/sqlite@v3.9.1/mod.ts",
@@ -23,6 +23,7 @@
     "test": "deno test --allow-all collection_test.ts web_test.ts web_server_test.ts",
     "ok": "deno check . && deno fmt --check && deno lint && deno task test && deno task test_ext",
     "test_ext": "cd browser_ext && deno run --allow-read test_ext.ts",
-    "build_ext": "cd browser_ext && deno run --allow-read --allow-write --allow-run build_ext.ts"
+    "build_ext": "cd browser_ext && deno run --allow-read --allow-write --allow-run build_ext.ts",
+    "release": "deno run -A release.ts"
   }
 }

@@ -35,6 +35,26 @@ so you can queue up downloads from anywhere and let them process automatically.
 
 ## Install
 
+### Prebuilt binary
+
+Download the latest binary for your platform from
+[GitHub Releases](https://github.com/brettchalupa/dlm/releases). No runtime
+dependencies needed.
+
+```
+# Linux (x86_64)
+curl -Lo dlm https://github.com/brettchalupa/dlm/releases/latest/download/dlm-0.1.0-linux-x86_64
+chmod +x dlm
+sudo mv dlm /usr/local/bin/
+
+# macOS (Apple Silicon)
+curl -Lo dlm https://github.com/brettchalupa/dlm/releases/latest/download/dlm-0.1.0-darwin-aarch64
+chmod +x dlm
+sudo mv dlm /usr/local/bin/
+```
+
+### From source
+
 Install Deno if you don't have it:
 
 ```
@@ -47,6 +67,8 @@ Clone the repo:
 git clone https://github.com/brettchalupa/dlm.git
 cd dlm
 ```
+
+### Configure
 
 Copy and edit the config:
 
@@ -64,6 +86,10 @@ commands and directories. See `dlm.example.yml` for a full reference.
 Run the web server with the background download daemon:
 
 ```
+# Prebuilt binary
+dlm serve --with-daemon
+
+# From source
 deno task run
 ```
 
@@ -82,10 +108,10 @@ Run the server and daemon separately for more control:
 
 ```
 # Terminal 1: web server only
-deno run -A main.ts serve
+dlm serve
 
 # Terminal 2: daemon (check every 5 minutes, 3 downloads per run)
-deno run -A main.ts dd 5 3
+dlm dd 5 3
 ```
 
 ### Add downloads
@@ -95,29 +121,32 @@ Through the web UI at `http://localhost:8001`, paste URLs into the form.
 Through the CLI:
 
 ```
-deno run -A main.ts add https://youtube.com/watch?v=example
+dlm add https://youtube.com/watch?v=example
 
 # Multiple URLs
-deno run -A main.ts add https://example.com/1 https://example.com/2
+dlm add https://example.com/1 https://example.com/2
 
 # From stdin (pipe from other tools)
-echo "https://example.com/video" | deno run -A main.ts add -
+echo "https://example.com/video" | dlm add -
 ```
 
 ### CLI commands
 
 ```
-deno run -A main.ts              # show help
-deno run -A main.ts serve        # start web server
-deno run -A main.ts serve --with-daemon  # server + daemon
-deno run -A main.ts add [urls]   # add URLs to queue
-deno run -A main.ts count        # show download counts by status
-deno run -A main.ts dl           # download all pending
-deno run -A main.ts dl 5         # download 5 pending
-deno run -A main.ts dd           # run daemon (default: every 5 min)
-deno run -A main.ts dd 10 5      # daemon: every 10 min, 5 per run
-deno run -A main.ts init         # initialize the database
+dlm                      # show help
+dlm serve                # start web server
+dlm serve --with-daemon  # server + daemon
+dlm add [urls]           # add URLs to queue
+dlm count                # show download counts by status
+dlm dl                   # download all pending
+dlm dl 5                 # download 5 pending
+dlm dd                   # run daemon (default: every 5 min)
+dlm dd 10 5              # daemon: every 10 min, 5 per run
+dlm init                 # initialize the database
+dlm version              # show version
 ```
+
+> When running from source, replace `dlm` with `deno run -A main.ts`.
 
 ### Remote CLI client
 

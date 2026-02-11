@@ -7,4 +7,5 @@ dlm.toml
 *.log
 dlm.yml
 browser_ext/build
+dist
 .claude
