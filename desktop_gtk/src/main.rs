@@ -1373,9 +1373,8 @@ fn build_upcoming_page(widgets: &Rc<Widgets>) -> gtk::Box {
         .build();
 
     widgets.upcoming_label.add_css_class("heading");
-    widgets.upcoming_label.set_halign(gtk::Align::Start);
+    widgets.upcoming_label.set_halign(gtk::Align::Center);
     widgets.upcoming_label.set_margin_top(12);
-    widgets.upcoming_label.set_margin_start(12);
 
     widgets.upcoming_list.set_css_classes(&["boxed-list"]);
     widgets
