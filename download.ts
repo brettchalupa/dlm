@@ -12,7 +12,7 @@ export enum DownloadStatus {
   "pending" = "pending",
 }
 
-enum Priority {
+export enum Priority {
   "normal" = "normal",
   "high" = "high",
 }
@@ -72,7 +72,7 @@ export function initDB() {
 
   db.execute(`
     CREATE INDEX IF NOT EXISTS idx_downloads_status_priority
-    ON downloads(status, priority DESC, id ASC)
+    ON downloads(status, priority ASC, id ASC)
   `);
 
   db.close();
@@ -379,7 +379,7 @@ export function selectDownloads(
     queryStr += ` WHERE ${conditions.join(" AND ")}`;
   }
 
-  queryStr += ` ORDER BY priority DESC, id ASC`;
+  queryStr += ` ORDER BY priority ASC, id ASC`;
 
   if (limit > 0) {
     queryStr += ` LIMIT ?`;
@@ -510,6 +510,17 @@ export function retryDownload(id: number): boolean {
   db.query(
     "UPDATE downloads SET status = ?, errorMessage = NULL WHERE id = ? AND status = ?",
     [DownloadStatus.pending, id, DownloadStatus.error],
+  );
+  const changes = db.changes;
+  db.close();
+  return changes > 0;
+}
+
+export function setPriority(id: number, priority: Priority): boolean {
+  const db = new DB(dbFile());
+  db.query(
+    "UPDATE downloads SET priority = ? WHERE id = ?",
+    [priority, id],
   );
   const changes = db.changes;
   db.close();

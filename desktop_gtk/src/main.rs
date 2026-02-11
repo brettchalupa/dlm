@@ -242,12 +242,28 @@ fn build_download_row(
         .hexpand(true)
         .build();
 
+    let title_box = gtk::Box::builder()
+        .orientation(gtk::Orientation::Horizontal)
+        .spacing(6)
+        .build();
+
+    if dl.priority == "high" {
+        let pri_badge = gtk::Label::builder()
+            .label("★")
+            .tooltip_text("High priority")
+            .css_classes(["warning", "caption"])
+            .valign(gtk::Align::Center)
+            .build();
+        title_box.append(&pri_badge);
+    }
+
     let title_label = gtk::Label::builder()
         .label(dl.display_title())
         .halign(gtk::Align::Start)
         .ellipsize(gtk::pango::EllipsizeMode::End)
         .css_classes(["heading"])
         .build();
+    title_box.append(&title_label);
 
     let url_label = gtk::Label::builder()
         .label(&dl.url)
@@ -262,7 +278,7 @@ fn build_download_row(
         .css_classes(["dim-label", "caption"])
         .build();
 
-    info_box.append(&title_label);
+    info_box.append(&title_box);
     info_box.append(&url_label);
     info_box.append(&meta_label);
 
@@ -371,6 +387,42 @@ fn build_download_row(
             actions_box.append(&btn);
         }
         "pending" => {
+            let is_high = dl.priority == "high";
+            let pri_btn = gtk::Button::builder()
+                .icon_name(if is_high {
+                    "go-down-symbolic"
+                } else {
+                    "go-up-symbolic"
+                })
+                .tooltip_text(if is_high {
+                    "Remove priority"
+                } else {
+                    "Prioritize"
+                })
+                .css_classes(["flat", "circular"])
+                .build();
+            let new_priority = if is_high { "normal" } else { "high" };
+            pri_btn.connect_clicked(clone!(
+                #[strong]
+                widgets,
+                #[strong]
+                state,
+                #[strong]
+                settings,
+                move |_| {
+                    let api_url = settings.borrow().api_url.clone();
+                    let pri = new_priority.to_string();
+                    do_action(
+                        &api_url,
+                        move |url| api::set_priority(&url, dl_id, &pri),
+                        &widgets,
+                        &state,
+                        &settings,
+                    );
+                }
+            ));
+            actions_box.append(&pri_btn);
+
             let btn = gtk::Button::builder()
                 .icon_name("user-trash-symbolic")
                 .tooltip_text("Delete")
@@ -584,12 +636,28 @@ fn update_upcoming_list(
             .hexpand(true)
             .build();
 
+        let title_box = gtk::Box::builder()
+            .orientation(gtk::Orientation::Horizontal)
+            .spacing(6)
+            .build();
+
+        if dl.priority == "high" {
+            let pri_badge = gtk::Label::builder()
+                .label("★")
+                .tooltip_text("High priority")
+                .css_classes(["warning", "caption"])
+                .valign(gtk::Align::Center)
+                .build();
+            title_box.append(&pri_badge);
+        }
+
         let title_label = gtk::Label::builder()
             .label(dl.display_title())
             .halign(gtk::Align::Start)
             .ellipsize(gtk::pango::EllipsizeMode::End)
             .css_classes(["heading"])
             .build();
+        title_box.append(&title_label);
 
         let url_label = gtk::Label::builder()
             .label(&dl.url)
@@ -604,9 +672,46 @@ fn update_upcoming_list(
             .css_classes(["dim-label", "caption"])
             .build();
 
-        info_box.append(&title_label);
+        info_box.append(&title_box);
         info_box.append(&url_label);
         info_box.append(&meta_label);
+
+        let dl_id = dl.id;
+        let is_high = dl.priority == "high";
+        let pri_btn = gtk::Button::builder()
+            .icon_name(if is_high {
+                "go-down-symbolic"
+            } else {
+                "go-up-symbolic"
+            })
+            .tooltip_text(if is_high {
+                "Remove priority"
+            } else {
+                "Prioritize"
+            })
+            .css_classes(["flat", "circular"])
+            .valign(gtk::Align::Center)
+            .build();
+        let new_priority = if is_high { "normal" } else { "high" };
+        pri_btn.connect_clicked(clone!(
+            #[strong]
+            widgets,
+            #[strong]
+            state,
+            #[strong]
+            settings,
+            move |_| {
+                let api_url = settings.borrow().api_url.clone();
+                let pri = new_priority.to_string();
+                do_action(
+                    &api_url,
+                    move |url| api::set_priority(&url, dl_id, &pri),
+                    &widgets,
+                    &state,
+                    &settings,
+                );
+            }
+        ));
 
         let dl_id = dl.id;
         let delete_btn = gtk::Button::builder()
@@ -635,6 +740,7 @@ fn update_upcoming_list(
         ));
 
         row_box.append(&info_box);
+        row_box.append(&pri_btn);
         row_box.append(&delete_btn);
 
         let row = gtk::ListBoxRow::builder()
@@ -1689,6 +1795,19 @@ fn build_ui(app: &adw::Application) {
     let toolbar_view = adw::ToolbarView::new();
     toolbar_view.add_top_bar(&header);
     toolbar_view.set_content(Some(&view_stack));
+
+    // Refresh data when switching tabs
+    view_stack.connect_visible_child_notify(clone!(
+        #[strong]
+        state,
+        #[strong]
+        widgets,
+        #[strong]
+        settings,
+        move |_| {
+            trigger_refresh(&state, &widgets, &settings);
+        }
+    ));
 
     widgets.toast_overlay.set_child(Some(&toolbar_view));
 

@@ -132,6 +132,18 @@ pub fn add_urls(api_url: &str, urls: &[String]) -> Result<String, String> {
     Ok(resp.message)
 }
 
+/// Set priority for a download
+pub fn set_priority(api_url: &str, id: i64, priority: &str) -> Result<String, String> {
+    let body = serde_json::json!({ "priority": priority });
+    let resp: MessageResponse = agent()
+        .post(&format!("{api_url}/api/priority/{id}"))
+        .send_json(body)
+        .map_err(|e| e.to_string())?
+        .into_json()
+        .map_err(|e| e.to_string())?;
+    Ok(resp.message)
+}
+
 /// Start downloads with a limit
 pub fn start_downloads(api_url: &str, limit: i32) -> Result<String, String> {
     let body = serde_json::json!({ "limit": limit });

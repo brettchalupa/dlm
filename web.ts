@@ -11,12 +11,14 @@ import {
   DownloadStatus,
   getDownload,
   getDownloadByURL,
+  Priority,
   redownload,
   resetAllDownloadingDownloads,
   resetDownload,
   retryAllFailedDownloads,
   retryDownload,
   selectDownloads,
+  setPriority,
 } from "./download.ts";
 import { loadCollectonsFromConfig } from "./config.ts";
 import { parseUrls } from "./urls.ts";
@@ -47,7 +49,11 @@ export function createApp(): hono.Hono {
     const downloadsList = downloads.map((d) =>
       `<div class="download-item">
         <div class="download-info">
-          <div class="download-title">${d.title || "Untitled"}</div>
+          <div class="download-title">${
+        d.priority === "high"
+          ? `<span style="color: var(--accent-yellow); font-size: 0.75rem; font-weight: 600; margin-right: 6px;">★ PRIORITY</span>`
+          : ""
+      }${d.title || "Untitled"}</div>
           <div class="download-url">${d.url}</div>
           <div class="download-collection">Collection: ${d.collection} | ID: ${d.id}</div>
         </div>
@@ -65,7 +71,11 @@ export function createApp(): hono.Hono {
       }
           ${
         d.status === "pending"
-          ? `<button onclick="deleteDownload(${d.id})" title="Delete" style="padding: 4px 8px; font-size: 12px; background: var(--accent-red);">✗</button>`
+          ? `${
+            d.priority === "high"
+              ? `<button onclick="togglePriority(${d.id}, 'high')" title="Remove priority" style="padding: 4px 8px; font-size: 12px; background: var(--accent-yellow);">⤵</button>`
+              : `<button onclick="togglePriority(${d.id}, 'normal')" title="Prioritize" style="padding: 4px 8px; font-size: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-primary);">⤴</button>`
+          }<button onclick="deleteDownload(${d.id})" title="Delete" style="padding: 4px 8px; font-size: 12px; background: var(--accent-red);">✗</button>`
           : ""
       }
         </div>
@@ -254,6 +264,24 @@ export function createApp(): hono.Hono {
         { message: "download not found or not in error state" },
         404,
       );
+    }
+  });
+
+  app.post("/api/priority/:id", async (c) => {
+    const id = parseInt(c.req.param("id"));
+    const body = await c.req.json();
+    const priority = body.priority;
+    if (priority !== Priority.high && priority !== Priority.normal) {
+      return c.json(
+        { message: "invalid priority, must be 'high' or 'normal'" },
+        400,
+      );
+    }
+    const success = setPriority(id, priority);
+    if (success) {
+      return c.json({ message: `download priority set to ${priority}` });
+    } else {
+      return c.json({ message: "download not found" }, 404);
     }
   });
 

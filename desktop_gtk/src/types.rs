@@ -171,6 +171,7 @@ impl StatusFilter {
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum SortOrder {
     #[default]
+    Priority,
     NewestFirst,
     OldestFirst,
     Collection,
@@ -179,6 +180,7 @@ pub enum SortOrder {
 impl SortOrder {
     pub fn label(&self) -> &'static str {
         match self {
+            SortOrder::Priority => "Priority",
             SortOrder::NewestFirst => "Newest First",
             SortOrder::OldestFirst => "Oldest First",
             SortOrder::Collection => "Collection",
@@ -186,6 +188,7 @@ impl SortOrder {
     }
 
     pub const ALL: &[SortOrder] = &[
+        SortOrder::Priority,
         SortOrder::NewestFirst,
         SortOrder::OldestFirst,
         SortOrder::Collection,
@@ -237,6 +240,9 @@ impl AppState {
         let mut result: Vec<&Download> = self.downloads.iter().collect();
 
         match self.sort_order {
+            SortOrder::Priority => {
+                result.sort_by(|a, b| a.priority.cmp(&b.priority).then(b.id.cmp(&a.id)))
+            }
             SortOrder::NewestFirst => result.sort_by(|a, b| b.id.cmp(&a.id)),
             SortOrder::OldestFirst => result.sort_by(|a, b| a.id.cmp(&b.id)),
             SortOrder::Collection => {
