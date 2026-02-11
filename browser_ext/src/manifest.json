@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "dlm",
   "description": "Adds current tab to dlm",
-  "version": "0.1.0-dev",
+  "version": "0.1.0",
   "permissions": ["activeTab", "storage", "contextMenus", "tabs"],
   "background": {
     "scripts": ["polyfill.js", "background.js"],
