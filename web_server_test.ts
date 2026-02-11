@@ -63,6 +63,9 @@ test("GET /api/downloads returns empty list on fresh DB", async () => {
   assertEquals(res.status, 200);
   const json = await res.json();
   assertEquals(json.downloads, []);
+  assertEquals(json.total, 0);
+  assertEquals(json.limit, 50);
+  assertEquals(json.offset, 0);
 });
 
 // --- /api/add-urls + /api/downloads ---
@@ -82,6 +85,7 @@ test("POST /api/add-urls adds URLs and they appear in downloads", async () => {
 
   const dlRes = await app.request("/api/downloads");
   const dlJson = await dlRes.json();
+  assertEquals(typeof dlJson.total, "number");
   const found = dlJson.downloads.find(
     (d: { url: string }) => d.url === "https://example.com/file1.zip",
   );
@@ -266,6 +270,57 @@ test("DELETE /api/delete-all-failed returns count", async () => {
   assertEquals(res.status, 200);
   const json = await res.json();
   assertEquals(typeof json.message, "string");
+});
+
+// --- /api/downloads pagination ---
+
+test("GET /api/downloads supports limit and offset params", async () => {
+  const res = await app.request("/api/downloads?limit=1&offset=0");
+  assertEquals(res.status, 200);
+  const json = await res.json();
+  assertEquals(json.limit, 1);
+  assertEquals(json.offset, 0);
+  assertEquals(json.downloads.length <= 1, true);
+  assertEquals(typeof json.total, "number");
+});
+
+test("GET /api/downloads supports status filter", async () => {
+  const res = await app.request("/api/downloads?status=pending");
+  assertEquals(res.status, 200);
+  const json = await res.json();
+  for (const d of json.downloads) {
+    assertEquals(d.status, "pending");
+  }
+  assertEquals(json.total >= json.downloads.length, true);
+});
+
+test("GET /api/downloads supports search param", async () => {
+  const res = await app.request("/api/downloads?search=example.com");
+  assertEquals(res.status, 200);
+  const json = await res.json();
+  for (const d of json.downloads) {
+    const matches = d.url.includes("example.com") ||
+      (d.title && d.title.includes("example.com")) ||
+      d.collection.includes("example.com");
+    assertEquals(matches, true);
+  }
+});
+
+test("GET /api/downloads with unknown status returns all", async () => {
+  const res = await app.request("/api/downloads?status=bogus");
+  assertEquals(res.status, 200);
+  const json = await res.json();
+  assertEquals(Array.isArray(json.downloads), true);
+});
+
+// --- /api/upcoming with totalPending ---
+
+test("GET /api/upcoming returns totalPending count", async () => {
+  const res = await app.request("/api/upcoming");
+  assertEquals(res.status, 200);
+  const json = await res.json();
+  assertEquals(typeof json.totalPending, "number");
+  assertEquals(json.totalPending >= json.downloads.length, true);
 });
 
 // --- GET / (web UI) ---

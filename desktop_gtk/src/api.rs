@@ -17,15 +17,36 @@ pub fn fetch_counts(api_url: &str) -> Result<Vec<StatusCount>, String> {
     Ok(resp.status_groups)
 }
 
-/// Fetch all downloads from /api/downloads
-pub fn fetch_downloads(api_url: &str) -> Result<Vec<Download>, String> {
-    let resp: DownloadsResponse = agent()
-        .get(&format!("{api_url}/api/downloads"))
+/// Fetch downloads with pagination, status filter, and search
+pub fn fetch_downloads(
+    api_url: &str,
+    limit: usize,
+    offset: usize,
+    status: &str,
+    search: &str,
+) -> Result<PaginatedDownloadsResponse, String> {
+    let mut url = format!("{api_url}/api/downloads?limit={limit}&offset={offset}&status={status}");
+    if !search.is_empty() {
+        url.push_str(&format!("&search={}", urlencoding::encode(search)));
+    }
+    let resp: PaginatedDownloadsResponse = agent()
+        .get(&url)
         .call()
         .map_err(|e| e.to_string())?
         .into_json()
         .map_err(|e| e.to_string())?;
-    Ok(resp.downloads)
+    Ok(resp)
+}
+
+/// Fetch upcoming pending downloads with total pending count
+pub fn fetch_upcoming(api_url: &str) -> Result<UpcomingResponse, String> {
+    let resp: UpcomingResponse = agent()
+        .get(&format!("{api_url}/api/upcoming"))
+        .call()
+        .map_err(|e| e.to_string())?
+        .into_json()
+        .map_err(|e| e.to_string())?;
+    Ok(resp)
 }
 
 /// Fetch system info from /api/system
@@ -61,17 +82,38 @@ pub fn fetch_config(api_url: &str) -> Result<ConfigResponse, String> {
     Ok(resp)
 }
 
+/// Parameters for the paginated downloads fetch
+pub struct FetchParams {
+    pub limit: usize,
+    pub offset: usize,
+    pub status: String,
+    pub search: String,
+}
+
 /// Fetch all data in one call (for refresh)
-pub fn fetch_all(api_url: &str) -> RefreshData {
+pub fn fetch_all(api_url: &str, params: &FetchParams) -> RefreshData {
     let counts = fetch_counts(api_url).unwrap_or_default();
-    let downloads = fetch_downloads(api_url).unwrap_or_default();
+    let paginated = fetch_downloads(
+        api_url,
+        params.limit,
+        params.offset,
+        &params.status,
+        &params.search,
+    )
+    .unwrap_or_default();
+    let error_resp = fetch_downloads(api_url, 100, 0, "error", "").unwrap_or_default();
+    let upcoming = fetch_upcoming(api_url).unwrap_or_default();
     let system = fetch_system(api_url).ok();
     let logs = fetch_logs(api_url).unwrap_or_default();
     let config = fetch_config(api_url).ok();
 
     RefreshData {
         counts,
-        downloads,
+        downloads: paginated.downloads,
+        downloads_total: paginated.total,
+        error_downloads: error_resp.downloads,
+        upcoming_downloads: upcoming.downloads,
+        total_pending: upcoming.total_pending,
         system,
         logs,
         config,
@@ -190,10 +232,19 @@ mod tests {
 
     #[test]
     fn test_fetch_all_handles_unreachable_server() {
-        let data = fetch_all("http://127.0.0.1:19999");
+        let params = FetchParams {
+            limit: 50,
+            offset: 0,
+            status: "all".into(),
+            search: String::new(),
+        };
+        let data = fetch_all("http://127.0.0.1:19999", &params);
         assert!(data.counts.is_empty());
         assert!(data.downloads.is_empty());
-
+        assert_eq!(data.downloads_total, 0);
+        assert!(data.error_downloads.is_empty());
+        assert!(data.upcoming_downloads.is_empty());
+        assert_eq!(data.total_pending, 0);
         assert!(data.system.is_none());
         assert!(data.logs.is_empty());
         assert!(data.config.is_none());
@@ -202,6 +253,18 @@ mod tests {
     #[test]
     fn test_fetch_counts_error() {
         let result = fetch_counts("http://127.0.0.1:19999");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_fetch_downloads_error() {
+        let result = fetch_downloads("http://127.0.0.1:19999", 50, 0, "all", "");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_fetch_upcoming_error() {
+        let result = fetch_upcoming("http://127.0.0.1:19999");
         assert!(result.is_err());
     }
 }

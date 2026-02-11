@@ -4,6 +4,7 @@ import { logger as honoLogger } from "@hono/hono/logger";
 import {
   addURLs,
   countDownloads,
+  countFilteredDownloads,
   deleteAllFailedDownloads,
   deleteDownload,
   downloadDownloads,
@@ -72,7 +73,7 @@ export function createApp(): hono.Hono {
     ).join("");
 
     // Get error downloads for initial page load
-    const errorDownloads = selectDownloads(0, DownloadStatus.error);
+    const errorDownloads = selectDownloads(100, DownloadStatus.error);
     const errorSection = errorDownloads.length > 0 ? "block" : "none";
     const errorList = errorDownloads.map((d) =>
       `<div class="error-item">
@@ -146,13 +147,26 @@ export function createApp(): hono.Hono {
   });
 
   app.get("/api/downloads", (c) => {
-    const downloads = selectDownloads(0);
-    return c.json({ downloads });
+    const limit = parseInt(c.req.query("limit") || "50") || 50;
+    const offset = parseInt(c.req.query("offset") || "0") || 0;
+    const search = c.req.query("search") || "";
+    const statusParam = c.req.query("status") || "all";
+    const filter = statusParam !== "all" &&
+        Object.values(DownloadStatus).includes(
+          statusParam as DownloadStatus,
+        )
+      ? (statusParam as DownloadStatus)
+      : ("all" as const);
+
+    const downloads = selectDownloads(limit, filter, offset, search);
+    const total = countFilteredDownloads(filter, search);
+    return c.json({ downloads, total, limit, offset });
   });
 
   app.get("/api/upcoming", (c) => {
     const upcoming = selectDownloads(10, DownloadStatus.pending);
-    return c.json({ downloads: upcoming });
+    const totalPending = countFilteredDownloads(DownloadStatus.pending);
+    return c.json({ downloads: upcoming, totalPending });
   });
 
   app.get("/api/recent", (c) => {

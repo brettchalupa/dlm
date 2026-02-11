@@ -67,6 +67,11 @@ export function initDB() {
     // Column already exists, ignore error
   }
 
+  db.execute(`
+    CREATE INDEX IF NOT EXISTS idx_downloads_status_priority
+    ON downloads(status, priority DESC, id ASC)
+  `);
+
   db.close();
   logger.log("Database initialized successfully");
 }
@@ -336,25 +341,51 @@ const AllFilter = "all";
 /**
  * Fetches downloads from the database
  * @param limit how many downloads to fetch
+ * @param filter status filter or "all"
+ * @param offset number of rows to skip
+ * @param search search term to match against title, url, or collection
  * @returns an array of Downloads
  */
 export function selectDownloads(
   limit: number,
   filter: DownloadStatus | typeof AllFilter = AllFilter,
+  offset = 0,
+  search = "",
 ): Download[] {
+  const conditions: string[] = [];
+  const params: (string | number)[] = [];
+
+  if (filter !== AllFilter) {
+    conditions.push("status = ?");
+    params.push(filter);
+  }
+
+  if (search) {
+    conditions.push(
+      "(title LIKE ? OR url LIKE ? OR collection LIKE ?)",
+    );
+    const like = `%${search}%`;
+    params.push(like, like, like);
+  }
+
   let queryStr =
     `SELECT id, collection, createdAt, downloadedAt, priority, status, title, url, errorMessage
     FROM downloads`;
-  if (filter != AllFilter) {
-    queryStr += ` WHERE status='${filter}'`;
+
+  if (conditions.length > 0) {
+    queryStr += ` WHERE ${conditions.join(" AND ")}`;
   }
 
   queryStr += ` ORDER BY priority DESC, id ASC`;
 
   if (limit > 0) {
-    queryStr = queryStr + ` LIMIT ${limit};`;
-  } else {
-    queryStr = queryStr + `;`;
+    queryStr += ` LIMIT ?`;
+    params.push(limit);
+  }
+
+  if (offset > 0) {
+    queryStr += ` OFFSET ?`;
+    params.push(offset);
   }
 
   const db = new DB(dbFile(), { mode: "read" });
@@ -383,7 +414,7 @@ export function selectDownloads(
       title,
       url,
       errorMessage,
-    ] of query.iter()
+    ] of query.iter(params)
   ) {
     downloads.push({
       id: id,
@@ -400,6 +431,43 @@ export function selectDownloads(
   query.finalize();
   db.close();
   return downloads;
+}
+
+/**
+ * Returns the total count of downloads matching the given filters
+ */
+export function countFilteredDownloads(
+  filter: DownloadStatus | typeof AllFilter = AllFilter,
+  search = "",
+): number {
+  const conditions: string[] = [];
+  const params: string[] = [];
+
+  if (filter !== AllFilter) {
+    conditions.push("status = ?");
+    params.push(filter);
+  }
+
+  if (search) {
+    conditions.push(
+      "(title LIKE ? OR url LIKE ? OR collection LIKE ?)",
+    );
+    const like = `%${search}%`;
+    params.push(like, like, like);
+  }
+
+  let queryStr = "SELECT COUNT(*) FROM downloads";
+  if (conditions.length > 0) {
+    queryStr += ` WHERE ${conditions.join(" AND ")}`;
+  }
+
+  const db = new DB(dbFile(), { mode: "read" });
+  const query = db.prepareQuery<[number]>(queryStr);
+  const rows = query.all(params);
+  const count = rows[0]?.[0] ?? 0;
+  query.finalize();
+  db.close();
+  return count;
 }
 
 /**

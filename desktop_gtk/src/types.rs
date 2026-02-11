@@ -85,10 +85,19 @@ pub struct CountResponse {
     pub status_groups: Vec<StatusCount>,
 }
 
-/// Response from /api/downloads, /api/upcoming, /api/recent
-#[derive(Debug, Clone, Deserialize)]
-pub struct DownloadsResponse {
+/// Response from /api/downloads (paginated)
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct PaginatedDownloadsResponse {
     pub downloads: Vec<Download>,
+    pub total: i64,
+}
+
+/// Response from /api/upcoming
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct UpcomingResponse {
+    pub downloads: Vec<Download>,
+    #[serde(rename = "totalPending")]
+    pub total_pending: i64,
 }
 
 /// Response from /api/logs
@@ -108,6 +117,10 @@ pub struct MessageResponse {
 pub struct RefreshData {
     pub counts: Vec<StatusCount>,
     pub downloads: Vec<Download>,
+    pub downloads_total: i64,
+    pub error_downloads: Vec<Download>,
+    pub upcoming_downloads: Vec<Download>,
+    pub total_pending: i64,
     pub system: Option<SystemInfo>,
     pub logs: Vec<String>,
     pub config: Option<ConfigResponse>,
@@ -125,16 +138,6 @@ pub enum StatusFilter {
 }
 
 impl StatusFilter {
-    pub fn matches(&self, status: &str) -> bool {
-        match self {
-            StatusFilter::All => true,
-            StatusFilter::Pending => status == "pending",
-            StatusFilter::Downloading => status == "downloading",
-            StatusFilter::Success => status == "success",
-            StatusFilter::Error => status == "error",
-        }
-    }
-
     pub fn label(&self) -> &'static str {
         match self {
             StatusFilter::All => "All",
@@ -142,6 +145,16 @@ impl StatusFilter {
             StatusFilter::Downloading => "Downloading",
             StatusFilter::Success => "Success",
             StatusFilter::Error => "Errors",
+        }
+    }
+
+    pub fn api_param(&self) -> &'static str {
+        match self {
+            StatusFilter::All => "all",
+            StatusFilter::Pending => "pending",
+            StatusFilter::Downloading => "downloading",
+            StatusFilter::Success => "success",
+            StatusFilter::Error => "error",
         }
     }
 
@@ -184,11 +197,17 @@ impl SortOrder {
 pub struct AppState {
     pub counts: Vec<StatusCount>,
     pub downloads: Vec<Download>,
+    pub downloads_total: i64,
+    pub error_downloads: Vec<Download>,
+    pub upcoming_downloads: Vec<Download>,
+    pub total_pending: i64,
     pub system: Option<SystemInfo>,
     pub logs: Vec<String>,
     pub config: Option<ConfigResponse>,
     pub status_filter: StatusFilter,
     pub sort_order: SortOrder,
+    pub current_page: usize,
+    pub download_search: String,
     pub log_filter: LogFilter,
     pub log_search: String,
 }
@@ -213,13 +232,9 @@ impl AppState {
             .unwrap_or(0)
     }
 
-    /// Get downloads filtered by current status filter and sorted
-    pub fn filtered_downloads(&self) -> Vec<&Download> {
-        let mut result: Vec<&Download> = self
-            .downloads
-            .iter()
-            .filter(|d| self.status_filter.matches(&d.status))
-            .collect();
+    /// Get downloads sorted by current sort order (filtering is server-side)
+    pub fn sorted_downloads(&self) -> Vec<&Download> {
+        let mut result: Vec<&Download> = self.downloads.iter().collect();
 
         match self.sort_order {
             SortOrder::NewestFirst => result.sort_by(|a, b| b.id.cmp(&a.id)),
@@ -232,12 +247,10 @@ impl AppState {
         result
     }
 
-    /// Get error downloads
-    pub fn error_downloads(&self) -> Vec<&Download> {
-        self.downloads
-            .iter()
-            .filter(|d| d.status == "error")
-            .collect()
+    /// Total number of pages for current filter
+    pub fn total_pages(&self) -> usize {
+        let per_page = 50;
+        (self.downloads_total as usize).div_ceil(per_page)
     }
 
     /// Look up the directory for a download's collection
@@ -282,6 +295,13 @@ pub struct Widgets {
     // Downloads page
     pub downloads_list: gtk::ListBox,
     pub downloads_count_label: gtk::Label,
+    pub downloads_search: gtk::SearchEntry,
+    pub pagination_label: gtk::Label,
+    pub prev_button: gtk::Button,
+    pub next_button: gtk::Button,
+    // Upcoming section
+    pub upcoming_list: gtk::ListBox,
+    pub upcoming_label: gtk::Label,
     // Errors page
     pub errors_list: gtk::ListBox,
     pub errors_stack: gtk::Stack,
@@ -345,38 +365,68 @@ mod tests {
     }
 
     #[test]
-    fn test_status_filter() {
-        assert!(StatusFilter::All.matches("pending"));
-        assert!(StatusFilter::All.matches("error"));
-        assert!(StatusFilter::Pending.matches("pending"));
-        assert!(!StatusFilter::Pending.matches("error"));
-        assert!(StatusFilter::Error.matches("error"));
-        assert!(!StatusFilter::Error.matches("success"));
+    fn test_status_filter_labels() {
+        assert_eq!(StatusFilter::All.label(), "All");
+        assert_eq!(StatusFilter::Pending.label(), "Pending");
+        assert_eq!(StatusFilter::Error.label(), "Errors");
     }
 
     #[test]
-    fn test_filtered_downloads() {
+    fn test_sorted_downloads() {
         let state = AppState {
             downloads: vec![
                 Download {
+                    id: 1,
                     status: "pending".into(),
                     ..Default::default()
                 },
                 Download {
+                    id: 3,
                     status: "error".into(),
                     ..Default::default()
                 },
                 Download {
+                    id: 2,
                     status: "success".into(),
                     ..Default::default()
                 },
             ],
-            status_filter: StatusFilter::Pending,
+            sort_order: SortOrder::NewestFirst,
             ..Default::default()
         };
-        let filtered = state.filtered_downloads();
-        assert_eq!(filtered.len(), 1);
-        assert_eq!(filtered[0].status, "pending");
+        let sorted = state.sorted_downloads();
+        assert_eq!(sorted.len(), 3);
+        assert_eq!(sorted[0].id, 3);
+        assert_eq!(sorted[1].id, 2);
+        assert_eq!(sorted[2].id, 1);
+    }
+
+    #[test]
+    fn test_total_pages() {
+        let state = AppState {
+            downloads_total: 125,
+            ..Default::default()
+        };
+        assert_eq!(state.total_pages(), 3);
+
+        let state2 = AppState {
+            downloads_total: 0,
+            ..Default::default()
+        };
+        assert_eq!(state2.total_pages(), 0);
+
+        let state3 = AppState {
+            downloads_total: 50,
+            ..Default::default()
+        };
+        assert_eq!(state3.total_pages(), 1);
+    }
+
+    #[test]
+    fn test_status_filter_api_param() {
+        assert_eq!(StatusFilter::All.api_param(), "all");
+        assert_eq!(StatusFilter::Pending.api_param(), "pending");
+        assert_eq!(StatusFilter::Error.api_param(), "error");
     }
 
     #[test]
@@ -468,10 +518,10 @@ mod tests {
             sort_order: SortOrder::NewestFirst,
             ..Default::default()
         };
-        let filtered = state.filtered_downloads();
-        assert_eq!(filtered[0].id, 3);
-        assert_eq!(filtered[1].id, 2);
-        assert_eq!(filtered[2].id, 1);
+        let sorted = state.sorted_downloads();
+        assert_eq!(sorted[0].id, 3);
+        assert_eq!(sorted[1].id, 2);
+        assert_eq!(sorted[2].id, 1);
     }
 
     #[test]
@@ -492,9 +542,9 @@ mod tests {
             sort_order: SortOrder::Collection,
             ..Default::default()
         };
-        let filtered = state.filtered_downloads();
-        assert_eq!(filtered[0].collection, "at");
-        assert_eq!(filtered[1].collection, "zt");
+        let sorted = state.sorted_downloads();
+        assert_eq!(sorted[0].collection, "at");
+        assert_eq!(sorted[1].collection, "zt");
     }
 
     #[test]

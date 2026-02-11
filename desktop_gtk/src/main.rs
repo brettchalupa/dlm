@@ -16,7 +16,7 @@ use glib::clone;
 use gtk::gio;
 use gtk::glib;
 
-use config::{load_settings, save_settings, AppSettings};
+use config::{AppSettings, load_settings, save_settings};
 use types::{AppState, LogFilter, RefreshData, SortOrder, StatusFilter, Widgets};
 
 // ============================================================================
@@ -78,6 +78,8 @@ fn load_css() {
 // Data refresh
 // ============================================================================
 
+const PAGE_SIZE: usize = 50;
+
 /// Trigger an async data refresh from the API
 fn trigger_refresh(
     state: &Rc<RefCell<AppState>>,
@@ -85,12 +87,21 @@ fn trigger_refresh(
     settings: &Rc<RefCell<AppSettings>>,
 ) {
     let api_url = settings.borrow().api_url.clone();
+    let params = {
+        let s = state.borrow();
+        api::FetchParams {
+            limit: PAGE_SIZE,
+            offset: s.current_page * PAGE_SIZE,
+            status: s.status_filter.api_param().to_string(),
+            search: s.download_search.clone(),
+        }
+    };
     let state = state.clone();
     let widgets = widgets.clone();
     let settings2 = settings.clone();
 
     glib::spawn_future_local(async move {
-        let data: RefreshData = gio::spawn_blocking(move || api::fetch_all(&api_url))
+        let data: RefreshData = gio::spawn_blocking(move || api::fetch_all(&api_url, &params))
             .await
             .unwrap_or_default();
         apply_refresh_data(&state, &widgets, &settings2, data);
@@ -108,6 +119,10 @@ fn apply_refresh_data(
         let mut s = state.borrow_mut();
         s.counts = data.counts;
         s.downloads = data.downloads;
+        s.downloads_total = data.downloads_total;
+        s.error_downloads = data.error_downloads;
+        s.upcoming_downloads = data.upcoming_downloads;
+        s.total_pending = data.total_pending;
         s.system = data.system;
         s.logs = data.logs;
         s.config = data.config;
@@ -121,6 +136,7 @@ fn apply_refresh_data(
     }
     update_downloads_list(state, widgets, settings);
     update_errors_list(state, widgets, settings);
+    update_upcoming_list(state, widgets, settings);
 }
 
 // ============================================================================
@@ -160,26 +176,45 @@ fn update_downloads_list(
     }
 
     let s = state.borrow();
-    let filtered = s.filtered_downloads();
+    let sorted = s.sorted_downloads();
+    let total_pages = s.total_pages();
+    let current_page = s.current_page;
+
+    // Update pagination info
+    if s.downloads_total > 0 {
+        widgets.pagination_label.set_text(&format!(
+            "Page {} of {} ({} total)",
+            current_page + 1,
+            total_pages.max(1),
+            s.downloads_total
+        ));
+    } else {
+        widgets.pagination_label.set_text("");
+    }
+    widgets.prev_button.set_sensitive(current_page > 0);
+    widgets
+        .next_button
+        .set_sensitive(current_page + 1 < total_pages);
 
     widgets
         .downloads_count_label
-        .set_text(&format!("{} shown", filtered.len()));
+        .set_text(&format!("{} shown", sorted.len()));
 
-    if filtered.is_empty() {
+    if sorted.is_empty() {
+        let subtitle = if s.downloads_total == 0 && s.download_search.is_empty() {
+            "Add URLs to get started"
+        } else {
+            "No downloads match the current filter"
+        };
         let row = adw::ActionRow::builder()
             .title("No downloads")
-            .subtitle(if s.downloads.is_empty() {
-                "Add URLs to get started"
-            } else {
-                "No downloads match the current filter"
-            })
+            .subtitle(subtitle)
             .build();
         widgets.downloads_list.append(&row);
         return;
     }
 
-    for dl in &filtered {
+    for dl in &sorted {
         let row = build_download_row(dl, widgets, state, settings);
         widgets.downloads_list.append(&row);
     }
@@ -410,7 +445,7 @@ fn update_errors_list(
     }
 
     let s = state.borrow();
-    let errors = s.error_downloads();
+    let errors: Vec<&types::Download> = s.error_downloads.iter().collect();
 
     if errors.is_empty() {
         widgets.errors_stack.set_visible_child_name("empty");
@@ -491,6 +526,122 @@ fn update_errors_list(
         row.add_suffix(&delete_btn);
 
         widgets.errors_list.append(&row);
+    }
+}
+
+fn update_upcoming_list(
+    state: &Rc<RefCell<AppState>>,
+    widgets: &Rc<Widgets>,
+    settings: &Rc<RefCell<AppSettings>>,
+) {
+    while let Some(child) = widgets.upcoming_list.first_child() {
+        widgets.upcoming_list.remove(&child);
+    }
+
+    let s = state.borrow();
+
+    if s.total_pending > 0 {
+        widgets.upcoming_label.set_text(&format!(
+            "Up Next (next {} of {} pending)",
+            s.upcoming_downloads.len(),
+            s.total_pending
+        ));
+    } else {
+        widgets.upcoming_label.set_text("Up Next");
+    }
+
+    if s.upcoming_downloads.is_empty() {
+        let row = adw::ActionRow::builder()
+            .title("No pending downloads in queue")
+            .build();
+        widgets.upcoming_list.append(&row);
+        return;
+    }
+
+    for (i, dl) in s.upcoming_downloads.iter().enumerate() {
+        let row_box = gtk::Box::builder()
+            .orientation(gtk::Orientation::Horizontal)
+            .spacing(8)
+            .margin_top(6)
+            .margin_bottom(6)
+            .margin_start(12)
+            .margin_end(12)
+            .build();
+
+        // Position badge
+        let badge = gtk::Label::builder()
+            .label(format!("{}", i + 1))
+            .css_classes(["accent", "status-badge"])
+            .width_request(28)
+            .halign(gtk::Align::Center)
+            .valign(gtk::Align::Center)
+            .build();
+        row_box.append(&badge);
+
+        let info_box = gtk::Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .spacing(2)
+            .hexpand(true)
+            .build();
+
+        let title_label = gtk::Label::builder()
+            .label(dl.display_title())
+            .halign(gtk::Align::Start)
+            .ellipsize(gtk::pango::EllipsizeMode::End)
+            .css_classes(["heading"])
+            .build();
+
+        let url_label = gtk::Label::builder()
+            .label(&dl.url)
+            .halign(gtk::Align::Start)
+            .ellipsize(gtk::pango::EllipsizeMode::End)
+            .css_classes(["dim-label", "caption"])
+            .build();
+
+        let meta_label = gtk::Label::builder()
+            .label(format!("{} · ID {}", dl.collection, dl.id))
+            .halign(gtk::Align::Start)
+            .css_classes(["dim-label", "caption"])
+            .build();
+
+        info_box.append(&title_label);
+        info_box.append(&url_label);
+        info_box.append(&meta_label);
+
+        let dl_id = dl.id;
+        let delete_btn = gtk::Button::builder()
+            .icon_name("user-trash-symbolic")
+            .tooltip_text("Delete")
+            .css_classes(["flat", "circular"])
+            .valign(gtk::Align::Center)
+            .build();
+        delete_btn.connect_clicked(clone!(
+            #[strong]
+            widgets,
+            #[strong]
+            state,
+            #[strong]
+            settings,
+            move |_| {
+                let api_url = settings.borrow().api_url.clone();
+                do_action(
+                    &api_url,
+                    move |url| api::delete_download(&url, dl_id),
+                    &widgets,
+                    &state,
+                    &settings,
+                );
+            }
+        ));
+
+        row_box.append(&info_box);
+        row_box.append(&delete_btn);
+
+        let row = gtk::ListBoxRow::builder()
+            .child(&row_box)
+            .activatable(false)
+            .build();
+        widgets.upcoming_list.append(&row);
     }
 }
 
@@ -961,8 +1112,12 @@ fn build_downloads_page(
             settings,
             move |btn| {
                 if btn.is_active() {
-                    state.borrow_mut().status_filter = filter;
-                    update_downloads_list(&state, &widgets, &settings);
+                    {
+                        let mut s = state.borrow_mut();
+                        s.status_filter = filter;
+                        s.current_page = 0;
+                    }
+                    trigger_refresh(&state, &widgets, &settings);
                 }
             }
         ));
@@ -991,15 +1146,38 @@ fn build_downloads_page(
     ));
 
     widgets
+        .downloads_search
+        .set_placeholder_text(Some("Search downloads..."));
+    widgets.downloads_search.set_hexpand(true);
+
+    widgets
         .downloads_count_label
         .set_css_classes(&["dim-label", "caption"]);
-    widgets.downloads_count_label.set_hexpand(true);
     widgets.downloads_count_label.set_halign(gtk::Align::End);
 
     filter_bar.append(&filter_buttons);
     filter_bar.append(&sort_dropdown);
+    filter_bar.append(&widgets.downloads_search);
     filter_bar.append(&widgets.downloads_count_label);
     content.append(&filter_bar);
+
+    // Search handler
+    widgets.downloads_search.connect_search_changed(clone!(
+        #[strong]
+        state,
+        #[strong]
+        widgets,
+        #[strong]
+        settings,
+        move |entry| {
+            {
+                let mut s = state.borrow_mut();
+                s.download_search = entry.text().to_string();
+                s.current_page = 0;
+            }
+            trigger_refresh(&state, &widgets, &settings);
+        }
+    ));
 
     // Downloads list
     widgets.downloads_list.set_css_classes(&["boxed-list"]);
@@ -1015,6 +1193,61 @@ fn build_downloads_page(
         .build();
 
     content.append(&scroll);
+
+    // Pagination controls
+    let pagination_box = gtk::Box::builder()
+        .orientation(gtk::Orientation::Horizontal)
+        .spacing(8)
+        .margin_top(4)
+        .margin_bottom(4)
+        .halign(gtk::Align::Center)
+        .build();
+
+    widgets.prev_button.set_icon_name("go-previous-symbolic");
+    widgets.prev_button.add_css_class("flat");
+    widgets.next_button.set_icon_name("go-next-symbolic");
+    widgets.next_button.add_css_class("flat");
+    widgets.pagination_label.add_css_class("dim-label");
+
+    pagination_box.append(&widgets.prev_button);
+    pagination_box.append(&widgets.pagination_label);
+    pagination_box.append(&widgets.next_button);
+    content.append(&pagination_box);
+
+    // Pagination button handlers
+    widgets.prev_button.connect_clicked(clone!(
+        #[strong]
+        state,
+        #[strong]
+        widgets,
+        #[strong]
+        settings,
+        move |_| {
+            {
+                let mut s = state.borrow_mut();
+                s.current_page = s.current_page.saturating_sub(1);
+            }
+            trigger_refresh(&state, &widgets, &settings);
+        }
+    ));
+
+    widgets.next_button.connect_clicked(clone!(
+        #[strong]
+        state,
+        #[strong]
+        widgets,
+        #[strong]
+        settings,
+        move |_| {
+            {
+                let mut s = state.borrow_mut();
+                if s.current_page + 1 < s.total_pages() {
+                    s.current_page += 1;
+                }
+            }
+            trigger_refresh(&state, &widgets, &settings);
+        }
+    ));
 
     let clamp = adw::Clamp::builder()
         .maximum_size(900)
@@ -1130,6 +1363,42 @@ fn build_errors_page(
     widgets.errors_stack.set_vexpand(true);
 
     page.append(&widgets.errors_stack);
+    page
+}
+
+fn build_upcoming_page(widgets: &Rc<Widgets>) -> gtk::Box {
+    let page = gtk::Box::builder()
+        .orientation(gtk::Orientation::Vertical)
+        .spacing(8)
+        .build();
+
+    widgets.upcoming_label.add_css_class("heading");
+    widgets.upcoming_label.set_halign(gtk::Align::Start);
+    widgets.upcoming_label.set_margin_top(12);
+    widgets.upcoming_label.set_margin_start(12);
+
+    widgets.upcoming_list.set_css_classes(&["boxed-list"]);
+    widgets
+        .upcoming_list
+        .set_selection_mode(gtk::SelectionMode::None);
+
+    let scroll = gtk::ScrolledWindow::builder()
+        .hscrollbar_policy(gtk::PolicyType::Never)
+        .vscrollbar_policy(gtk::PolicyType::Automatic)
+        .child(&widgets.upcoming_list)
+        .vexpand(true)
+        .build();
+
+    let clamp = adw::Clamp::builder()
+        .maximum_size(900)
+        .child(&scroll)
+        .vexpand(true)
+        .margin_start(12)
+        .margin_end(12)
+        .build();
+
+    page.append(&widgets.upcoming_label);
+    page.append(&clamp);
     page
 }
 
@@ -1334,6 +1603,12 @@ fn build_ui(app: &adw::Application) {
         system_label: gtk::Label::new(Some("")),
         downloads_list: gtk::ListBox::new(),
         downloads_count_label: gtk::Label::new(Some("")),
+        downloads_search: gtk::SearchEntry::new(),
+        pagination_label: gtk::Label::new(Some("")),
+        prev_button: gtk::Button::new(),
+        next_button: gtk::Button::new(),
+        upcoming_list: gtk::ListBox::new(),
+        upcoming_label: gtk::Label::new(Some("Up Next")),
         errors_list: gtk::ListBox::new(),
         errors_stack: gtk::Stack::new(),
         logs_buffer: gtk::TextBuffer::new(None),
@@ -1346,6 +1621,7 @@ fn build_ui(app: &adw::Application) {
 
     // Build pages
     let downloads_page = build_downloads_page(&widgets, &state, &settings);
+    let upcoming_page = build_upcoming_page(&widgets);
     let errors_page = build_errors_page(&widgets, &state, &settings);
     let logs_page = build_logs_page(&widgets, &state);
     let config_page = build_config_page(&widgets);
@@ -1357,6 +1633,12 @@ fn build_ui(app: &adw::Application) {
         Some("downloads"),
         "Downloads",
         "folder-download-symbolic",
+    );
+    view_stack.add_titled_with_icon(
+        &upcoming_page,
+        Some("upcoming"),
+        "Up Next",
+        "view-list-ordered-symbolic",
     );
     view_stack.add_titled_with_icon(
         &errors_page,
