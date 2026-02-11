@@ -32,9 +32,10 @@ export function startDaemon(mins: number, downloadsPerRun: number) {
     }
   });
 
-  // Handle worker errors
-  worker.addEventListener("error", (error) => {
-    logger.error("Worker error:", error);
+  // Handle worker errors — prevent unhandled errors from crashing the process
+  worker.addEventListener("error", (event) => {
+    event.preventDefault();
+    logger.error("Worker error:", event.message);
   });
 
   return worker;

@@ -37,7 +37,11 @@ async function runDaemon(numDownloads: number) {
   logger.log(`${ts()} daemon: found ${downloads.length} pending downloads`);
 
   isDownloading = true;
-  await downloadDownloads(downloads);
+  try {
+    await downloadDownloads(downloads);
+  } catch (error) {
+    logger.error(`${ts()} daemon: error during download run:`, error);
+  }
   isDownloading = false;
 
   if (shutdownRequested) {
@@ -64,13 +68,21 @@ self.addEventListener("message", async (event: MessageEvent) => {
     );
 
     // Run immediately
-    await runDaemon(downloadsPerRun);
+    try {
+      await runDaemon(downloadsPerRun);
+    } catch (error) {
+      logger.error(`${ts()} daemon: error during initial run:`, error);
+    }
 
     // Set up interval
     setInterval(async () => {
       if (!shutdownRequested) {
         logger.log(`${ts()} daemon: starting run`);
-        await runDaemon(downloadsPerRun);
+        try {
+          await runDaemon(downloadsPerRun);
+        } catch (error) {
+          logger.error(`${ts()} daemon: error during run:`, error);
+        }
       }
     }, delay);
 
