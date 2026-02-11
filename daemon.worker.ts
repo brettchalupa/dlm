@@ -54,6 +54,11 @@ self.addEventListener("message", async (event: MessageEvent) => {
   const { type, mins, downloadsPerRun } = event.data;
 
   if (type === "start") {
+    self.postMessage({
+      type: "started",
+      message: `Daemon started with ${mins} minute interval`,
+    });
+
     // Crash recovery: reset any downloads stuck in "downloading" from a previous run
     const resetCount = resetAllDownloadingDownloads();
     if (resetCount > 0) {
@@ -85,11 +90,6 @@ self.addEventListener("message", async (event: MessageEvent) => {
         }
       }
     }, delay);
-
-    self.postMessage({
-      type: "started",
-      message: `Daemon started with ${mins} minute interval`,
-    });
   }
 
   if (type === "shutdown") {
