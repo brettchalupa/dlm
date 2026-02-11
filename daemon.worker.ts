@@ -96,7 +96,7 @@ self.addEventListener("message", async (event: MessageEvent) => {
     shutdownRequested = true;
     if (isDownloading) {
       logger.log(
-        `${ts()} daemon: shutdown requested, 1 download still active — waiting for it to finish`,
+        `${ts()} daemon: shutdown requested, downloads still active — waiting for them to finish`,
       );
     } else {
       self.postMessage({ type: "shutdown-ready" });

@@ -106,9 +106,7 @@ export function countDownloads(): { status: string; count: number }[] {
 export async function downloadDownloads(
   downloads: Download[],
 ) {
-  for (const download of downloads) {
-    await downloadDownload(download);
-  }
+  await Promise.allSettled(downloads.map((d) => downloadDownload(d)));
 }
 
 async function downloadDownload(download: Download) {
