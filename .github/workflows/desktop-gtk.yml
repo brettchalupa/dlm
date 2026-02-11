@@ -49,7 +49,9 @@ jobs:
       - name: Check, lint, test
         run: just ok
 
-  # Gate job - mark this as "required" in branch protection
+  # Gate job - mark this as "required" in branch protection.
+  # Always runs because the workflow has no paths filter on the trigger.
+  # When desktop_gtk/ hasn't changed, build is skipped and the gate passes.
   desktop-gtk-status:
     name: Desktop GTK Status
     needs: [check-paths, build]
