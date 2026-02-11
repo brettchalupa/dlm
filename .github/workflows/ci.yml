@@ -30,16 +30,17 @@ jobs:
   desktop-gtk:
     name: Desktop GTK
     runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
     defaults:
       run:
         working-directory: desktop_gtk
     steps:
-      - uses: actions/checkout@v4
-
       - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-4-dev libadwaita-1-dev
+        run: dnf install -y gcc gtk4-devel libadwaita-devel pkg-config just
+        working-directory: .
+
+      - uses: actions/checkout@v4
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -52,11 +53,8 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             desktop_gtk/target
-          key: cargo-${{ runner.os }}-${{ hashFiles('desktop_gtk/Cargo.lock') }}
-          restore-keys: cargo-${{ runner.os }}-
-
-      - name: Install just
-        run: cargo install just
+          key: cargo-fedora-${{ hashFiles('desktop_gtk/Cargo.lock') }}
+          restore-keys: cargo-fedora-
 
       - name: Check, lint, test
         run: just ok
