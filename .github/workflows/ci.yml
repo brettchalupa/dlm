@@ -37,7 +37,7 @@ jobs:
         working-directory: desktop_gtk
     steps:
       - name: Install system dependencies
-        run: dnf install -y gcc gtk4-devel libadwaita-devel pkg-config just
+        run: dnf install -y --setopt=install_weak_deps=False --nodocs gcc gtk4-devel libadwaita-devel pkg-config just
         working-directory: .
 
       - uses: actions/checkout@v4
@@ -46,15 +46,9 @@ jobs:
         with:
           components: clippy, rustfmt
 
-      - name: Cache Cargo dependencies
-        uses: actions/cache@v4
+      - uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            desktop_gtk/target
-          key: cargo-fedora-${{ hashFiles('desktop_gtk/Cargo.lock') }}
-          restore-keys: cargo-fedora-
+          workspaces: desktop_gtk -> target
 
       - name: Check, lint, test
         run: just ok
