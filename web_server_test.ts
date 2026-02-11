@@ -30,9 +30,15 @@ initDB();
 
 const app = createApp();
 
+// Logger uses fire-and-forget Deno.writeTextFile calls, so disable the ops
+// sanitizer for all web server tests to avoid false leak detections.
+function test(name: string, fn: () => Promise<void>) {
+  Deno.test({ name, fn, sanitizeOps: false, sanitizeResources: false });
+}
+
 // --- /api/system ---
 
-Deno.test("GET /api/system returns system info", async () => {
+test("GET /api/system returns system info", async () => {
   const res = await app.request("/api/system");
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -43,7 +49,7 @@ Deno.test("GET /api/system returns system info", async () => {
 
 // --- /api/count ---
 
-Deno.test("GET /api/count returns empty counts on fresh DB", async () => {
+test("GET /api/count returns empty counts on fresh DB", async () => {
   const res = await app.request("/api/count");
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -52,7 +58,7 @@ Deno.test("GET /api/count returns empty counts on fresh DB", async () => {
 
 // --- /api/downloads ---
 
-Deno.test("GET /api/downloads returns empty list on fresh DB", async () => {
+test("GET /api/downloads returns empty list on fresh DB", async () => {
   const res = await app.request("/api/downloads");
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -61,7 +67,7 @@ Deno.test("GET /api/downloads returns empty list on fresh DB", async () => {
 
 // --- /api/add-urls + /api/downloads ---
 
-Deno.test("POST /api/add-urls adds URLs and they appear in downloads", async () => {
+test("POST /api/add-urls adds URLs and they appear in downloads", async () => {
   const res = await app.request("/api/add-urls", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -85,7 +91,7 @@ Deno.test("POST /api/add-urls adds URLs and they appear in downloads", async () 
 
 // --- /api/count after adding ---
 
-Deno.test("GET /api/count reflects added downloads", async () => {
+test("GET /api/count reflects added downloads", async () => {
   const res = await app.request("/api/count");
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -97,7 +103,7 @@ Deno.test("GET /api/count reflects added downloads", async () => {
 
 // --- /api/download/:id ---
 
-Deno.test("GET /api/download/:id returns a download", async () => {
+test("GET /api/download/:id returns a download", async () => {
   const res = await app.request("/api/download/1");
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -105,14 +111,14 @@ Deno.test("GET /api/download/:id returns a download", async () => {
   assertEquals(typeof json.download.url, "string");
 });
 
-Deno.test("GET /api/download/:id returns 404 for missing ID", async () => {
+test("GET /api/download/:id returns 404 for missing ID", async () => {
   const res = await app.request("/api/download/99999");
   assertEquals(res.status, 404);
 });
 
 // --- /api/status ---
 
-Deno.test("GET /api/status returns download by URL", async () => {
+test("GET /api/status returns download by URL", async () => {
   const res = await app.request(
     "/api/status?url=https://example.com/file1.zip",
   );
@@ -121,12 +127,12 @@ Deno.test("GET /api/status returns download by URL", async () => {
   assertEquals(json.download?.url, "https://example.com/file1.zip");
 });
 
-Deno.test("GET /api/status returns 400 without url param", async () => {
+test("GET /api/status returns 400 without url param", async () => {
   const res = await app.request("/api/status");
   assertEquals(res.status, 400);
 });
 
-Deno.test("GET /api/status returns null for unknown URL", async () => {
+test("GET /api/status returns null for unknown URL", async () => {
   const res = await app.request(
     "/api/status?url=https://unknown.com/nope",
   );
@@ -137,7 +143,7 @@ Deno.test("GET /api/status returns null for unknown URL", async () => {
 
 // --- /api/upcoming ---
 
-Deno.test("GET /api/upcoming returns pending downloads", async () => {
+test("GET /api/upcoming returns pending downloads", async () => {
   const res = await app.request("/api/upcoming");
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -149,7 +155,7 @@ Deno.test("GET /api/upcoming returns pending downloads", async () => {
 
 // --- /api/recent ---
 
-Deno.test("GET /api/recent returns recent downloads", async () => {
+test("GET /api/recent returns recent downloads", async () => {
   const res = await app.request("/api/recent");
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -158,7 +164,7 @@ Deno.test("GET /api/recent returns recent downloads", async () => {
 
 // --- /api/config ---
 
-Deno.test("GET /api/config returns collections from config", async () => {
+test("GET /api/config returns collections from config", async () => {
   const res = await app.request("/api/config");
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -168,7 +174,7 @@ Deno.test("GET /api/config returns collections from config", async () => {
 
 // --- /api/logs ---
 
-Deno.test("GET /api/logs returns log entries", async () => {
+test("GET /api/logs returns log entries", async () => {
   const res = await app.request("/api/logs");
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -177,14 +183,14 @@ Deno.test("GET /api/logs returns log entries", async () => {
 
 // --- /api/retry/:id ---
 
-Deno.test("POST /api/retry/:id returns 404 for non-error download", async () => {
+test("POST /api/retry/:id returns 404 for non-error download", async () => {
   const res = await app.request("/api/retry/1", { method: "POST" });
   assertEquals(res.status, 404);
 });
 
 // --- /api/retry-all-failed ---
 
-Deno.test("POST /api/retry-all-failed returns count", async () => {
+test("POST /api/retry-all-failed returns count", async () => {
   const res = await app.request("/api/retry-all-failed", { method: "POST" });
   assertEquals(res.status, 200);
   const json = await res.json();
@@ -193,14 +199,14 @@ Deno.test("POST /api/retry-all-failed returns count", async () => {
 
 // --- /api/reset/:id ---
 
-Deno.test("POST /api/reset/:id returns 404 for non-downloading item", async () => {
+test("POST /api/reset/:id returns 404 for non-downloading item", async () => {
   const res = await app.request("/api/reset/1", { method: "POST" });
   assertEquals(res.status, 404);
 });
 
 // --- /api/reset-all-downloading ---
 
-Deno.test("POST /api/reset-all-downloading returns count", async () => {
+test("POST /api/reset-all-downloading returns count", async () => {
   const res = await app.request("/api/reset-all-downloading", {
     method: "POST",
   });
@@ -211,14 +217,14 @@ Deno.test("POST /api/reset-all-downloading returns count", async () => {
 
 // --- /api/redownload/:id ---
 
-Deno.test("POST /api/redownload/:id returns 404 for non-success item", async () => {
+test("POST /api/redownload/:id returns 404 for non-success item", async () => {
   const res = await app.request("/api/redownload/1", { method: "POST" });
   assertEquals(res.status, 404);
 });
 
 // --- DELETE /api/download/:id ---
 
-Deno.test("DELETE /api/download/:id deletes a download", async () => {
+test("DELETE /api/download/:id deletes a download", async () => {
   // Add a URL to delete
   await app.request("/api/add-urls", {
     method: "POST",
@@ -246,14 +252,14 @@ Deno.test("DELETE /api/download/:id deletes a download", async () => {
   assertEquals(checkRes.status, 404);
 });
 
-Deno.test("DELETE /api/download/:id returns 404 for missing ID", async () => {
+test("DELETE /api/download/:id returns 404 for missing ID", async () => {
   const res = await app.request("/api/download/99999", { method: "DELETE" });
   assertEquals(res.status, 404);
 });
 
 // --- DELETE /api/delete-all-failed ---
 
-Deno.test("DELETE /api/delete-all-failed returns count", async () => {
+test("DELETE /api/delete-all-failed returns count", async () => {
   const res = await app.request("/api/delete-all-failed", {
     method: "DELETE",
   });
@@ -264,7 +270,7 @@ Deno.test("DELETE /api/delete-all-failed returns count", async () => {
 
 // --- GET / (web UI) ---
 
-Deno.test("GET / returns HTML page", async () => {
+test("GET / returns HTML page", async () => {
   const res = await app.request("/");
   assertEquals(res.status, 200);
   const html = await res.text();
@@ -273,13 +279,8 @@ Deno.test("GET / returns HTML page", async () => {
 
 // --- Cleanup ---
 
-Deno.test({
-  name: "cleanup test files",
-  fn: async () => {
-    Deno.env.delete("DLM_DB");
-    Deno.env.delete("DLM_CONFIG");
-    await Deno.remove(testDir, { recursive: true });
-  },
-  sanitizeResources: false,
-  sanitizeOps: false,
+test("cleanup test files", async () => {
+  Deno.env.delete("DLM_DB");
+  Deno.env.delete("DLM_CONFIG");
+  await Deno.remove(testDir, { recursive: true });
 });

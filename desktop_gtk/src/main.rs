@@ -16,14 +16,14 @@ use glib::clone;
 use gtk::gio;
 use gtk::glib;
 
-use config::{AppSettings, load_settings, save_settings};
+use config::{load_settings, save_settings, AppSettings};
 use types::{AppState, LogFilter, RefreshData, SortOrder, StatusFilter, Widgets};
 
 // ============================================================================
 // Configuration
 // ============================================================================
 
-pub const APP_ID: &str = "io.github.dlm";
+pub const APP_ID: &str = "com.brettchalupa.dlm.desktop";
 pub const CONFIG_DIR: &str = ".config/dlm-gtk";
 const WINDOW_TITLE: &str = "DLM";
 const WINDOW_WIDTH: i32 = 960;

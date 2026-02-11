@@ -1,0 +1,75 @@
+name: Desktop GTK
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-paths:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.filter.outputs.desktop-gtk }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            desktop-gtk:
+              - 'desktop_gtk/**'
+
+  build:
+    name: Build & Test
+    needs: check-paths
+    if: needs.check-paths.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
+    defaults:
+      run:
+        working-directory: desktop_gtk
+    steps:
+      - name: Install system dependencies
+        run: dnf install -y --setopt=install_weak_deps=False --nodocs gcc gtk4-devel libadwaita-devel pkg-config just
+        working-directory: .
+
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop_gtk -> target
+
+      - name: Check, lint, test
+        run: just ok
+
+  # Gate job - mark this as "required" in branch protection.
+  # Always runs because the workflow has no paths filter on the trigger.
+  # When desktop_gtk/ hasn't changed, build is skipped and the gate passes.
+  desktop-gtk-status:
+    name: Desktop GTK Status
+    needs: [check-paths, build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check status
+        run: |
+          if [[ "${{ needs.check-paths.result }}" != "success" ]]; then
+            echo "check-paths failed or was cancelled"
+            exit 1
+          fi
+          if [[ "${{ needs.check-paths.outputs.should-run }}" != "true" ]]; then
+            echo "Skipped - no desktop_gtk changes"
+            exit 0
+          fi
+          if [[ "${{ needs.build.result }}" == "failure" || "${{ needs.build.result }}" == "cancelled" ]]; then
+            echo "Build failed or was cancelled"
+            exit 1
+          fi
+          echo "Desktop GTK CI passed"
