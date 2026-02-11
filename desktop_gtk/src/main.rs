@@ -508,8 +508,12 @@ fn update_errors_list(
 
     for dl in &errors {
         let row = adw::ActionRow::builder()
-            .title(format!("ID {}: {}", dl.id, dl.display_title()))
-            .subtitle(&dl.url)
+            .title(glib::markup_escape_text(&format!(
+                "ID {}: {}",
+                dl.id,
+                dl.display_title()
+            )))
+            .subtitle(glib::markup_escape_text(&dl.url))
             .build();
 
         if let Some(err) = &dl.error_message {
@@ -779,20 +783,20 @@ fn update_config_view(state: &AppState, widgets: &Widgets) {
 
         let dir_row = adw::ActionRow::builder()
             .title("Directory")
-            .subtitle(&coll.dir)
+            .subtitle(glib::markup_escape_text(&coll.dir))
             .build();
         group.add(&dir_row);
 
         let cmd_row = adw::ActionRow::builder()
             .title("Command")
-            .subtitle(&coll.command)
+            .subtitle(glib::markup_escape_text(&coll.command))
             .build();
         group.add(&cmd_row);
 
         let domains_str = coll.domains.join(", ");
         let domains_row = adw::ActionRow::builder()
             .title("Domains")
-            .subtitle(&domains_str)
+            .subtitle(glib::markup_escape_text(&domains_str))
             .build();
         group.add(&domains_row);
 
