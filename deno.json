@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0-dev",
   "imports": {
     "deno-dom": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts",
     "sqlite": "https://deno.land/x/sqlite@v3.9.1/mod.ts",
