@@ -44,6 +44,9 @@ function dbFile(): string {
 export function initDB() {
   const db = new DB(dbFile());
 
+  // Use WAL mode for better concurrent access and to avoid journal file race conditions
+  db.execute("PRAGMA journal_mode=WAL");
+
   // Create the downloads table if it doesn't exist
   db.execute(`
     CREATE TABLE IF NOT EXISTS downloads (
