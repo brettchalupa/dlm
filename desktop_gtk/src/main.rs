@@ -303,6 +303,43 @@ fn build_download_row(
         .valign(gtk::Align::Center)
         .build();
 
+    // Copy URL button
+    let url_copy = dl.url.clone();
+    let copy_btn = gtk::Button::builder()
+        .icon_name("edit-copy-symbolic")
+        .tooltip_text("Copy URL")
+        .css_classes(["flat", "circular"])
+        .build();
+    copy_btn.connect_clicked(clone!(
+        #[strong]
+        widgets,
+        move |_| {
+            if let Some(display) = gtk::gdk::Display::default() {
+                display.clipboard().set_text(&url_copy);
+                widgets.show_toast("URL copied to clipboard");
+            }
+        }
+    ));
+    actions_box.append(&copy_btn);
+
+    // Open URL button
+    let url_open = dl.url.clone();
+    let open_url_btn = gtk::Button::builder()
+        .icon_name("web-browser-symbolic")
+        .tooltip_text("Open in browser")
+        .css_classes(["flat", "circular"])
+        .build();
+    open_url_btn.connect_clicked(clone!(
+        #[strong]
+        widgets,
+        move |_| {
+            if let Err(e) = open::that(&url_open) {
+                widgets.show_toast(&format!("Failed to open URL: {e}"));
+            }
+        }
+    ));
+    actions_box.append(&open_url_btn);
+
     // Open folder button (always available if we have config)
     let collection = dl.collection.clone();
     let open_btn = gtk::Button::builder()
@@ -527,6 +564,43 @@ fn update_errors_list(
             row.add_suffix(&err_label);
         }
 
+        let url_copy = dl.url.clone();
+        let copy_btn = gtk::Button::builder()
+            .icon_name("edit-copy-symbolic")
+            .tooltip_text("Copy URL")
+            .css_classes(["flat", "circular"])
+            .valign(gtk::Align::Center)
+            .build();
+        copy_btn.connect_clicked(clone!(
+            #[strong]
+            widgets,
+            move |_| {
+                if let Some(display) = gtk::gdk::Display::default() {
+                    display.clipboard().set_text(&url_copy);
+                    widgets.show_toast("URL copied to clipboard");
+                }
+            }
+        ));
+        row.add_suffix(&copy_btn);
+
+        let url_open = dl.url.clone();
+        let open_url_btn = gtk::Button::builder()
+            .icon_name("web-browser-symbolic")
+            .tooltip_text("Open in browser")
+            .css_classes(["flat", "circular"])
+            .valign(gtk::Align::Center)
+            .build();
+        open_url_btn.connect_clicked(clone!(
+            #[strong]
+            widgets,
+            move |_| {
+                if let Err(e) = open::that(&url_open) {
+                    widgets.show_toast(&format!("Failed to open URL: {e}"));
+                }
+            }
+        ));
+        row.add_suffix(&open_url_btn);
+
         let dl_id = dl.id;
         let retry_btn = gtk::Button::builder()
             .icon_name("view-refresh-symbolic")
@@ -743,7 +817,44 @@ fn update_upcoming_list(
             }
         ));
 
+        let url_copy = dl.url.clone();
+        let copy_btn = gtk::Button::builder()
+            .icon_name("edit-copy-symbolic")
+            .tooltip_text("Copy URL")
+            .css_classes(["flat", "circular"])
+            .valign(gtk::Align::Center)
+            .build();
+        copy_btn.connect_clicked(clone!(
+            #[strong]
+            widgets,
+            move |_| {
+                if let Some(display) = gtk::gdk::Display::default() {
+                    display.clipboard().set_text(&url_copy);
+                    widgets.show_toast("URL copied to clipboard");
+                }
+            }
+        ));
+
+        let url_open = dl.url.clone();
+        let open_url_btn = gtk::Button::builder()
+            .icon_name("web-browser-symbolic")
+            .tooltip_text("Open in browser")
+            .css_classes(["flat", "circular"])
+            .valign(gtk::Align::Center)
+            .build();
+        open_url_btn.connect_clicked(clone!(
+            #[strong]
+            widgets,
+            move |_| {
+                if let Err(e) = open::that(&url_open) {
+                    widgets.show_toast(&format!("Failed to open URL: {e}"));
+                }
+            }
+        ));
+
         row_box.append(&info_box);
+        row_box.append(&copy_btn);
+        row_box.append(&open_url_btn);
         row_box.append(&pri_btn);
         row_box.append(&delete_btn);
 

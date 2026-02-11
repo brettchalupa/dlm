@@ -1020,506 +1020,515 @@ export function renderWeb(
             const item = document.createElement('div');
             item.className = 'download-item';
 
-            let actionsHtml = '';
+            var urlBtns = '<button onclick="copyUrl(\\'' + download.url + '\\')" title="Copy URL" style="background: var(--bg-tertiary); border: 1px solid var(--border-primary);">📋</button>' +
+              '<button onclick="openUrl(\\'' + download.url + '\\')" title="Open URL" style="background: var(--bg-tertiary); border: 1px solid var(--border-primary);">↗</button>';
+            var statusBtns = '';
             if (download.status === 'downloading') {
-              actionsHtml = '<div class="download-actions">' +
-                '<button onclick="resetDownload(' + download.id + ')" title="Reset to Pending">⟲</button>' +
-                '</div>';
+              statusBtns = '<button onclick="resetDownload(' + download.id + ')" title="Reset to Pending">⟲</button>';
               } else if (download.status === 'error') {
-                actionsHtml = '<div class="download-actions">' +
-                  '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
-                  '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
-                  '</div>';
+                statusBtns = '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
+                  '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>';
                 } else if (download.status === 'success') {
-                  actionsHtml = '<div class="download-actions">' +
-                    '<button onclick="redownloadItem(' + download.id + ')" title="Redownload" style="background: var(--accent-purple);">↻</button>' +
-                    '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
-                    '</div>';
+                  statusBtns = '<button onclick="redownloadItem(' + download.id + ')" title="Redownload" style="background: var(--accent-purple);">↻</button>' +
+                    '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>';
                   } else if (download.status === 'pending') {
                     var priBtn = download.priority === 'high'
                       ? '<button onclick="togglePriority(' + download.id + ', \\'high\\')" title="Remove priority" style="background: var(--accent-yellow);">⤵</button>'
                       : '<button onclick="togglePriority(' + download.id + ', \\'normal\\')" title="Prioritize" style="background: var(--bg-tertiary); border: 1px solid var(--border-primary);">⤴</button>';
-                    actionsHtml = '<div class="download-actions">' +
-                      priBtn +
-                      '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                    statusBtns = priBtn +
+                      '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>';
+                    }
+                  var actionsHtml = '<div class="download-actions">' + urlBtns + statusBtns + '</div>';
+
+                  var priBadge = download.priority === 'high'
+                    ? '<span style="color: var(--accent-yellow); font-size: 0.75rem; font-weight: 600; margin-right: 6px;">★ PRIORITY</span>'
+                    : '';
+
+                    item.innerHTML = (extraPrefix || '') +
+                      '<div class="download-info">' +
+                      '<div class="download-title">' + priBadge + (download.title || 'Untitled') + '</div>' +
+                      '<div class="download-url">' + download.url + '</div>' +
+                      '<div class="download-collection">Collection: ' + download.collection + ' | ID: ' + download.id + '</div>' +
+                      (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
+                      '</div>' +
+                      '<div style="display: flex; align-items: center; gap: 8px;">' +
+                      '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
+                      actionsHtml +
                       '</div>';
+
+                      return item;
                     }
 
-                    var priBadge = download.priority === 'high'
-                      ? '<span style="color: var(--accent-yellow); font-size: 0.75rem; font-weight: 600; margin-right: 6px;">★ PRIORITY</span>'
-                      : '';
+                    function updateDownloadingSection(downloads) {
+                      const container = document.getElementById('downloading-container');
+                      const controls = document.getElementById('downloading-controls');
+                      container.innerHTML = '';
 
-                      item.innerHTML = (extraPrefix || '') +
-                        '<div class="download-info">' +
-                        '<div class="download-title">' + priBadge + (download.title || 'Untitled') + '</div>' +
-                        '<div class="download-url">' + download.url + '</div>' +
-                        '<div class="download-collection">Collection: ' + download.collection + ' | ID: ' + download.id + '</div>' +
-                        (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
-                        '</div>' +
-                        '<div style="display: flex; align-items: center; gap: 8px;">' +
-                        '<div class="download-status ' + download.status + '">' + download.status + '</div>' +
-                        actionsHtml +
-                        '</div>';
+                      if (downloads.length === 0) {
+                        container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); display: inline-block; padding: 8px;">No downloads currently in progress</div>';
+                        controls.style.display = 'none';
+                      } else {
+                        controls.style.display = 'inline-block';
+                        downloads.forEach(d => container.appendChild(renderDownloadItem(d)));
+                      }
+                    }
 
-                        return item;
+                    function updateUpcomingSection(downloads, totalPending) {
+                      const container = document.getElementById('upcoming-container');
+                      const countEl = document.getElementById('upcoming-count');
+                      container.innerHTML = '';
+
+                      if (totalPending > 0) {
+                        countEl.textContent = '(next ' + downloads.length + ' of ' + totalPending + ' pending)';
+                      } else {
+                        countEl.textContent = '';
                       }
 
-                      function updateDownloadingSection(downloads) {
-                        const container = document.getElementById('downloading-container');
-                        const controls = document.getElementById('downloading-controls');
+                      if (downloads.length === 0) {
+                        container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No pending downloads in queue</div>';
+                      } else {
+                        downloads.forEach((download, index) => {
+                          const badge = '<div class="position-badge">' + (index + 1) + '</div>';
+                          container.appendChild(renderDownloadItem(download, badge));
+                        });
+                      }
+                    }
+
+                    function updateRecentSection(downloads) {
+                      const container = document.getElementById('recent-container');
+                      container.innerHTML = '';
+
+                      if (downloads.length === 0) {
+                        container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No recent downloads</div>';
+                      } else {
+                        downloads.forEach(d => container.appendChild(renderDownloadItem(d)));
+                      }
+                    }
+
+                    function updateAllDownloads(downloads, total, limit, offset) {
+                      const container = document.getElementById('downloads-container');
+                      container.innerHTML = '';
+
+                      if (downloads.length === 0) {
+                        container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads found</div>';
+                      } else {
+                        downloads.forEach(d => container.appendChild(renderDownloadItem(d)));
+                      }
+
+                      // Update pagination
+                      const totalPages = Math.max(1, Math.ceil(total / limit));
+                      const page = Math.floor(offset / limit) + 1;
+
+                      document.getElementById('pagination-info').textContent =
+                        'Page ' + page + ' of ' + totalPages + ' (' + total + ' total)';
+
+                        const prevBtn = document.getElementById('prev-page');
+                        const nextBtn = document.getElementById('next-page');
+                        prevBtn.disabled = (currentPage === 0);
+                        nextBtn.disabled = (page >= totalPages);
+                      }
+
+                      function updateErrorSection(errorDownloads) {
+                        const section = document.getElementById('error-section');
+                        const container = document.getElementById('error-container');
+
+                        if (errorDownloads.length === 0) {
+                          section.style.display = 'none';
+                          return;
+                        }
+
+                        section.style.display = 'block';
                         container.innerHTML = '';
 
-                        if (downloads.length === 0) {
-                          container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); display: inline-block; padding: 8px;">No downloads currently in progress</div>';
-                          controls.style.display = 'none';
-                        } else {
-                          controls.style.display = 'inline-block';
-                          downloads.forEach(d => container.appendChild(renderDownloadItem(d)));
+                        errorDownloads.forEach(download => {
+                          const item = document.createElement('div');
+                          item.className = 'error-item';
+                          item.innerHTML = '<div class="error-info">' +
+                            '<strong>ID ' + download.id + ':</strong> ' + (download.title || 'Untitled') + '<br>' +
+                            '<small>' + download.url + '</small>' +
+                            (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
+                            '</div>' +
+                            '<div class="error-actions">' +
+                            '<button onclick="copyUrl(\\'' + download.url + '\\')" title="Copy URL" style="background: var(--bg-tertiary); border: 1px solid var(--border-primary);">📋</button>' +
+                            '<button onclick="openUrl(\\'' + download.url + '\\')" title="Open URL" style="background: var(--bg-tertiary); border: 1px solid var(--border-primary);">↗</button>' +
+                            '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
+                            '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
+                            '</div>';
+                          container.appendChild(item);
+                        });
+                      }
+
+                      function updateSystemInfo(systemData) {
+                        if (systemData.uptime) {
+                          document.getElementById('uptime').textContent = systemData.uptime;
+                        }
+                        if (systemData.memory && systemData.memory.rss) {
+                          document.getElementById('memory').textContent = systemData.memory.rss;
+                        }
+                        if (systemData.version && systemData.version.deno) {
+                          document.getElementById('version').textContent = systemData.version.deno;
                         }
                       }
 
-                      function updateUpcomingSection(downloads, totalPending) {
-                        const container = document.getElementById('upcoming-container');
-                        const countEl = document.getElementById('upcoming-count');
-                        container.innerHTML = '';
-
-                        if (totalPending > 0) {
-                          countEl.textContent = '(next ' + downloads.length + ' of ' + totalPending + ' pending)';
-                        } else {
-                          countEl.textContent = '';
-                        }
-
-                        if (downloads.length === 0) {
-                          container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No pending downloads in queue</div>';
-                        } else {
-                          downloads.forEach((download, index) => {
-                            const badge = '<div class="position-badge">' + (index + 1) + '</div>';
-                            container.appendChild(renderDownloadItem(download, badge));
-                          });
-                        }
-                      }
-
-                      function updateRecentSection(downloads) {
-                        const container = document.getElementById('recent-container');
-                        container.innerHTML = '';
-
-                        if (downloads.length === 0) {
-                          container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No recent downloads</div>';
-                        } else {
-                          downloads.forEach(d => container.appendChild(renderDownloadItem(d)));
-                        }
-                      }
-
-                      function updateAllDownloads(downloads, total, limit, offset) {
-                        const container = document.getElementById('downloads-container');
-                        container.innerHTML = '';
-
-                        if (downloads.length === 0) {
-                          container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No downloads found</div>';
-                        } else {
-                          downloads.forEach(d => container.appendChild(renderDownloadItem(d)));
-                        }
-
-                        // Update pagination
-                        const totalPages = Math.max(1, Math.ceil(total / limit));
-                        const page = Math.floor(offset / limit) + 1;
-
-                        document.getElementById('pagination-info').textContent =
-                          'Page ' + page + ' of ' + totalPages + ' (' + total + ' total)';
-
-                          const prevBtn = document.getElementById('prev-page');
-                          const nextBtn = document.getElementById('next-page');
-                          prevBtn.disabled = (currentPage === 0);
-                          nextBtn.disabled = (page >= totalPages);
-                        }
-
-                        function updateErrorSection(errorDownloads) {
-                          const section = document.getElementById('error-section');
-                          const container = document.getElementById('error-container');
-
-                          if (errorDownloads.length === 0) {
-                            section.style.display = 'none';
-                            return;
+                      async function loadConfig() {
+                        try {
+                          const response = await fetch('/api/config');
+                          if (response.ok) {
+                            const config = await response.json();
+                            updateConfigSection(config);
+                          } else {
+                            document.getElementById('config-container').innerHTML = '<div style="color: var(--text-secondary);">Configuration not available via API</div>';
+                            showNotification('Configuration not available', 'error');
                           }
+                        } catch (error) {
+                          document.getElementById('config-container').innerHTML = '<div style="color: var(--accent-red);">Failed to load configuration</div>';
+                          showNotification('Failed to load configuration', 'error');
+                        }
+                      }
 
-                          section.style.display = 'block';
-                          container.innerHTML = '';
+                      function updateConfigSection(config) {
+                        const container = document.getElementById('config-container');
+                        container.innerHTML = '';
 
-                          errorDownloads.forEach(download => {
+                        if (config.collections) {
+                          Object.entries(config.collections).forEach(([name, collection]) => {
                             const item = document.createElement('div');
-                            item.className = 'error-item';
-                            item.innerHTML = '<div class="error-info">' +
-                              '<strong>ID ' + download.id + ':</strong> ' + (download.title || 'Untitled') + '<br>' +
-                              '<small>' + download.url + '</small>' +
-                              (download.errorMessage ? '<div class="error-message">' + download.errorMessage + '</div>' : '') +
-                              '</div>' +
-                              '<div class="error-actions">' +
-                              '<button onclick="retryDownload(' + download.id + ')" title="Retry">↻</button>' +
-                              '<button onclick="deleteDownload(' + download.id + ')" title="Delete" style="background: var(--accent-red);">✗</button>' +
-                              '</div>';
+                            item.className = 'config-item';
+                            item.innerHTML = '<strong>' + name + ':</strong><br>' +
+                              '<small>Directory: ' + (collection.dir || 'N/A') + '</small><br>' +
+                              '<small>Command: ' + (collection.command || 'N/A') + '</small><br>' +
+                              '<small>Domains: ' + (collection.domains ? collection.domains.join(', ') : 'N/A') + '</small>';
                             container.appendChild(item);
                           });
+                        } else {
+                          container.innerHTML = 'No collections configured';
                         }
+                      }
 
-                        function updateSystemInfo(systemData) {
-                          if (systemData.uptime) {
-                            document.getElementById('uptime').textContent = systemData.uptime;
-                          }
-                          if (systemData.memory && systemData.memory.rss) {
-                            document.getElementById('memory').textContent = systemData.memory.rss;
-                          }
-                          if (systemData.version && systemData.version.deno) {
-                            document.getElementById('version').textContent = systemData.version.deno;
-                          }
-                        }
+                      async function startDownloads() {
+                        try {
+                          const response = await fetch('/api/download', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ limit: 5 })
+                          });
 
-                        async function loadConfig() {
-                          try {
-                            const response = await fetch('/api/config');
-                            if (response.ok) {
-                              const config = await response.json();
-                              updateConfigSection(config);
-                            } else {
-                              document.getElementById('config-container').innerHTML = '<div style="color: var(--text-secondary);">Configuration not available via API</div>';
-                              showNotification('Configuration not available', 'error');
-                            }
-                          } catch (error) {
-                            document.getElementById('config-container').innerHTML = '<div style="color: var(--accent-red);">Failed to load configuration</div>';
-                            showNotification('Failed to load configuration', 'error');
-                          }
-                        }
-
-                        function updateConfigSection(config) {
-                          const container = document.getElementById('config-container');
-                          container.innerHTML = '';
-
-                          if (config.collections) {
-                            Object.entries(config.collections).forEach(([name, collection]) => {
-                              const item = document.createElement('div');
-                              item.className = 'config-item';
-                              item.innerHTML = '<strong>' + name + ':</strong><br>' +
-                                '<small>Directory: ' + (collection.dir || 'N/A') + '</small><br>' +
-                                '<small>Command: ' + (collection.command || 'N/A') + '</small><br>' +
-                                '<small>Domains: ' + (collection.domains ? collection.domains.join(', ') : 'N/A') + '</small>';
-                              container.appendChild(item);
-                            });
+                          if (response.ok) {
+                            const result = await response.json();
+                            showNotification(result.message, 'success');
+                            refreshData();
                           } else {
-                            container.innerHTML = 'No collections configured';
+                            showNotification('Failed to start downloads', 'error');
                           }
+                        } catch (error) {
+                          showNotification('Failed to start downloads', 'error');
+                        }
+                      }
+
+                      function clearForm() {
+                        document.getElementById('urls').value = '';
+                      }
+
+                      function startAutoRefresh() {
+                        refreshData();
+                        refreshInterval = setInterval(refreshData, 10000);
+                      }
+
+                      function stopAutoRefresh() {
+                        if (refreshInterval) {
+                          clearInterval(refreshInterval);
+                        }
+                      }
+
+                      // Handle form submission
+                      document.getElementById('add-urls-form').addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
+                        try {
+                          const response = await fetch('/add-urls', {
+                            method: 'POST',
+                            body: formData
+                          });
+                          if (response.ok) {
+                            clearForm();
+                            refreshData();
+                            showNotification('URLs added successfully', 'success');
+                          } else {
+                            showNotification('Failed to add URLs', 'error');
+                          }
+                        } catch (error) {
+                          showNotification('Failed to add URLs', 'error');
+                        }
+                      });
+
+                      document.addEventListener('visibilitychange', function() {
+                        if (document.hidden) {
+                          stopAutoRefresh();
+                        } else {
+                          startAutoRefresh();
+                        }
+                      });
+
+                      document.addEventListener('keydown', function(e) {
+                        if (e.ctrlKey || e.metaKey) {
+                          switch(e.key) {
+                            case 'r':
+                              e.preventDefault();
+                              refreshData();
+                              break;
+                            case 'd':
+                              e.preventDefault();
+                              startDownloads();
+                              break;
+                            }
+                          }
+                        });
+
+                        function filterLogs(type) {
+                          const lines = document.querySelectorAll('.log-line');
+                          const buttons = document.querySelectorAll('.logs-controls button');
+
+                          buttons.forEach(btn => btn.classList.remove('active'));
+                          document.getElementById('filter-' + type).classList.add('active');
+
+                          lines.forEach(line => {
+                            line.classList.remove('hidden');
+                            if (type !== 'all') {
+                              if (type === 'error' && !line.textContent.toLowerCase().includes('error')) {
+                                line.classList.add('hidden');
+                              } else if (type === 'warning' && !line.textContent.toLowerCase().includes('warning')) {
+                                line.classList.add('hidden');
+                              } else if (type === 'info' && !line.textContent.toLowerCase().includes('info')) {
+                                line.classList.add('hidden');
+                              }
+                            }
+                          });
                         }
 
-                        async function startDownloads() {
-                          try {
-                            const response = await fetch('/api/download', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ limit: 5 })
-                            });
+                        function searchLogs() {
+                          const searchTerm = document.getElementById('log-search').value.toLowerCase();
+                          const lines = document.querySelectorAll('.log-line');
 
+                          lines.forEach(line => {
+                            if (searchTerm === '' || line.textContent.toLowerCase().includes(searchTerm)) {
+                              line.classList.remove('hidden');
+                            } else {
+                              line.classList.add('hidden');
+                            }
+                          });
+                        }
+
+                        function clearLogs() {
+                          document.getElementById('logs-container').innerHTML = '<div class="log-line">Logs cleared</div>';
+                        }
+
+                        function updateLogs(logs) {
+                          const container = document.getElementById('logs-container');
+                          const lines = logs.split('\\n').map(line => {
+                            const div = document.createElement('div');
+                            div.className = 'log-line';
+                            if (line.toLowerCase().includes('error')) {
+                              div.classList.add('error');
+                            } else if (line.toLowerCase().includes('warning')) {
+                              div.classList.add('warning');
+                            } else if (line.toLowerCase().includes('info')) {
+                              div.classList.add('info');
+                            }
+                            div.textContent = line;
+                            return div.outerHTML;
+                          }).join('');
+                          container.innerHTML = lines;
+                        }
+
+                        async function retryDownload(id) {
+                          try {
+                            const response = await fetch('/api/retry/' + id, { method: 'POST' });
                             if (response.ok) {
                               const result = await response.json();
                               showNotification(result.message, 'success');
                               refreshData();
                             } else {
-                              showNotification('Failed to start downloads', 'error');
-                            }
-                          } catch (error) {
-                            showNotification('Failed to start downloads', 'error');
-                          }
-                        }
-
-                        function clearForm() {
-                          document.getElementById('urls').value = '';
-                        }
-
-                        function startAutoRefresh() {
-                          refreshData();
-                          refreshInterval = setInterval(refreshData, 10000);
-                        }
-
-                        function stopAutoRefresh() {
-                          if (refreshInterval) {
-                            clearInterval(refreshInterval);
-                          }
-                        }
-
-                        // Handle form submission
-                        document.getElementById('add-urls-form').addEventListener('submit', async function(e) {
-                          e.preventDefault();
-                          const formData = new FormData(this);
-                          try {
-                            const response = await fetch('/add-urls', {
-                              method: 'POST',
-                              body: formData
-                            });
-                            if (response.ok) {
-                              clearForm();
-                              refreshData();
-                              showNotification('URLs added successfully', 'success');
-                            } else {
-                              showNotification('Failed to add URLs', 'error');
-                            }
-                          } catch (error) {
-                            showNotification('Failed to add URLs', 'error');
-                          }
-                        });
-
-                        document.addEventListener('visibilitychange', function() {
-                          if (document.hidden) {
-                            stopAutoRefresh();
-                          } else {
-                            startAutoRefresh();
-                          }
-                        });
-
-                        document.addEventListener('keydown', function(e) {
-                          if (e.ctrlKey || e.metaKey) {
-                            switch(e.key) {
-                              case 'r':
-                                e.preventDefault();
-                                refreshData();
-                                break;
-                              case 'd':
-                                e.preventDefault();
-                                startDownloads();
-                                break;
-                              }
-                            }
-                          });
-
-                          function filterLogs(type) {
-                            const lines = document.querySelectorAll('.log-line');
-                            const buttons = document.querySelectorAll('.logs-controls button');
-
-                            buttons.forEach(btn => btn.classList.remove('active'));
-                            document.getElementById('filter-' + type).classList.add('active');
-
-                            lines.forEach(line => {
-                              line.classList.remove('hidden');
-                              if (type !== 'all') {
-                                if (type === 'error' && !line.textContent.toLowerCase().includes('error')) {
-                                  line.classList.add('hidden');
-                                } else if (type === 'warning' && !line.textContent.toLowerCase().includes('warning')) {
-                                  line.classList.add('hidden');
-                                } else if (type === 'info' && !line.textContent.toLowerCase().includes('info')) {
-                                  line.classList.add('hidden');
-                                }
-                              }
-                            });
-                          }
-
-                          function searchLogs() {
-                            const searchTerm = document.getElementById('log-search').value.toLowerCase();
-                            const lines = document.querySelectorAll('.log-line');
-
-                            lines.forEach(line => {
-                              if (searchTerm === '' || line.textContent.toLowerCase().includes(searchTerm)) {
-                                line.classList.remove('hidden');
-                              } else {
-                                line.classList.add('hidden');
-                              }
-                            });
-                          }
-
-                          function clearLogs() {
-                            document.getElementById('logs-container').innerHTML = '<div class="log-line">Logs cleared</div>';
-                          }
-
-                          function updateLogs(logs) {
-                            const container = document.getElementById('logs-container');
-                            const lines = logs.split('\\n').map(line => {
-                              const div = document.createElement('div');
-                              div.className = 'log-line';
-                              if (line.toLowerCase().includes('error')) {
-                                div.classList.add('error');
-                              } else if (line.toLowerCase().includes('warning')) {
-                                div.classList.add('warning');
-                              } else if (line.toLowerCase().includes('info')) {
-                                div.classList.add('info');
-                              }
-                              div.textContent = line;
-                              return div.outerHTML;
-                            }).join('');
-                            container.innerHTML = lines;
-                          }
-
-                          async function retryDownload(id) {
-                            try {
-                              const response = await fetch('/api/retry/' + id, { method: 'POST' });
-                              if (response.ok) {
-                                const result = await response.json();
-                                showNotification(result.message, 'success');
-                                refreshData();
-                              } else {
-                                showNotification('Failed to retry download', 'error');
-                              }
-                            } catch (error) {
                               showNotification('Failed to retry download', 'error');
                             }
+                          } catch (error) {
+                            showNotification('Failed to retry download', 'error');
                           }
+                        }
 
-                          async function deleteDownload(id) {
-                            if (!confirm('Are you sure you want to delete this download?')) return;
-                            try {
-                              const response = await fetch('/api/download/' + id, { method: 'DELETE' });
-                              if (response.ok) {
-                                const result = await response.json();
-                                showNotification(result.message, 'success');
-                                refreshData();
-                              } else {
-                                showNotification('Failed to delete download', 'error');
-                              }
-                            } catch (error) {
+                        async function deleteDownload(id) {
+                          if (!confirm('Are you sure you want to delete this download?')) return;
+                          try {
+                            const response = await fetch('/api/download/' + id, { method: 'DELETE' });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
                               showNotification('Failed to delete download', 'error');
                             }
+                          } catch (error) {
+                            showNotification('Failed to delete download', 'error');
                           }
+                        }
 
-                          async function retryAllFailed() {
-                            if (!confirm('Are you sure you want to retry all failed downloads?')) return;
-                            try {
-                              const response = await fetch('/api/retry-all-failed', { method: 'POST' });
-                              if (response.ok) {
-                                const result = await response.json();
-                                showNotification(result.message, 'success');
-                                refreshData();
-                              } else {
-                                showNotification('Failed to retry downloads', 'error');
-                              }
-                            } catch (error) {
+                        async function retryAllFailed() {
+                          if (!confirm('Are you sure you want to retry all failed downloads?')) return;
+                          try {
+                            const response = await fetch('/api/retry-all-failed', { method: 'POST' });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
                               showNotification('Failed to retry downloads', 'error');
                             }
+                          } catch (error) {
+                            showNotification('Failed to retry downloads', 'error');
                           }
+                        }
 
-                          async function deleteAllFailed() {
-                            if (!confirm('Are you sure you want to delete ALL failed downloads? This cannot be undone.')) return;
-                            try {
-                              const response = await fetch('/api/delete-all-failed', { method: 'DELETE' });
-                              if (response.ok) {
-                                const result = await response.json();
-                                showNotification(result.message, 'success');
-                                refreshData();
-                              } else {
-                                showNotification('Failed to delete downloads', 'error');
-                              }
-                            } catch (error) {
+                        async function deleteAllFailed() {
+                          if (!confirm('Are you sure you want to delete ALL failed downloads? This cannot be undone.')) return;
+                          try {
+                            const response = await fetch('/api/delete-all-failed', { method: 'DELETE' });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
                               showNotification('Failed to delete downloads', 'error');
                             }
+                          } catch (error) {
+                            showNotification('Failed to delete downloads', 'error');
                           }
+                        }
 
-                          async function resetDownload(id) {
-                            try {
-                              const response = await fetch('/api/reset/' + id, { method: 'POST' });
-                              if (response.ok) {
-                                const result = await response.json();
-                                showNotification(result.message, 'success');
-                                refreshData();
-                              } else {
-                                showNotification('Failed to reset download', 'error');
-                              }
-                            } catch (error) {
+                        async function resetDownload(id) {
+                          try {
+                            const response = await fetch('/api/reset/' + id, { method: 'POST' });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
                               showNotification('Failed to reset download', 'error');
                             }
+                          } catch (error) {
+                            showNotification('Failed to reset download', 'error');
                           }
+                        }
 
-                          async function resetAllDownloading() {
-                            if (!confirm('Are you sure you want to reset all downloading items to pending?')) return;
-                            try {
-                              const response = await fetch('/api/reset-all-downloading', { method: 'POST' });
-                              if (response.ok) {
-                                const result = await response.json();
-                                showNotification(result.message, 'success');
-                                refreshData();
-                              } else {
-                                showNotification('Failed to reset downloads', 'error');
-                              }
-                            } catch (error) {
+                        async function resetAllDownloading() {
+                          if (!confirm('Are you sure you want to reset all downloading items to pending?')) return;
+                          try {
+                            const response = await fetch('/api/reset-all-downloading', { method: 'POST' });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
                               showNotification('Failed to reset downloads', 'error');
                             }
+                          } catch (error) {
+                            showNotification('Failed to reset downloads', 'error');
                           }
+                        }
 
-                          async function redownloadItem(id) {
-                            if (!confirm('Are you sure you want to redownload this completed item?')) return;
-                            try {
-                              const response = await fetch('/api/redownload/' + id, { method: 'POST' });
-                              if (response.ok) {
-                                const result = await response.json();
-                                showNotification(result.message, 'success');
-                                refreshData();
-                              } else {
-                                showNotification('Failed to redownload item', 'error');
-                              }
-                            } catch (error) {
+                        async function redownloadItem(id) {
+                          if (!confirm('Are you sure you want to redownload this completed item?')) return;
+                          try {
+                            const response = await fetch('/api/redownload/' + id, { method: 'POST' });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
                               showNotification('Failed to redownload item', 'error');
                             }
+                          } catch (error) {
+                            showNotification('Failed to redownload item', 'error');
                           }
+                        }
 
-                          async function togglePriority(id, currentPriority) {
-                            const newPriority = currentPriority === 'high' ? 'normal' : 'high';
-                            try {
-                              const response = await fetch('/api/priority/' + id, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ priority: newPriority })
-                              });
-                              if (response.ok) {
-                                const result = await response.json();
-                                showNotification(result.message, 'success');
-                                refreshData();
-                              } else {
-                                showNotification('Failed to set priority', 'error');
-                              }
-                            } catch (error) {
+                        async function togglePriority(id, currentPriority) {
+                          const newPriority = currentPriority === 'high' ? 'normal' : 'high';
+                          try {
+                            const response = await fetch('/api/priority/' + id, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ priority: newPriority })
+                            });
+                            if (response.ok) {
+                              const result = await response.json();
+                              showNotification(result.message, 'success');
+                              refreshData();
+                            } else {
                               showNotification('Failed to set priority', 'error');
                             }
+                          } catch (error) {
+                            showNotification('Failed to set priority', 'error');
                           }
+                        }
 
-                          // Start everything when page loads
-                          window.addEventListener('load', function() {
-                            startAutoRefresh();
-                            loadConfig();
+                        function copyUrl(url) {
+                          navigator.clipboard.writeText(url).then(function() {
+                            showNotification('URL copied to clipboard', 'success', 2000);
+                          }).catch(function() {
+                            showNotification('Failed to copy URL', 'error');
+                          });
+                        }
 
-                            // Log search
-                            document.getElementById('log-search').addEventListener('input', searchLogs);
+                        function openUrl(url) {
+                          window.open(url, '_blank');
+                        }
 
-                            // Download search with debounce
-                            document.getElementById('download-search').addEventListener('input', function() {
-                              clearTimeout(searchDebounceTimer);
-                              searchDebounceTimer = setTimeout(function() {
-                                currentSearch = document.getElementById('download-search').value;
-                                currentPage = 0;
-                                refreshData();
-                              }, 300);
-                            });
+                        // Start everything when page loads
+                        window.addEventListener('load', function() {
+                          startAutoRefresh();
+                          loadConfig();
 
-                            // Status filter buttons
-                            document.querySelectorAll('#status-filters button').forEach(function(btn) {
-                              btn.addEventListener('click', function() {
-                                document.querySelectorAll('#status-filters button').forEach(function(b) { b.classList.remove('active'); });
-                                btn.classList.add('active');
-                                currentStatusFilter = btn.getAttribute('data-status');
-                                currentPage = 0;
-                                refreshData();
-                              });
-                            });
+                          // Log search
+                          document.getElementById('log-search').addEventListener('input', searchLogs);
 
-                            // Pagination
-                            document.getElementById('prev-page').addEventListener('click', function() {
-                              if (currentPage > 0) {
-                                currentPage--;
-                                refreshData();
-                              }
-                            });
-                            document.getElementById('next-page').addEventListener('click', function() {
-                              currentPage++;
+                          // Download search with debounce
+                          document.getElementById('download-search').addEventListener('input', function() {
+                            clearTimeout(searchDebounceTimer);
+                            searchDebounceTimer = setTimeout(function() {
+                              currentSearch = document.getElementById('download-search').value;
+                              currentPage = 0;
+                              refreshData();
+                            }, 300);
+                          });
+
+                          // Status filter buttons
+                          document.querySelectorAll('#status-filters button').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                              document.querySelectorAll('#status-filters button').forEach(function(b) { b.classList.remove('active'); });
+                              btn.classList.add('active');
+                              currentStatusFilter = btn.getAttribute('data-status');
+                              currentPage = 0;
                               refreshData();
                             });
                           });
 
-                          window.addEventListener('beforeunload', function() {
-                            stopAutoRefresh();
+                          // Pagination
+                          document.getElementById('prev-page').addEventListener('click', function() {
+                            if (currentPage > 0) {
+                              currentPage--;
+                              refreshData();
+                            }
                           });
-                        </script>
-                      </body>
-                    </html>
-                  `;
-                }
+                          document.getElementById('next-page').addEventListener('click', function() {
+                            currentPage++;
+                            refreshData();
+                          });
+                        });
+
+                        window.addEventListener('beforeunload', function() {
+                          stopAutoRefresh();
+                        });
+                      </script>
+                    </body>
+                  </html>
+                `;
+              }
