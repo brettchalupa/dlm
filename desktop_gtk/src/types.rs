@@ -1,5 +1,5 @@
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 /// A download entry from the DLM server
 #[derive(Debug, Default, Clone, Deserialize, PartialEq, Eq)]
@@ -75,7 +75,7 @@ pub struct CollectionConfig {
 /// Response from /api/config
 #[derive(Debug, Clone, Deserialize)]
 pub struct ConfigResponse {
-    pub collections: HashMap<String, CollectionConfig>,
+    pub collections: BTreeMap<String, CollectionConfig>,
 }
 
 /// Response from /api/count
@@ -486,7 +486,7 @@ mod tests {
     fn test_dir_for_collection() {
         let state = AppState {
             config: Some(ConfigResponse {
-                collections: HashMap::from([(
+                collections: BTreeMap::from([(
                     "yt".into(),
                     CollectionConfig {
                         dir: "/home/user/videos".into(),
