@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "dlm",
   "description": "Adds current tab to dlm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "permissions": ["activeTab", "storage", "contextMenus", "tabs"],
   "background": {
     "scripts": ["polyfill.js", "background.js"],
@@ -16,17 +16,11 @@
     }
   ],
   "icons": {
-    "16": "icon.png",
-    "32": "icon.png",
-    "48": "icon.png",
     "128": "icon.png"
   },
   "browser_action": {
     "default_title": "Add to dlm",
     "default_icon": {
-      "16": "icon.png",
-      "32": "icon.png",
-      "48": "icon.png",
       "128": "icon.png"
     }
   },
@@ -49,10 +43,14 @@
       "description": "Open query selector for finding links"
     }
   },
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "dlm@brettchalupa.com",
-      "strict_min_version": "57.0"
+      "strict_min_version": "79.0",
+      "data_collection_permissions": {
+        "required": ["none"],
+        "optional": []
+      }
     }
   }
 }

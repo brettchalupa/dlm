@@ -79,10 +79,13 @@
       gap: 8px;
     `;
 
-    toast.innerHTML = `
-      <span style="font-weight: bold; font-size: 16px;">${icon}</span>
-      <span>${message}</span>
-    `;
+    const iconSpan = document.createElement("span");
+    iconSpan.style.cssText = "font-weight: bold; font-size: 16px;";
+    iconSpan.textContent = icon;
+    const msgSpan = document.createElement("span");
+    msgSpan.textContent = message;
+    toast.appendChild(iconSpan);
+    toast.appendChild(msgSpan);
 
     // Add click to dismiss
     toast.addEventListener("click", () => {
