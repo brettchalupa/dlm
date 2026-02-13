@@ -20,6 +20,7 @@ import {
   selectDownloads,
 } from "./download.ts";
 import { runWebServer } from "./web.ts";
+import { runScrape } from "./scrape.ts";
 
 const logger = new Logger();
 
@@ -37,6 +38,9 @@ export async function runServerCLI() {
       logger.log("\tdl");
       logger.log("\tdl LIMIT");
       logger.log("\tdd DELAY - daemon download every N minutes");
+      logger.log(
+        "\tscrape URL PATTERN [--selector SEL] [--dry-run] - scrape links from a page",
+      );
       break;
     case "init": {
       initDB();
@@ -100,6 +104,10 @@ export async function runServerCLI() {
     case "--version":
     case "-v": {
       console.log(`dlm ${denoConfig.version}`);
+      break;
+    }
+    case "scrape": {
+      await runScrape(Deno.args.slice(1));
       break;
     }
     default:

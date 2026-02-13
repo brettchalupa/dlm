@@ -24,6 +24,7 @@
     "ok": "deno check . && deno fmt --check && deno lint && deno task test && deno task test_ext",
     "test_ext": "cd browser_ext && deno run --allow-read test_ext.ts",
     "build_ext": "cd browser_ext && deno run --allow-read --allow-write --allow-run build_ext.ts",
-    "release": "deno run -A release.ts"
+    "release": "deno run -A release.ts",
+    "scrape": "deno run -A main.ts scrape"
   }
 }

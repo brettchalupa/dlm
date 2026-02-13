@@ -174,6 +174,59 @@ deno run -A cli.ts reset-all-downloading
 
 - `PORT` -- override the default server port (default: `8001`)
 
+## Scrape
+
+Scrape links from a webpage and bulk-add them to DLM:
+
+```
+deno task scrape <url> [pattern] [--selector <sel>] [--dry-run]
+```
+
+- `pattern` — substring match by default, or a regex if wrapped in `/slashes/`
+  (e.g. `/galleries/\d+/`). Optional if a saved rule exists for the hostname.
+- `--selector` — CSS selector to scope which `<a>` tags to check (default:
+  `a[href]`)
+- `--dry-run` — print matched URLs without adding to DLM
+
+Save rules per hostname in `dlm.yml` so you only need to pass the URL:
+
+```yaml
+scrape:
+  example.com:
+    pattern: "/galleries/"
+    selector: ".content-list a" # optional, defaults to a[href]
+  another-site.com:
+    pattern: "/videos/\\d+"
+```
+
+Then just:
+
+```bash
+deno task scrape "https://example.com/some/page"
+```
+
+CLI args override saved rules, so you can always pass a pattern or selector to
+use something different for a one-off.
+
+Examples:
+
+```bash
+# Use saved rule for the hostname
+deno task scrape "https://example.com/page"
+
+# Explicit pattern (no saved rule needed)
+deno task scrape "https://example.com/page" "/galleries/"
+
+# Regex match
+deno task scrape "https://example.com" "/galleries/\d+"
+
+# Override selector for a one-off
+deno task scrape "https://example.com" --selector ".content-list a"
+
+# Preview without adding
+deno task scrape "https://example.com" --dry-run
+```
+
 ## Configuration
 
 dlm uses a YAML config file (`dlm.yml`) to define download collections.
@@ -204,6 +257,10 @@ collections:
       - example.com
     dir: ~/Downloads
     command: "wget -P . %"
+
+scrape:
+  example.com:
+    pattern: "/galleries/"
 ```
 
 See [dlm.example.yml](dlm.example.yml) for more examples.
