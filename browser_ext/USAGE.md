@@ -90,6 +90,7 @@ Right-click extension icon → "DLM Settings" to:
 ## 📝 Quick Start Checklist
 
 - [ ] Install extension in browser
+      ([Firefox](https://addons.mozilla.org/en-US/firefox/addon/dlm-download-manager/))
 - [ ] Set DLM server URL in settings
 - [ ] Test simple mode: click icon on any page
 - [ ] Test advanced mode: `Ctrl+Shift+F` → try selector `a`

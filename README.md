@@ -293,8 +293,11 @@ All endpoints are served from the web server (default `http://localhost:8001`).
 
 ## Browser Extension
 
-The browser extension lets you send URLs to dlm directly from your browser. See
-[browser_ext/README.md](browser_ext/README.md) for installation and usage.
+The browser extension lets you send URLs to dlm directly from your browser.
+Install for
+[Firefox](https://addons.mozilla.org/en-US/firefox/addon/dlm-download-manager/)
+or see [browser_ext/README.md](browser_ext/README.md) for other browsers and
+usage details.
 
 Features:
 

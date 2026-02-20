@@ -32,6 +32,11 @@ DLM server with a single click.
 
 #### Firefox
 
+Install from
+[Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/dlm-download-manager/).
+
+Or load temporarily for development:
+
 1. Open `about:debugging`
 2. Click "This Firefox"
 3. Click "Load Temporary Add-on"
