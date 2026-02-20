@@ -27,6 +27,11 @@ const logger = new Logger();
 export async function runServerCLI() {
   const command = Deno.args[0];
 
+  // Ensure database schema is up to date before any command that uses it
+  if (command && !["version", "--version", "-v"].includes(command)) {
+    initDB();
+  }
+
   switch (command) {
     case undefined:
       logger.log("dlm_server");
