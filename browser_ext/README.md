@@ -16,7 +16,7 @@ DLM server with a single click.
 - **Visual feedback**: Loading indicator during requests
 - **Keyboard shortcuts**:
   - `Ctrl+Alt+D` / `Cmd+Shift+Y` - Add current page
-  - `Ctrl+Shift+F` / `Cmd+Shift+F` - Open query selector (advanced mode)
+  - `Ctrl+Shift+F` - Open query selector (advanced mode)
 - **Cross-browser API polyfill**: Automatic browser detection and compatibility
 
 ## Quick Start
@@ -58,7 +58,7 @@ The extension has two modes:
 **Access via:**
 
 - Right-click anywhere on page → "Find Links with Query Selector"
-- Keyboard shortcut: `Ctrl+Shift+F` / `Cmd+Shift+F`
+- Keyboard shortcut: `Ctrl+Shift+F`
 
 **How to use:**
 

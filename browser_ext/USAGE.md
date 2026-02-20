@@ -15,7 +15,7 @@
 **Perfect for:** Bulk collecting multiple links from a page
 
 - **Right-click anywhere on page** → "Find Links with Query Selector"
-- **Keyboard shortcut:** `Ctrl+Shift+F` (Windows/Linux) or `Cmd+Shift+F` (Mac)
+- **Keyboard shortcut:** `Ctrl+Shift+F` (all platforms)
 - Opens full interface for finding and adding multiple URLs at once
 
 ## 🎯 Common Use Cases

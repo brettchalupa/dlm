@@ -38,7 +38,7 @@
     "query-selector": {
       "suggested_key": {
         "default": "Ctrl+Shift+F",
-        "mac": "Command+Shift+Q"
+        "mac": "MacCtrl+Shift+F"
       },
       "description": "Open query selector for finding links"
     }
