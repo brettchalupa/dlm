@@ -91,7 +91,10 @@ export async function runServerCLI() {
     }
     case "serve": {
       if (Deno.args[1] == "--with-daemon") {
-        startDaemon(2, 2);
+        const { shutdown } = startDaemon(2, 2);
+        Deno.addSignalListener("SIGINT", () => {
+          shutdown().then(() => Deno.exit(0));
+        });
       }
       runWebServer();
       break;

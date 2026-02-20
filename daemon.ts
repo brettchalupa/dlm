@@ -3,12 +3,17 @@ import { resetAllDownloadingDownloads } from "./download.ts";
 
 const logger = new Logger();
 
-export function startDaemon(mins: number, downloadsPerRun: number) {
+export function startDaemon(
+  mins: number,
+  downloadsPerRun: number,
+): { worker: Worker; shutdown: () => Promise<void> } {
   // Create a new web worker
   const worker = new Worker(
     new URL("./daemon.worker.ts", import.meta.url).href,
     { type: "module" },
   );
+
+  let shutdownResolve: (() => void) | null = null;
 
   // Set up message handler
   worker.addEventListener("message", (event) => {
@@ -27,6 +32,10 @@ export function startDaemon(mins: number, downloadsPerRun: number) {
       case "started":
         logger.log(`Main thread: ${message}`);
         break;
+      case "shutdown-ready":
+        logger.log("Worker finished, shutting down");
+        if (shutdownResolve) shutdownResolve();
+        break;
       default:
         logger.log(`Unknown message type: ${type}`);
     }
@@ -38,14 +47,24 @@ export function startDaemon(mins: number, downloadsPerRun: number) {
     logger.error("Worker error:", event.message);
   });
 
-  return worker;
+  const shutdown = () => {
+    return new Promise<void>((resolve) => {
+      shutdownResolve = () => {
+        worker.terminate();
+        resolve();
+      };
+      worker.postMessage({ type: "shutdown" });
+    });
+  };
+
+  return { worker, shutdown };
 }
 
 export function runDaemonFromCLI() {
   const mins = Deno.args[1] || "5";
   const downloadsPerRun = Deno.args[2] ? parseInt(Deno.args[2]) : 3;
 
-  const worker = startDaemon(parseInt(mins), downloadsPerRun);
+  const { worker, shutdown } = startDaemon(parseInt(mins), downloadsPerRun);
 
   // Keep the main thread alive
   logger.log("Daemon running in worker thread. Press Ctrl+C to stop.");
@@ -61,14 +80,6 @@ export function runDaemonFromCLI() {
     Deno.exit(0);
   }
 
-  // Listen for shutdown-ready from worker
-  worker.addEventListener("message", (event) => {
-    if (event.data.type === "shutdown-ready" && shutdownInProgress) {
-      logger.log("Worker finished, shutting down");
-      cleanup();
-    }
-  });
-
   // Handle graceful shutdown
   Deno.addSignalListener("SIGINT", () => {
     if (shutdownInProgress) {
@@ -80,7 +91,7 @@ export function runDaemonFromCLI() {
 
     shutdownInProgress = true;
     logger.log("Shutting down daemon worker... (Ctrl+C again to force)");
-    worker.postMessage({ type: "shutdown" });
+    shutdown().then(() => cleanup());
   });
 }
 

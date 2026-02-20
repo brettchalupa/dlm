@@ -12,6 +12,7 @@ const logger = new Logger();
 
 let isDownloading = false;
 let shutdownRequested = false;
+let intervalId: number | undefined;
 
 function ts(): string {
   return `[${new Date().toISOString()}]`;
@@ -46,6 +47,7 @@ async function runDaemon(numDownloads: number) {
 
   if (shutdownRequested) {
     self.postMessage({ type: "shutdown-ready" });
+    self.close();
   }
 }
 
@@ -80,7 +82,7 @@ self.addEventListener("message", async (event: MessageEvent) => {
     }
 
     // Set up interval
-    setInterval(async () => {
+    intervalId = setInterval(async () => {
       if (!shutdownRequested) {
         logger.log(`${ts()} daemon: starting run`);
         try {
@@ -94,12 +96,16 @@ self.addEventListener("message", async (event: MessageEvent) => {
 
   if (type === "shutdown") {
     shutdownRequested = true;
+    if (intervalId !== undefined) {
+      clearInterval(intervalId);
+    }
     if (isDownloading) {
       logger.log(
         `${ts()} daemon: shutdown requested, downloads still active — waiting for them to finish`,
       );
     } else {
       self.postMessage({ type: "shutdown-ready" });
+      self.close();
     }
   }
 });
